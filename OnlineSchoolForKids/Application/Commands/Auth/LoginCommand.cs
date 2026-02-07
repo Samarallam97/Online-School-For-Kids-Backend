@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces;
 using Application.Models;
 using Domain.Entities;
+using Domain.Enums;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -49,7 +50,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResp
         }
 
         // Check if account is active
-        if (!user.IsActive)
+        if (user.Status != UserStatus.Active)
         {
             return Result<AuthResponse>.Failure("Account is deactivated. Please contact support.");
         }

@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,7 +62,7 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
                 builder.Configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>()
-                ?? new[] { "http://localhost:3000" })
+                ?? new[] { "http://localhost:8080" })
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();

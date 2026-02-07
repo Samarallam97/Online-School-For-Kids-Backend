@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces;
 using Domain.Entities;
+using Domain.Enums;
 using Infrastructure.Settings;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -94,7 +95,7 @@ public class JwtTokenService : IJwtTokenService
 
         // Get user
         var user = await _userRepository.GetByIdAsync(token.UserId);
-        if (user == null || !user.IsActive)
+        if (user == null || user.Status != UserStatus.Active)
         {
             return null;
         }

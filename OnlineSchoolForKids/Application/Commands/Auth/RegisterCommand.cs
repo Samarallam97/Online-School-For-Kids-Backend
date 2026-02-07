@@ -1,22 +1,112 @@
-﻿using Domain.Entities;
-using Domain.Enums;
-using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Extensions.Configuration;
-using Application.Interfaces;
+﻿using Application.Interfaces;
 using Application.Models;
+using Domain.Entities;
+using Domain.Enums;
+using FluentValidation;
+using MediatR;
+using Microsoft.Extensions.Configuration;
 
 namespace Application.Commands.Auth;
+
+public record RegisterRequest
+{
+    public string FullName { get; init; }
+    public string Email { get; init; }
+    public string Password { get; init; }
+    public UserRole Role { get; init; }
+    public DateTime DateOfBirth { get; init; }
+    public string Country { get; init; }
+
+    // Optional for Content Creators and Specialists
+    public string? Expertise { get; init; }
+    public string? PortfolioUrl { get; init; }
+    public string? CvLink { get; init; }
+}
 
 public record RegisterCommand(
     string FullName,
     string Email,
     string Password,
-    string ConfirmPassword,
-    UserRole Role
+    UserRole Role,
+    DateTime DateOfBirth,
+    string Country,
+    string? Expertise,
+    string? PortfolioUrl,
+    string? CvLink
 ) : IRequest<Result<AuthResponse>>;
+
+public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
+{
+    public RegisterCommandValidator()
+    {
+        RuleFor(x => x.FullName)
+            .NotEmpty().WithMessage("Full name is required.")
+            .MinimumLength(2).WithMessage("Full name must be at least 2 characters.")
+            .MaximumLength(100).WithMessage("Full name must not exceed 100 characters.");
+
+        RuleFor(x => x.Email)
+            .NotEmpty().WithMessage("Email is required.")
+            .EmailAddress().WithMessage("Invalid email format.");
+
+        RuleFor(x => x.Password)
+            .NotEmpty().WithMessage("Password is required.")
+            .MinimumLength(8).WithMessage("Password must be at least 8 characters.")
+            .Matches(@"[A-Z]").WithMessage("Password must contain at least one uppercase letter.")
+            .Matches(@"[a-z]").WithMessage("Password must contain at least one lowercase letter.")
+            .Matches(@"\d").WithMessage("Password must contain at least one number.")
+            .Matches(@"[@$!%*?&#]").WithMessage("Password must contain at least one special character.");
+
+
+        RuleFor(x => x.Role)
+            .IsInEnum().WithMessage("Invalid role selected.");
+
+        // Required for all users
+        RuleFor(x => x.DateOfBirth)
+            .NotEmpty().WithMessage("Date of birth is required.")
+            .Must(BeAtLeast3YearsOld).WithMessage("You must be at least 3 years old to register.");
+
+        RuleFor(x => x.Country)
+            .NotEmpty().WithMessage("Country is required.")
+            .MinimumLength(2).WithMessage("Country must be at least 2 characters.")
+            .MaximumLength(100).WithMessage("Country must not exceed 100 characters.");
+
+        // Required fields for Content Creators and Specialists
+        When(x => x.Role == UserRole.ContentCreator || x.Role == UserRole.Specialist, () =>
+        {
+            RuleFor(x => x.Expertise)
+                .NotEmpty().WithMessage("Area of expertise is required for content creators and specialists.")
+                .MinimumLength(2).WithMessage("Expertise must be at least 2 characters.")
+                .MaximumLength(200).WithMessage("Expertise must not exceed 200 characters.");
+
+            RuleFor(x => x.CvLink)
+                .NotEmpty().WithMessage("CV link is required for content creators and specialists.")
+                .Must(BeAValidUrl).WithMessage("CV link must be a valid URL.");
+
+            RuleFor(x => x.PortfolioUrl)
+                .Must(BeAValidUrl).When(x => !string.IsNullOrEmpty(x.PortfolioUrl))
+                .WithMessage("Portfolio URL must be a valid URL.");
+        });
+    }
+
+    private bool BeAtLeast3YearsOld(DateTime dateOfBirth)
+    {
+
+        var age = DateTime.Today.Year - dateOfBirth.Year;
+        if (dateOfBirth.Date > DateTime.Today.AddYears(-age))
+            age--;
+
+        return age >= 3;
+    }
+
+    private bool BeAValidUrl(string? url)
+    {
+        if (string.IsNullOrEmpty(url))
+            return true;
+
+        return Uri.TryCreate(url, UriKind.Absolute, out var uriResult)
+            && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+    }
+}
 
 public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<AuthResponse>>
 {
@@ -26,12 +116,11 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
     private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
 
-
     public RegisterCommandHandler(
         IUserRepository userRepository,
         IPasswordHasher passwordHasher,
         IJwtTokenService jwtTokenService,
-        IEmailService emailService, 
+        IEmailService emailService,
         IConfiguration configuration)
     {
         _userRepository = userRepository;
@@ -43,22 +132,14 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
 
     public async Task<Result<AuthResponse>> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
-        // Validate passwords match
-        if (request.Password != request.ConfirmPassword)
-        {
-            return Result<AuthResponse>.Failure("Passwords do not match.");
-        }
 
-        // Check if email already exists
         if (await _userRepository.EmailExistsAsync(request.Email, cancellationToken))
         {
             return Result<AuthResponse>.Failure("Email is already registered.");
         }
 
-        // Create verification token
         var verificationToken = Guid.NewGuid().ToString();
 
-        // Create user
         var user = new User
         {
             FullName = request.FullName,
@@ -66,28 +147,42 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
             PasswordHash = _passwordHasher.HashPassword(request.Password),
             Role = request.Role,
             AuthProvider = AuthProvider.Local,
+            DateOfBirth = request.DateOfBirth,
+            Country = request.Country,
             EmailVerificationToken = verificationToken,
             EmailVerificationTokenExpiry = DateTime.UtcNow.AddHours(24),
-            EmailVerified = false
+            EmailVerified = false,
+            CreatedAt = DateTime.UtcNow
         };
+
+        if (request.Role == UserRole.ContentCreator || request.Role == UserRole.Specialist)
+        {
+            user.Status = UserStatus.Pending;
+            user.Expertise = request.Expertise;
+            user.PortfolioUrl = request.PortfolioUrl;
+            user.CvLink = request.CvLink;
+        }
 
         await _userRepository.CreateAsync(user, cancellationToken);
 
-        // Send verification email (fire and forget, don't block registration)
+        // Send verification email (fire and forget)
         _ = Task.Run(async () =>
         {
             try
             {
                 var verificationLink = $"{_configuration["FrontUrl"]}/verify-email?token={verificationToken}";
-                await _emailService.SendVerificationEmailAsync(user.Email, user.FullName,user.EmailVerificationTokenExpiry.Value, verificationLink, cancellationToken);
+                await _emailService.SendVerificationEmailAsync(
+                    user.Email,
+                    user.FullName,
+                    user.EmailVerificationTokenExpiry.Value,
+                    verificationLink,
+                    cancellationToken);
             }
             catch
             {
-                // Log error but don't fail registration
+                
             }
         }, cancellationToken);
-
-     
 
         return Result<AuthResponse>.Success(new AuthResponse
         {
@@ -103,7 +198,15 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
         Role = user.Role.ToString(),
         EmailVerified = user.EmailVerified,
         ProfilePictureUrl = user.ProfilePictureUrl,
-        CreatedAt = user.CreatedAt
+        DateOfBirth = user.DateOfBirth,
+        Country = user.Country,
+        CreatedAt = user.CreatedAt,
+        Expertise = user.Expertise,
+        PortfolioUrl = user.PortfolioUrl,
+        CvLink = user.CvLink
     };
 }
+
+
+
 

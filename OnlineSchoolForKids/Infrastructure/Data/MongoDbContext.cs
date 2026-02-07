@@ -28,13 +28,13 @@ public class MongoDbContext
 
         // Email index (unique, case-insensitive)
         var emailIndexModel = new CreateIndexModel<User>(
-            Builders<User>.IndexKeys.Ascending(u => u.Email),
-            new CreateIndexOptions
-            {
-                Unique = true,
-                Collation = new Collation("en", strength: CollationStrength.Secondary)
-            }
-        );
+         Builders<User>.IndexKeys.Ascending(u => u.Email),
+         new CreateIndexOptions
+         {
+             Unique = true,
+             Collation = new Collation("en", strength: CollationStrength.Primary) 
+         }
+        ); 
 
         // Google ID index
         var googleIdIndexModel = new CreateIndexModel<User>(

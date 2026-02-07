@@ -2,7 +2,6 @@
 using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -24,14 +23,19 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         var command = new RegisterCommand(
             request.FullName,
             request.Email,
             request.Password,
-            request.ConfirmPassword,
-            request.Role
+            request.Role,
+            request.DateOfBirth,
+            request.Country,
+            request.Expertise,
+            request.PortfolioUrl,
+            request.CvLink
         );
 
         var result = await _mediator.Send(command);
@@ -244,13 +248,8 @@ public class AuthController : ControllerBase
 }
 
 // Request DTOs
-public record RegisterRequest(
-    string FullName,
-    string Email,
-    string Password,
-    string ConfirmPassword,
-    UserRole Role
-);
+// DTOs/Auth/RegisterRequest.cs
+
 
 public record LoginRequest(
     string Email,

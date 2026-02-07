@@ -32,13 +32,20 @@ public class AuthResponse
     public DateTime ExpiresAt { get; set; }
 }
 
-public class UserDto
+public record UserDto
 {
-    public string Id { get; set; } = string.Empty;
-    public string FullName { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
-    public string Role { get; set; } = string.Empty;
-    public bool EmailVerified { get; set; }
-    public string? ProfilePictureUrl { get; set; }
-    public DateTime CreatedAt { get; set; }
+    public string Id { get; init; }
+    public string FullName { get; init; }
+    public string Email { get; init; }
+    public string Role { get; init; }
+    public bool EmailVerified { get; init; }
+    public string? ProfilePictureUrl { get; init; }
+    public DateTime DateOfBirth { get; init; }
+    public string Country { get; init; }
+    public DateTime CreatedAt { get; init; }
+
+    // Optional fields
+    public string? Expertise { get; init; }
+    public string? PortfolioUrl { get; init; }
+    public string? CvLink { get; init; }
 }

@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Conventions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -23,6 +25,14 @@ public static class DependencyInjection
         services.Configure<MongoDbSettings>(
             configuration.GetSection("MongoDbSettings"));
 
+        var conventions = new ConventionPack {
+            new CamelCaseElementNameConvention(),
+            new EnumRepresentationConvention(BsonType.String),
+            new IgnoreIfNullConvention(true)
+        };
+
+        ConventionRegistry.Register("CustomConventions", conventions, _ => true);
+        
         services.AddSingleton<MongoDbContext>();
 
         // Repositories
