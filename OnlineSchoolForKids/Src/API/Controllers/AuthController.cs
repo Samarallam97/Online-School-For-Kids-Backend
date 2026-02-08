@@ -225,25 +225,25 @@ public class AuthController : ControllerBase
     /// <summary>
     /// Get current user info (requires authentication)
     /// </summary>
-    //[HttpGet("me")]
-    //[Authorize]
-    //[ProducesResponseType(StatusCodes.Status200OK)]
-    //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    //public IActionResult GetCurrentUser()
-    //{
-    //    var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-    //    var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
-    //    var name = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
-    //    var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+    [HttpGet("me")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public IActionResult GetCurrentUser()
+    {
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+        var name = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
+        var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
 
-    //    return Ok(new
-    //    {
-    //        id = userId,
-    //        email,
-    //        fullName = name,
-    //        role
-    //    });
-    //}
+        return Ok(new
+        {
+            id = userId,
+            email,
+            fullName = name,
+            role
+        });
+    }
 
 }
 

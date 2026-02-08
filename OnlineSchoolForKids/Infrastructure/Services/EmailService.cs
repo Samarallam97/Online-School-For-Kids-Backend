@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
+using System.Threading;
 
 namespace Infrastructure.Services;
 
@@ -117,6 +118,40 @@ public class EmailService : IEmailService
             </html>";
 
         await SendEmailAsync(to, subject, body, true, cancellationToken);
+    }
+
+    public async Task SendParentLinkInvitationAsync(string childEmail, string childName, string parentName, string inviteLink , CancellationToken cancellationToken = default)
+    {
+        var subject = "Parent Invitation";
+        var body = $@"
+            <html>
+            <body style='font-family: Arial, sans-serif;'>
+                <h2>Hello {childName},</h2>
+                <p>{parentName} asked to link your account</p>
+                <p><a href='{inviteLink}' style='background-color: #4CAF50; color: white; padding: 14px 20px; text-decoration: none; border-radius: 4px;'>Accept Invite</a></p>
+                <p>If you didn't know them, please ignore this email.</p>
+                <br/>
+                <p>Best regards,<br/>The Team</p>
+            </body>
+            </html>";
+
+        await SendEmailAsync(childEmail, subject, body, true, cancellationToken);
+    }
+
+    public async Task SendParentLinkedNotificationAsync(string childEmail, string childName, string parentName , CancellationToken cancellationToken = default)
+    {
+        var subject = "Student Invitation Acceptance";
+        var body = $@"
+            <html>
+            <body style='font-family: Arial, sans-serif;'>
+                <h2>Hello {childName},</h2>
+                <p>you accepted the invite sent from {parentName}</p>
+                <br/>
+                <p>Best regards,<br/>The Team</p>
+            </body>
+            </html>";
+
+        await SendEmailAsync(childEmail, subject, body, true, cancellationToken);
     }
 }
 

@@ -158,7 +158,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
         if (request.Role == UserRole.ContentCreator || request.Role == UserRole.Specialist)
         {
             user.Status = UserStatus.Pending;
-            user.Expertise = request.Expertise;
+            user.Expertise.Add( request.Expertise);
             user.PortfolioUrl = request.PortfolioUrl;
             user.CvLink = request.CvLink;
         }
@@ -186,25 +186,11 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
 
         return Result<AuthResponse>.Success(new AuthResponse
         {
-            User = MapToUserDto(user),
+            User = Helper.MapToUserDto(user),
         });
     }
 
-    private static UserDto MapToUserDto(User user) => new()
-    {
-        Id = user.Id,
-        FullName = user.FullName,
-        Email = user.Email,
-        Role = user.Role.ToString(),
-        EmailVerified = user.EmailVerified,
-        ProfilePictureUrl = user.ProfilePictureUrl,
-        DateOfBirth = user.DateOfBirth,
-        Country = user.Country,
-        CreatedAt = user.CreatedAt,
-        Expertise = user.Expertise,
-        PortfolioUrl = user.PortfolioUrl,
-        CvLink = user.CvLink
-    };
+    
 }
 
 

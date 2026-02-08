@@ -106,10 +106,8 @@ public class GoogleAuthCommandHandler : IRequestHandler<GoogleAuthCommand, Resul
     {
         Id = user.Id,
         FullName = user.FullName,
-        Email = user.Email,
         Role = user.Role.ToString(),
-        EmailVerified = user.EmailVerified,
         ProfilePictureUrl = user.ProfilePictureUrl,
-        CreatedAt = user.CreatedAt
+        IsFirstLogin = user.IsFirstLogin
     };
 }

@@ -60,8 +60,20 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResp
             return Result<AuthResponse>.Failure("Verify Email first");
         }
 
-        // Update last login
-        user.LastLoginAt = DateTime.UtcNow;
+        UserDto userDto = new();
+
+        if (user.IsFirstLogin)
+        {
+            userDto = MapToUserDto(user, true); 
+            user.IsFirstLogin = false;
+        }
+        else
+        {
+            userDto = MapToUserDto(user, false);
+        }
+
+            // Update last login
+            user.LastLoginAt = DateTime.UtcNow;
         await _userRepository.UpdateAsync(user.Id, user, cancellationToken);
 
         // Generate tokens
@@ -78,23 +90,23 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResp
             request.DeviceInfo
         );
 
+
         return Result<AuthResponse>.Success(new AuthResponse
         {
             AccessToken = accessToken,
             RefreshToken = refreshToken,
-            User = MapToUserDto(user),
+            User = userDto,
             ExpiresAt = DateTime.UtcNow.AddMinutes(15)
         });
     }
 
-    private static UserDto MapToUserDto(User user) => new()
+    private static UserDto MapToUserDto(User user , bool IsFirstLogin = false) => new()
     {
         Id = user.Id,
         FullName = user.FullName,
-        Email = user.Email,
         Role = user.Role.ToString(),
-        EmailVerified = user.EmailVerified,
         ProfilePictureUrl = user.ProfilePictureUrl,
-        CreatedAt = user.CreatedAt
+        IsFirstLogin = user.IsFirstLogin
+
     };
 }
