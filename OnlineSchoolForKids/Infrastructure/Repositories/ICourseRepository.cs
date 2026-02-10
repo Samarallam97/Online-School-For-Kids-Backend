@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Infrastructure.Repositories;
+﻿namespace Infrastructure.Repositories;
 
 /// <summary>
 /// Repository for course operations

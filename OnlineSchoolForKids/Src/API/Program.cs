@@ -1,13 +1,21 @@
 using API.Middleware;
 using Application;
+using Application.Commands;
+using Application.Mapping;
+using Application.Queries;
+using Domain.Entities;
+using Domain.Interfaces.Repositories;
 using Infrastructure;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.IdentityModel.Tokens;
+using Infrastructure.Data;
+using Infrastructure.Repositories;
 using Microsoft.OpenApi.Models;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver;
+using CourseEntity=Domain.Entities.Course;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,7 +62,45 @@ builder.Services.AddSwaggerGen(c =>
 // Add Application and Infrastructure layers
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddSingleton<MongoDbContext>();
 
+
+builder.Services.AddScoped<IMongoCollection<CourseEntity>>(sp =>
+{
+    var context = sp.GetRequiredService<MongoDbContext>();
+    return context.Courses;
+});
+
+builder.Services.AddScoped<IMongoCollection<Wishlist>>(sp =>
+{
+    var context = sp.GetRequiredService<MongoDbContext>();
+    return context.Wishlists;
+});
+builder.Services.AddScoped<IMongoCollection<User>>(sp =>
+{
+    var context = sp.GetRequiredService<MongoDbContext>();
+    return context.Users;
+});
+
+// Add this
+builder.Services.AddMediatR(cfg => {
+    cfg.RegisterServicesFromAssembly(typeof(CreateCourseCommand).Assembly);
+});
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(typeof(GetCourseByIdQuery).Assembly);
+});
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(typeof(GetCoursesQuery).Assembly);
+});
+builder.Services.AddAutoMapper(typeof(CourseMappingProfile).Assembly);
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
+
+
+
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 // CORS
 builder.Services.AddCors(options =>
 {
@@ -72,8 +118,14 @@ builder.Services.AddCors(options =>
 // Health checks
 builder.Services.AddHealthChecks();
 
+
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var mongoContext = scope.ServiceProvider.GetRequiredService<MongoDbContext>();
+    await mongoContext.SeedDataAsync();
+}
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

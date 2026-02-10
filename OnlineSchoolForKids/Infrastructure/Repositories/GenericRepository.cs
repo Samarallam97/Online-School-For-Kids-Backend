@@ -1,10 +1,8 @@
 ﻿using Domain.Entities;
 using Domain.Interfaces.Repositories;
 using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Text;
+
 
 namespace Infrastructure.Repositories;
 
@@ -23,6 +21,20 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
             .Find(e => e.Id == id && !e.IsDeleted)
             .FirstOrDefaultAsync(cancellationToken);
     }
+    //public async Task<T?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
+    //{
+    //    // 1. تحويل الـ string لـ ObjectId بشكل صحيح
+    //    if (!MongoDB.Bson.ObjectId.TryParse(id, out var objectId))
+    //        return null;
+
+    //    // 2. استخدام Filter Definition لضمان الدقة
+    //    var filter = MongoDB.Driver.Builders<T>.Filter.And(
+    //        MongoDB.Driver.Builders<T>.Filter.Eq("_id", objectId), // البحث بالـ ID الحقيقي
+    //        MongoDB.Driver.Builders<T>.Filter.Ne("IsDeleted", true) // هات أي حاجة مش ممسوحة (حتى لو الحقل مش موجود)
+    //    );
+
+    //    return await _collection.Find(filter).FirstOrDefaultAsync(cancellationToken);
+    //}
 
     public async Task<T?> GetOneAsync(Expression<Func<T, bool>> filter, CancellationToken cancellationToken = default)
     {
@@ -103,5 +115,18 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
             : Builders<T>.Filter.And(deletedFilter, filter);
 
         return await _collection.CountDocumentsAsync(combinedFilter, cancellationToken: cancellationToken);
+    }
+    public async Task<IEnumerable<T>> FindAsync(
+   Expression<Func<T, bool>> filter,
+   CancellationToken cancellationToken = default)
+    {
+        var deletedFilter = Builders<T>.Filter.Eq(e => e.IsDeleted, false);
+
+        var combinedFilter = Builders<T>.Filter.And(deletedFilter, filter);
+
+
+        return await _collection
+            .Find(combinedFilter)
+            .ToListAsync(cancellationToken);
     }
 }
