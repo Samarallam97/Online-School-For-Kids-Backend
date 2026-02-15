@@ -4,6 +4,7 @@ using Application.Commands;
 using Application.Mapping;
 using Application.Queries;
 using Domain.Entities;
+using Domain.Entities.Order;
 using Domain.Interfaces.Repositories;
 using Infrastructure;
 using Infrastructure.Data;
@@ -11,7 +12,6 @@ using Infrastructure.Repositories;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
 using StackExchange.Redis;
-using CourseEntity=Domain.Entities.Course;
 
 
 
@@ -60,25 +60,7 @@ builder.Services.AddSwaggerGen(c =>
 // Add Application and Infrastructure layers
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddSingleton<MongoDbContext>();
 
-
-builder.Services.AddScoped<IMongoCollection<CourseEntity>>(sp =>
-{
-    var context = sp.GetRequiredService<MongoDbContext>();
-    return context.Courses;
-});
-
-builder.Services.AddScoped<IMongoCollection<Wishlist>>(sp =>
-{
-    var context = sp.GetRequiredService<MongoDbContext>();
-    return context.Wishlists;
-});
-builder.Services.AddScoped<IMongoCollection<User>>(sp =>
-{
-    var context = sp.GetRequiredService<MongoDbContext>();
-    return context.Users;
-});
 
 // Add this
 builder.Services.AddMediatR(cfg => {
@@ -93,20 +75,53 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(GetCoursesQuery).Assembly);
 });
 builder.Services.AddAutoMapper(typeof(CourseMappingProfile).Assembly);
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped<IMongoCollection<CartItem>>(sp =>
+
+// Collections
+builder.Services.AddSingleton<IMongoCollection<Domain.Entities.Course>>(sp =>
+    sp.GetRequiredService<IMongoDatabase>().GetCollection<Domain.Entities.Course>("courses"));
+
+builder.Services.AddSingleton<IMongoCollection<User>>(sp =>
+    sp.GetRequiredService<IMongoDatabase>().GetCollection<User>("users"));
+
+builder.Services.AddSingleton<IMongoCollection<Wishlist>>(sp =>
+    sp.GetRequiredService<IMongoDatabase>().GetCollection<Wishlist>("wishlists"));
+
+builder.Services.AddSingleton<IMongoCollection<Enrollment>>(sp =>
+    sp.GetRequiredService<IMongoDatabase>().GetCollection<Enrollment>("enrollments"));
+builder.Services.AddSingleton<IMongoCollection<Domain.Entities.Order.Order>>(sp =>
+{
+    var database = sp.GetRequiredService<IMongoDatabase>();
+    return database.GetCollection< Domain.Entities.Order.Order> ("orders");
+});
+
+builder.Services.AddSingleton<IMongoCollection<CartItem>>(sp =>
+{
+    var database = sp.GetRequiredService<IMongoDatabase>();
+    return database.GetCollection<CartItem>("cartItems");
+});
+
+
+builder.Services.AddSingleton<IMongoClient>(sp =>
+{
+    var connectionString = builder.Configuration["MongoDbSettings:ConnectionString"];
+    return new MongoClient(connectionString);
+});
+builder.Services.AddSingleton<IMongoDatabase>(sp =>
 {
     var client = sp.GetRequiredService<IMongoClient>();
-    var database = client.GetDatabase("Dev"); 
-    return database.GetCollection<CartItem>("CartItems");
+    var databaseName = builder.Configuration["MongoDbSettings:DatabaseName"];
+    return client.GetDatabase(databaseName);
 });
+
+builder.Services.AddSingleton<MongoDbContext>();
+
 builder.Services.AddSingleton<IConnectionMultiplexer>((serviveProvider) =>  
 {
     var connection = builder.Configuration.GetConnectionString("Redis");  
     return ConnectionMultiplexer.Connect(connection);    
 });
 
-
+builder.Services.AddScoped(typeof(IOrderRepository), typeof(OrderRepository));
 builder.Services.AddScoped<ICartItemRepository, CartItemRepository>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 // CORS

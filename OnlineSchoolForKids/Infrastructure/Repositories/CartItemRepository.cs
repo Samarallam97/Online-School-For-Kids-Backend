@@ -86,9 +86,7 @@ public class CartItemRepository : ICartItemRepository
         return cartItem;
     }
 
-    /// <summary>
-    /// Check if course exists in user's cart
-    /// </summary>
+
     public async Task<bool> ExistsInCartAsync(
         string userId,
         string courseId,
@@ -105,15 +103,13 @@ public class CartItemRepository : ICartItemRepository
         return cartItem != null;
     }
 
-    /// <summary>
-    /// Get all cart items for user
-    /// </summary>
+
     public async Task<IEnumerable<CartItem>> GetUserCartItemsAsync(
         string userId,
         CancellationToken cancellationToken = default)
     {
         var userCartKey = GetUserCartKey(userId);
-        var cartItemIds = await _redisDatabase.SetMembersAsync(userCartKey);
+        var cartItemIds = await _redisDatabase.SetMembersAsync(userCartKey);  //Returns all items(cartItemIds) inside the set.       
 
         if (cartItemIds.Length == 0)
             return Enumerable.Empty<CartItem>();
@@ -129,7 +125,7 @@ public class CartItemRepository : ICartItemRepository
             }
         }
 
-        return cartItems.OrderByDescending(c => c.AddedDate);
+        return cartItems.OrderByDescending(c => c.CreatedAt);
     }
 
     /// <summary>

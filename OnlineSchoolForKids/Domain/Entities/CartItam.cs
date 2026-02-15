@@ -5,7 +5,6 @@
         public string UserId { get; set; } = string.Empty;
         public string CourseId { get; set; } = string.Empty;
         public decimal Price { get; set; }
-        public DateTime AddedDate { get; set; }
 
         // Navigation Properties (Ignored in MongoDB)
         public User User { get; set; } = null!;

@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Domain.Entities.Order;
 using Domain.Enums;
 using Infrastructure.Settings;
 using Microsoft.Extensions.Options;
@@ -24,6 +25,8 @@ public class MongoDbContext
     public IMongoCollection<RefreshToken> RefreshTokens => _database.GetCollection<RefreshToken>("refreshTokens");
     public IMongoCollection<Course> Courses => _database.GetCollection<Course>("courses");
     public IMongoCollection<Wishlist> Wishlists => _database.GetCollection<Wishlist>("wishlist");
+    public IMongoCollection<CartItem> CartItems => _database.GetCollection<CartItem>("cartItems");
+    public IMongoCollection<Order> Orders => _database.GetCollection<Order>("orders");
     public IMongoCollection<T> GetCollection<T>(string name)
     {
         return _database.GetCollection<T>(name);

@@ -1,10 +1,8 @@
-﻿using Application.Commands.Course;
-using Domain.Entities;
-using Domain.Enums;
+﻿using Domain.Enums;
 using Domain.Interfaces.Repositories;
 using FluentValidation;
 using MediatR;
-using static Application.Commands.Course.AddToCartCommandHandler;
+
 
 namespace Application.Queries
 {
@@ -84,7 +82,7 @@ namespace Application.Queries
                             : 0,
                         Rating = c.Rating,
                         DurationHours = c.DurationHours,
-                        AddedDate = ci.AddedDate
+                        AddedDate = ci.CreatedAt
                     })
                 .OrderByDescending(i => i.AddedDate)
                 .ToList();
@@ -122,6 +120,20 @@ namespace Application.Queries
         public decimal Subtotal { get; set; }
         public decimal Tax { get; set; }
         public decimal Total { get; set; }
+    }
+    public class CartItemDto
+    {
+        public string Id { get; set; } = string.Empty;
+        public string CourseId { get; set; } = string.Empty;
+        public string CourseTitle { get; set; } = string.Empty;
+        public string CourseThumbnail { get; set; } = string.Empty;
+        public string InstructorName { get; set; } = string.Empty;
+        public decimal Price { get; set; }
+        public decimal? OriginalPrice { get; set; }
+        public int DiscountPercentage { get; set; }
+        public decimal Rating { get; set; }
+        public int DurationHours { get; set; }
+        public DateTime AddedDate { get; set; }
     }
 
 }

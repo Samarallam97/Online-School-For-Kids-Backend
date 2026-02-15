@@ -80,7 +80,7 @@ namespace Application.Commands.Course
                 UserId = request.UserId,
                 CourseId = request.CourseId,
                 Price = price,
-                AddedDate = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow
             };
 
             await _cartItemRepo.CreateAsync(cartItem);
@@ -92,20 +92,7 @@ namespace Application.Commands.Course
                 CartItemId = cartItem.Id
             };
         }    
-        public class CartItemDto
-        {
-            public string Id { get; set; } = string.Empty;
-            public string CourseId { get; set; } = string.Empty;
-            public string CourseTitle { get; set; } = string.Empty;
-            public string CourseThumbnail { get; set; } = string.Empty;
-            public string InstructorName { get; set; } = string.Empty;
-            public decimal Price { get; set; }
-            public decimal? OriginalPrice { get; set; }
-            public int DiscountPercentage { get; set; }
-            public decimal Rating { get; set; }
-            public int DurationHours { get; set; }
-            public DateTime AddedDate { get; set; }
-        }
+        
         public class AddToCartCommandValidator : AbstractValidator<AddToCartCommand>
         {
             public AddToCartCommandValidator()

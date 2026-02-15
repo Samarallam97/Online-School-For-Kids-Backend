@@ -14,28 +14,21 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
         _collection = collection;
     }
+    public async Task<T> CreateAsync(T entity, CancellationToken cancellationToken = default)
+    {
+        entity.CreatedAt = DateTime.UtcNow;
+        entity.UpdatedAt = DateTime.UtcNow;
 
+        await _collection.InsertOneAsync(entity, cancellationToken: cancellationToken);
+        return entity;
+    }
     public async Task<T?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
     {
         return await _collection
             .Find(e => e.Id == id && !e.IsDeleted)
             .FirstOrDefaultAsync(cancellationToken);
     }
-    //public async Task<T?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
-    //{
-    //    // 1. تحويل الـ string لـ ObjectId بشكل صحيح
-    //    if (!MongoDB.Bson.ObjectId.TryParse(id, out var objectId))
-    //        return null;
-
-    //    // 2. استخدام Filter Definition لضمان الدقة
-    //    var filter = MongoDB.Driver.Builders<T>.Filter.And(
-    //        MongoDB.Driver.Builders<T>.Filter.Eq("_id", objectId), // البحث بالـ ID الحقيقي
-    //        MongoDB.Driver.Builders<T>.Filter.Ne("IsDeleted", true) // هات أي حاجة مش ممسوحة (حتى لو الحقل مش موجود)
-    //    );
-
-    //    return await _collection.Find(filter).FirstOrDefaultAsync(cancellationToken);
-    //}
-
+ 
     public async Task<T?> GetOneAsync(Expression<Func<T, bool>> filter, CancellationToken cancellationToken = default)
     {
         var deletedFilter = Builders<T>.Filter.Eq(e => e.IsDeleted, false);
@@ -45,7 +38,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
             .Find(combinedFilter)
             .FirstOrDefaultAsync(cancellationToken);
     }
-
+   
     public async Task<IEnumerable<T>> GetAllAsync(
         Expression<Func<T, bool>>? filter = null,
         CancellationToken cancellationToken = default)
@@ -61,14 +54,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<T> CreateAsync(T entity, CancellationToken cancellationToken = default)
-    {
-        entity.CreatedAt = DateTime.UtcNow;
-        entity.UpdatedAt = DateTime.UtcNow;
-
-        await _collection.InsertOneAsync(entity, cancellationToken: cancellationToken);
-        return entity;
-    }
+    
 
     public async Task<bool> UpdateAsync(string id, T entity, CancellationToken cancellationToken = default)
     {
