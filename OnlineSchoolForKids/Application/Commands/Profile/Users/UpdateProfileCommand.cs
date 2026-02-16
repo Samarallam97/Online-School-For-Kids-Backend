@@ -17,20 +17,15 @@ public class UpdateProfileCommand : IRequest<BaseProfileDto>
     public string? Country { get; set; }
     public string? Bio { get; set; }
 
+    // student , parent 
     public string? LearningGoals { get; set; }
 
 
-    // Content Creator-specific
-    public List<string>? Expertise { get; set; }
-    public SocialLinks? SocialLinks { get; set; }
-
-    // Specialist-specific
+    // Content Creator , Specialist
+    public List<string>? ExpertiseTags { get; set; }
+    // Specialist
     public string? ProfessionalTitle { get; set; }
-    public List<string>? Specializations { get; set; }
     public int? YearsOfExperience { get; set; }
-    public decimal? HourlyRate { get; set; }
-    public SessionRates? SessionRates { get; set; }
-    public List<AvailabilitySlotDto>? Availability { get; set; }
 }
 
 
@@ -73,12 +68,6 @@ public class UpdateProfileCommandValidator : AbstractValidator<UpdateProfileComm
                 .MaximumLength(1000).WithMessage("Learning goals cannot exceed 1000 characters");
         });
 
-        When(x => x.HourlyRate.HasValue, () =>
-        {
-            RuleFor(x => x.HourlyRate)
-                .GreaterThanOrEqualTo(0).WithMessage("Hourly rate must be non-negative");
-        });
-
         When(x => x.YearsOfExperience.HasValue, () =>
         {
             RuleFor(x => x.YearsOfExperience)
@@ -104,10 +93,8 @@ public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand,
         if (user == null)
             throw new KeyNotFoundException("User not found");
 
-        // Update common fields
         UpdateCommonFields(user, request);
 
-        // Update role-specific fields
         UpdateRoleSpecificFields(user, request);
 
         user.UpdatedAt = DateTime.UtcNow;
@@ -136,11 +123,8 @@ public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand,
         switch (user.Role)
         {
             case UserRole.Student:
-                UpdateStudentFields(user, request);
-                break;
-
             case UserRole.Parent:
-                UpdateParentFields(user, request);
+                UpdateStudentFields(user, request);
                 break;
 
             case UserRole.ContentCreator:
@@ -159,19 +143,13 @@ public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand,
             user.LearningGoals = request.LearningGoals.Trim();
     }
 
-    private void UpdateParentFields(User user, UpdateProfileCommand request)
-    {
-        if (request.LearningGoals != null)
-            user.LearningGoals = request.LearningGoals.Trim();
-    }
+
 
     private void UpdateContentCreatorFields(User user, UpdateProfileCommand request)
     {
-        if (request.Expertise != null)
-            user.Expertise = request.Expertise;
+        if (request.ExpertiseTags != null)
+            user.ExpertiseTags = request.ExpertiseTags;
 
-        if (request.SocialLinks != null)
-            user.SocialLinks = request.SocialLinks;
     }
 
     private void UpdateSpecialistFields(User user, UpdateProfileCommand request)
@@ -179,28 +157,13 @@ public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand,
         if (!string.IsNullOrEmpty(request.ProfessionalTitle))
             user.ProfessionalTitle = request.ProfessionalTitle.Trim();
 
-        if (request.Specializations != null)
-            user.Specializations = request.Specializations;
+        if (request.ExpertiseTags != null)
+            user.ExpertiseTags = request.ExpertiseTags;
 
         if (request.YearsOfExperience.HasValue)
             user.YearsOfExperience = request.YearsOfExperience.Value;
-
-        if (request.HourlyRate.HasValue)
-            user.HourlyRate = request.HourlyRate.Value;
-
-        if (request.SessionRates != null)
-            user.SessionRates = request.SessionRates;
-
-        if (request.Availability != null)
-        {
-            user.Availability = request.Availability.Select(a => new AvailabilitySlot
-            {
-                DayOfWeek = a.DayOfWeek,
-                TimeSlots = a.TimeSlots
-            }).ToList();
-        }
     }
 
-    
+
 }
 

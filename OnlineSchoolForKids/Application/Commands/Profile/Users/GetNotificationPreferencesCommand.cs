@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Domain.Enums;
 using Domain.Interfaces.Repositories;
 using MediatR;
 using System;
@@ -25,14 +26,38 @@ public class GetNotificationPreferencesCommandHandler : IRequestHandler<GetNotif
     {
         var user = await _userRepository.GetByIdAsync(request.UserId);
         if (user == null)
-            throw new KeyNotFoundException("user not found");
+            throw new KeyNotFoundException("User not found");
 
-        return user.NotificationPreferences ?? new NotificationPreferences
+        // Return existing preferences or defaults based on role
+        if (user.NotificationPreferences != null)
+            return user.NotificationPreferences;
+
+        // Default preferences based on role
+        return GetDefaultPreferencesByRole(user.Role);
+    }
+
+    private NotificationPreferences GetDefaultPreferencesByRole(UserRole role)
+    {
+        var preferences = new NotificationPreferences();
+
+        if (role == UserRole.Student || role == UserRole.Parent)
         {
-            ProgressUpdates = true,
-            WeeklyReports = true,
-            AchievementAlerts = true,
-            PaymentReminders = true
-        };
+            preferences.ProgressUpdates = true;
+            preferences.WeeklyReports = true;
+            preferences.AchievementAlerts = true;
+            preferences.PaymentReminders = true;
+        }
+        else if (role == UserRole.ContentCreator )
+        {
+            preferences.CourseEnrollments = false;
+            preferences.ProgressUpdates = true;
+            preferences.WeeklyReports = true;
+            preferences.AchievementAlerts = true;
+            preferences.ReviewNotifications = false;
+            preferences.StudentMessages = false;
+            preferences.PayoutAlerts = false;
+        }
+
+        return preferences;
     }
 }

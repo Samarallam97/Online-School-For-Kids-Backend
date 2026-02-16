@@ -21,6 +21,7 @@ public class MongoDbContext
     public IMongoCollection<User> Users => _database.GetCollection<User>("users");
     public IMongoCollection<RefreshToken> RefreshTokens => _database.GetCollection<RefreshToken>("refreshTokens");
 
+    public IMongoCollection<Payout> Payouts => _database.GetCollection<Payout>("payouts");
     private void CreateIndexes()
     {
         // User indexes

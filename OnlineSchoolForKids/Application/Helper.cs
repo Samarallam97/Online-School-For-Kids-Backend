@@ -34,17 +34,7 @@ public class Helper
                 Bio = user.Bio,
                 CreatedAt = user.CreatedAt,
                 LearningGoals = user.LearningGoals,
-                //EnrolledCourses = user.EnrolledCourseIds?.Count ?? 0,
-                //Achievements = user.AchievementIds?.Count ?? 0,
                 TotalHoursLearned = user.TotalHoursLearned ?? 0,
-            //    PaymentMethods = user.PaymentMethods?.Select(p => new PaymentMethodDto
-            //    {
-            //        Id = p.Id,
-            //        Last4 = p.Last4,
-            //        Brand = p.Brand,
-            //        IsDefault = p.IsDefault
-            //    })?.ToList() ?? new(),
-            //    NotificationPreferences = user.NotificationPreferences ?? new()
             },
 
             UserRole.Parent => new ParentProfileDto
@@ -59,18 +49,8 @@ public class Helper
                 Bio = user.Bio,
                 CreatedAt = user.CreatedAt,
                 LearningGoals = user.LearningGoals,
-                //EnrolledCourses = user.EnrolledCourseIds?.Count ?? 0,
-                //Achievements = user.AchievementIds?.Count ?? 0,
                 TotalHoursLearned = user.TotalHoursLearned ?? 0,
                 ChildrenCount = user.ChildrenIds?.Count ?? 0,
-                //NotificationPreferences = user.NotificationPreferences ?? new(),
-                //PaymentMethods = user.PaymentMethods?.Select(p => new PaymentMethodDto
-                //{
-                //    Id = p.Id,
-                //    Last4 = p.Last4,
-                //    Brand = p.Brand,
-                //    IsDefault = p.IsDefault
-                //})?.ToList() ?? new()
             },
 
             UserRole.ContentCreator => new ContentCreatorProfileDto
@@ -85,22 +65,11 @@ public class Helper
                 Bio = user.Bio,
                 CreatedAt = user.CreatedAt,
                 IsVerifiedCreator = user.IsVerifiedCreator ?? false,
-                Expertise = user.Expertise ?? new(),
                 TotalCourses = user.CreatedCourseIds?.Count ?? 0,
                 TotalStudents = user.TotalStudents ?? 0,
                 TotalRevenue = user.TotalRevenue ?? 0,
                 AverageRating = user.AverageRating ?? 0,
-                SocialLinks = user.SocialLinks,
-                PayoutSettings = user.PayoutSettings,
-                PaymentMethods = user.PaymentMethods?.Select(p => new PaymentMethodDto
-                {
-                    Id = p.Id,
-                    Last4 = p.Last4,
-                    Brand = p.Brand,
-                    IsDefault = p.IsDefault
-                })?.ToList() ?? new(),
-                NotificationPreferences = user.NotificationPreferences ?? new()
-
+                ExpertiseTags  = user.ExpertiseTags ?? new()
             },
 
             UserRole.Specialist => new SpecialistProfileDto
@@ -115,33 +84,8 @@ public class Helper
                 Bio = user.Bio,
                 CreatedAt = user.CreatedAt,
                 ProfessionalTitle = user.ProfessionalTitle,
-                Specializations = user.Specializations ?? new(),
-                Certifications = user.Certifications?.Select(c => new CertificationDto
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    Issuer = c.Issuer,
-                    Year = c.Year,
-                    DocumentUrl = c.DocumentUrl
-                })?.ToList() ?? new(),
+                ExpertiseTags = user.ExpertiseTags ?? new(),
                 YearsOfExperience = user.YearsOfExperience ?? 0,
-                Availability = user.Availability?.Select(a => new AvailabilitySlotDto
-                {
-                    DayOfWeek = a.DayOfWeek,
-                    TimeSlots = a.TimeSlots
-                })?.ToList() ?? new(),
-                HourlyRate = user.HourlyRate ?? 100,
-                SessionRates = user.SessionRates,
-                Rating = user.AverageRating ?? 0,
-                StudentsHelped = user.TotalStudents ?? 0,
-                PaymentMethods = user.PaymentMethods?.Select(p => new PaymentMethodDto
-                {
-                    Id = p.Id,
-                    Last4 = p.Last4,
-                    Brand = p.Brand,
-                    IsDefault = p.IsDefault
-                })?.ToList() ?? new(),
-                NotificationPreferences = user.NotificationPreferences ?? new()
             },
 
             _ => new BaseProfileDto

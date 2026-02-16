@@ -43,8 +43,8 @@ public class User : BaseEntity
     // Parent , Student-specific fields
     public string? ParentId { get; set; }
     public string? LearningGoals { get; set; }
-    public List<string>? EnrolledCourseIds { get; set; } 
-    public List<string>? AchievementIds { get; set; } 
+    public List<string>? EnrolledCourseIds { get; set; }
+    public List<string>? AchievementIds { get; set; }
     public int? TotalHoursLearned { get; set; } = 0;
 
 
@@ -56,76 +56,108 @@ public class User : BaseEntity
     public Dictionary<string, NotificationPreferences>? ChildNotificationPreferences { get; set; }
 
     // Content Creator specific fields
-    public bool? IsVerifiedCreator { get; set; } 
+    public bool? IsVerifiedCreator { get; set; }
 
-    public List<string>? Expertise { get; set; } 
+    public List<string>? ExpertiseTags { get; set; }
 
-    public int? TotalStudents { get; set; } 
+    public int? TotalStudents { get; set; }
 
     public decimal? TotalRevenue { get; set; }
 
-    public double? AverageRating { get; set; } 
+    public double? AverageRating { get; set; }
 
-    public List<string>? CreatedCourseIds { get; set; } 
+    public List<string>? CreatedCourseIds { get; set; }
 
-    public SocialLinks? SocialLinks { get; set; }
+    public List<SocialLink>? SocialLinks { get; set; }
 
-    public PayoutSettings? PayoutSettings { get; set; }
+    public List<WorkExperience>? WorkExperiences { get; set; }
+
+
+    //public PayoutSettings? PayoutSettings { get; set; }
 
     // Specialist specific fields
     public string? ProfessionalTitle { get; set; }
 
-    public List<string>? Specializations { get; set; } 
-
-    public List<Certification>? Certifications { get; set; } 
+    public List<Certification>? Certifications { get; set; }
 
     public int? YearsOfExperience { get; set; }
 
-    public List<AvailabilitySlot>? Availability { get; set; } 
+    public List<AvailabilitySlot>? Availability { get; set; }
 
-    public decimal? HourlyRate { get; set; } 
+    public decimal? HourlyRate { get; set; }
 
     public SessionRates? SessionRates { get; set; }
 
     // Admin specific fields
-    public bool? IsSuperAdmin { get; set; } 
+    public bool? IsSuperAdmin { get; set; }
 
-    public bool? TwoFactorEnabled { get; set; } 
+    public bool? TwoFactorEnabled { get; set; }
 
-    public bool? LoginNotifications { get; set; } 
+    public bool? LoginNotifications { get; set; }
 
-    public bool? SuspiciousActivityAlerts { get; set; } 
+    public bool? SuspiciousActivityAlerts { get; set; }
 
-    public List<ActivityLogEntry>? ActivityLog { get; set; } 
-
-
-
-
+    public List<ActivityLogEntry>? ActivityLog { get; set; }
 }
 
 public class NotificationPreferences
 {
-    public bool ProgressUpdates { get; set; } = true;
+    public bool? ProgressUpdates { get; set; }
+    public bool? WeeklyReports { get; set; }
+    public bool? AchievementAlerts { get; set; }
 
-    public bool WeeklyReports { get; set; } = true;
+    // Student , parent
 
-    public bool AchievementAlerts { get; set; } = true;
+    public bool? PaymentReminders { get; set; }
 
-    public bool PaymentReminders { get; set; } = true;
+    // Content Creator
+    public bool? CourseEnrollments { get; set; }
+    public bool? ReviewNotifications { get; set; }
+    public bool? StudentMessages { get; set; }
+    public bool? PayoutAlerts { get; set; }
+
+
 }
 
-
-public class SocialLinks
+public class SocialLink
 {
-    public string? Website { get; set; }
-
-    public string? Twitter { get; set; }
-
-    public string? LinkedIn { get; set; }
-
-    public string? YouTube { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public string Name { get; set; } = string.Empty;
+    public string Value { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? UpdatedAt { get; set; }
 }
 
+public class PaymentMethod
+{
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public PaymentMethodType Type { get; set; }
+    public bool IsDefault { get; set; } = false;
+
+    // Card-specific fields
+    public string? Last4 { get; set; }
+    public string? Brand { get; set; }
+    public int? ExpiryMonth { get; set; }
+    public int? ExpiryYear { get; set; }
+
+    // Vodafone Cash
+    public string? VodafoneNumber { get; set; }
+
+    // Instapay
+    public string? InstapayId { get; set; }
+
+    // Fawry
+    public string? FawryReferenceNumber { get; set; }
+
+    // Bank Account
+    public string? AccountHolderName { get; set; }
+    public string? BankName { get; set; }
+    public string? AccountNumber { get; set; }
+    public string? IBAN { get; set; }
+
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? UpdatedAt { get; set; }
+}
 public class PayoutSettings
 {
     public string? BankAccountLast4 { get; set; }
@@ -176,4 +208,19 @@ public class ActivityLogEntry
     public string Details { get; set; } = string.Empty;
 
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+}
+
+public class WorkExperience
+{
+    public string Id { get; set; }
+    public string Title { get; set; }
+    public string Place { get; set; }
+    public string StartDate { get; set; }
+    public string EndDate { get; set; }
+    public bool IsCurrentRole { get; set; }
+
+
+
+
+
 }

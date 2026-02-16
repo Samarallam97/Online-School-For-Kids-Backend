@@ -8,7 +8,7 @@ namespace Application.DTOs.Profile;
 public class SpecialistProfileDto : BaseProfileDto
 {
     public string? ProfessionalTitle { get; set; }
-    public List<string> Specializations { get; set; }
+    public List<string> ExpertiseTags { get; set; }
     public List<CertificationDto> Certifications { get; set; }
     public int YearsOfExperience { get; set; }
     public List<AvailabilitySlotDto> Availability { get; set; }

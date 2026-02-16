@@ -28,24 +28,15 @@ public class UpdateProfileDto
     public string? Country { get; set; }
     public string? Bio { get; set; }
 
-    // Student-specific
+    // student , parent
     public string? LearningGoals { get; set; }
+   
+    // creator , specialist
+    public List<string>? ExpertiseTags { get; set; }
 
-    // Parent-specific
-    public bool? ParentalControlsActive { get; set; }
-    public NotificationPreferences? NotificationPreferences { get; set; }
-
-    // Content Creator-specific
-    public List<string>? Expertise { get; set; }
-    public SocialLinks? SocialLinks { get; set; }
-
-    // Specialist-specific
+    // Specialist
     public string? ProfessionalTitle { get; set; }
-    public List<string>? Specializations { get; set; }
     public int? YearsOfExperience { get; set; }
-    public decimal? HourlyRate { get; set; }
-    public SessionRates? SessionRates { get; set; }
-    public List<AvailabilitySlotDto>? Availability { get; set; }
 }
 
 public class UploadProfilePictureDto
@@ -81,5 +72,24 @@ public class EnrolledCourseDto
     public string Name { get; set; } = string.Empty;
     public string Instructor { get; set; } = string.Empty;
     public int? Progress { get; set; }
+}
+
+public class SocialLinkDto
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string Value { get; set; } = string.Empty;
+}
+
+public class UpdateSocialLinkDto
+{
+    public string Name { get; set; } = string.Empty;
+    public string Value { get; set; } = string.Empty;
+}
+
+public class AddUpdateSocialLinkDto
+{
+    public string Name { get; set; } = string.Empty;
+    public string Value { get; set; } = string.Empty;
 }
 

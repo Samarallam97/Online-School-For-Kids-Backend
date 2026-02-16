@@ -156,7 +156,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
         if (request.Role == UserRole.ContentCreator || request.Role == UserRole.Specialist)
         {
             user.Status = UserStatus.Pending;
-            user.Expertise = new ( ) { request.Expertise };
+            user.ExpertiseTags = new ( ) { request.Expertise };
             user.PortfolioUrl = request.PortfolioUrl;
             user.CvLink = request.CvLink;
         }

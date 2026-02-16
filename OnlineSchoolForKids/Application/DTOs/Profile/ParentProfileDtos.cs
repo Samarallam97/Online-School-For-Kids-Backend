@@ -22,8 +22,6 @@ public class PaymentMethodDto
     public string Type { get; set; } = string.Empty; // "card", "vodafone_cash", "instapay", "fawry", "bank_account"
     public string DisplayInfo { get; set; } = string.Empty; // User-friendly display text
     public bool IsDefault { get; set; }
-
-    // Legacy card fields (for backward compatibility)
     public string? Last4 { get; set; }
     public string? Brand { get; set; }
     public int? ExpiryMonth { get; set; }

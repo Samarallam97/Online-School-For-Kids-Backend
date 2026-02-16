@@ -25,7 +25,7 @@ public class RemovePaymentMethodCommandHandler : IRequestHandler<RemovePaymentMe
     {
         var user = await _userRepository.GetByIdAsync(request.UserId);
         if (user == null)
-            throw new KeyNotFoundException("Parent not found");
+            throw new KeyNotFoundException("user not found");
 
 
         if (user.PaymentMethods == null || !user.PaymentMethods.Any())

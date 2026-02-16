@@ -39,6 +39,8 @@ public static class DependencyInjection
         // Repositories
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IPayoutRepository, PayoutRepository>();
+
 
         // Authentication Services
         services.Configure<JwtSettings>(

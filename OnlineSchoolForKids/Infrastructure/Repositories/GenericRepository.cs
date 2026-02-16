@@ -104,4 +104,43 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
 
         return await _collection.CountDocumentsAsync(combinedFilter, cancellationToken: cancellationToken);
     }
+
+    public async Task<(IEnumerable<T> Items, long TotalCount)> GetPagedAsync(
+        Expression<Func<T, bool>>? filter = null,
+        Expression<Func<T, object>>? orderBy = null,
+        bool orderByDescending = false,
+        int? skip = null,
+        int? limit = null,
+        CancellationToken cancellationToken = default)
+    {
+        var deletedFilter = Builders<T>.Filter.Eq(e => e.IsDeleted, false);
+        FilterDefinition<T> combinedFilter = filter == null
+            ? deletedFilter
+            : Builders<T>.Filter.And(deletedFilter, filter);
+
+        // Get total count
+        var totalCount = await _collection.CountDocumentsAsync(combinedFilter, cancellationToken: cancellationToken);
+
+        // Build query
+        var query = _collection.Find(combinedFilter);
+
+        // Apply sorting
+        if (orderBy != null)
+        {
+            query = orderByDescending
+                ? query.SortByDescending(orderBy)
+                : query.SortBy(orderBy);
+        }
+
+        // Apply pagination
+        if (skip.HasValue)
+            query = query.Skip(skip.Value);
+
+        if (limit.HasValue)
+            query = query.Limit(limit.Value);
+
+        var items = await query.ToListAsync(cancellationToken);
+
+        return (items, totalCount);
+    }
 }

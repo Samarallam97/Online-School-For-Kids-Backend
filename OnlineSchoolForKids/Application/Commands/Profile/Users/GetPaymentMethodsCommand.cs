@@ -26,9 +26,8 @@ public class GetPaymentMethodsQueryHandler : IRequestHandler<GetPaymentMethodsCo
     {
         var user = await _userRepository.GetByIdAsync(request.UserId);
         if (user == null)
-            throw new KeyNotFoundException("Parent not found");
+            throw new KeyNotFoundException("User not found");
 
-   
         var paymentMethods = user.PaymentMethods?.Select(pm => MapToDto(pm)).ToList()
             ?? new List<PaymentMethodDto>();
 
@@ -45,7 +44,7 @@ public class GetPaymentMethodsQueryHandler : IRequestHandler<GetPaymentMethodsCo
             DisplayInfo = GetDisplayInfo(paymentMethod)
         };
 
-        // Include legacy card fields for backward compatibility
+        // Add card-specific details to DTO
         if (paymentMethod.Type == PaymentMethodType.Card)
         {
             dto.Last4 = paymentMethod.Last4;
@@ -85,10 +84,10 @@ public class GetPaymentMethodsQueryHandler : IRequestHandler<GetPaymentMethodsCo
 
     private string MaskPhoneNumber(string? phoneNumber)
     {
-        if (string.IsNullOrEmpty(phoneNumber) || phoneNumber.Length < 4)
+        if (string.IsNullOrEmpty(phoneNumber) || phoneNumber.Length < 6)
             return "****";
 
-        return $"{phoneNumber.Substring(0, 4)}*****{phoneNumber.Substring(phoneNumber.Length - 2)}";
+        return $"{phoneNumber[..4]}*****{phoneNumber[^2..]}";
     }
 
     private string MaskString(string? value)
@@ -96,7 +95,7 @@ public class GetPaymentMethodsQueryHandler : IRequestHandler<GetPaymentMethodsCo
         if (string.IsNullOrEmpty(value) || value.Length < 4)
             return "****";
 
-        return $"{value.Substring(0, 2)}****{value.Substring(value.Length - 2)}";
+        return $"{value[..2]}****{value[^2..]}";
     }
 
     private string MaskAccountNumber(string? accountNumber)
@@ -104,6 +103,6 @@ public class GetPaymentMethodsQueryHandler : IRequestHandler<GetPaymentMethodsCo
         if (string.IsNullOrEmpty(accountNumber) || accountNumber.Length < 4)
             return "****";
 
-        return $"****{accountNumber.Substring(accountNumber.Length - 4)}";
+        return $"****{accountNumber[^4..]}";
     }
 }
