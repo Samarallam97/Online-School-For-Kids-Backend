@@ -19,7 +19,7 @@ namespace Application.Commands
         {
             
                 // Find favourite entry
-                var favourite = (await _wishRepo.FindAsync(w =>
+                var favourite = (await _wishRepo.GetAllAsync(w =>
                     w.UserId == request.UserId && w.CourseId == request.CourseId))
                     .FirstOrDefault();
 

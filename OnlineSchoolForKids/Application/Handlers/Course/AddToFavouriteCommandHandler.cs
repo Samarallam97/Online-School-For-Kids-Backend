@@ -48,7 +48,7 @@ namespace Application.Handlers.Course
             }
 
             // Check if already in favourites
-            var existingFavourite = await _wishRepo.FindAsync(w =>
+            var existingFavourite = await _wishRepo.GetAllAsync(w =>
                 w.UserId == request.UserId && w.CourseId == request.CourseId);
 
             if (existingFavourite.Any())

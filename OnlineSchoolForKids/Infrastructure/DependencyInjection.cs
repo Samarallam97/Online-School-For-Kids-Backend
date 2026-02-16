@@ -40,6 +40,9 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IPayoutRepository, PayoutRepository>();
+        services.AddScoped(typeof(IOrderRepository), typeof(OrderRepository));
+        services.AddScoped<ICartItemRepository, CartItemRepository>();
+
 
 
         // Authentication Services

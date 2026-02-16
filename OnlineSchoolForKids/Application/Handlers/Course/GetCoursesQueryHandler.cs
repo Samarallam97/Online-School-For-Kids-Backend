@@ -83,7 +83,7 @@ namespace Application.Handlers.Course
 
             if (!string.IsNullOrEmpty(request.UserId))
             {
-                var wishlists = await _wishRepo.FindAsync(w => w.UserId == request.UserId);
+                var wishlists = await _wishRepo.GetAllAsync(w => w.UserId == request.UserId);
                 wishlistCourseIds = wishlists.Select(w => w.CourseId).ToHashSet();
 
                 

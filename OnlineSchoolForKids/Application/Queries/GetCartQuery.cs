@@ -45,7 +45,7 @@ namespace Application.Queries
             var courseIds = cartItems.Select(c => c.CourseId).ToList();
 
             // Get courses (only published)
-            var courses = await _courseRepo.FindAsync(c =>
+            var courses = await _courseRepo.GetAllAsync(c =>
                 courseIds.Contains(c.Id) && c.IsPublished);
 
             // Get instructors
@@ -54,7 +54,7 @@ namespace Application.Queries
                 .Distinct()
                 .ToList();
 
-            var instructors = await _userRepo.FindAsync(u =>
+            var instructors = await _userRepo.GetAllAsync(u =>
                 instructorIds.Contains(u.Id) &&
                 u.Role == UserRole.ContentCreator);
 

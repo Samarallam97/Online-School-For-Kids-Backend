@@ -7,6 +7,7 @@ using Domain.Entities;
 using Domain.Entities.Order;
 using Domain.Interfaces.Repositories;
 using Infrastructure;
+using Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
@@ -123,9 +124,6 @@ builder.Services.AddSingleton<IConnectionMultiplexer>((serviveProvider) =>
     return ConnectionMultiplexer.Connect(connection);    
 });
 
-builder.Services.AddScoped(typeof(IOrderRepository), typeof(OrderRepository));
-builder.Services.AddScoped<ICartItemRepository, CartItemRepository>();
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 // CORS
 builder.Services.AddCors(options =>
 {
