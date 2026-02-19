@@ -1,4 +1,4 @@
-﻿using Domain.Interfaces.Repositories;
+﻿using Domain.Interfaces.Repositories.Content;
 using MediatR;
 
 namespace Application.Commands.Order

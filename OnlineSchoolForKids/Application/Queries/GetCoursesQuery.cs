@@ -1,5 +1,5 @@
 ﻿using Application.Dtos;
-using Domain.Enums;
+using Domain.Enums.Content;
 using MediatR;
 
 

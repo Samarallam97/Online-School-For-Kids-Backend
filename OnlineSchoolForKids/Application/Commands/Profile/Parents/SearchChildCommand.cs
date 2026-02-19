@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Profile;
-using Domain.Interfaces.Repositories;
+using Domain.Enums.Users;
+using Domain.Interfaces.Repositories.Users;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ public class SearchChildQueryHandler : IRequestHandler<SearchChildCommand, Searc
         if (parent == null)
             throw new KeyNotFoundException("Parent not found");
 
-        if (parent.Role != Domain.Enums.UserRole.Parent)
+        if (parent.Role != UserRole.Parent)
             throw new UnauthorizedAccessException("User is not a parent");
 
         // Search for child by email
@@ -44,7 +45,7 @@ public class SearchChildQueryHandler : IRequestHandler<SearchChildCommand, Searc
         }
 
         // Check if child is a student
-        if (child.Role != Domain.Enums.UserRole.Student)
+        if (child.Role != UserRole.Student)
         {
             throw new InvalidOperationException("The email belongs to a non-student account");
         }

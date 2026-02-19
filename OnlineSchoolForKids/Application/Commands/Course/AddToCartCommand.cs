@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
-using Domain.Interfaces.Repositories;
+using Domain.Entities.Content;
+using Domain.Interfaces.Repositories.Content;
 using FluentValidation;
 using MediatR;
 
@@ -21,11 +22,11 @@ namespace Application.Commands.Course
 
     public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, AddToCartResponse>
     {
-        private readonly IGenericRepository<Domain.Entities.Course> _courseRepo;
+        private readonly ICourseRepository _courseRepo;
         private readonly ICartItemRepository _cartItemRepo;
 
         public AddToCartCommandHandler(
-            IGenericRepository<Domain.Entities.Course> courseRepo, ICartItemRepository cartItemRepository)
+            ICourseRepository courseRepo, ICartItemRepository cartItemRepository)
         {
             _courseRepo = courseRepo;
             _cartItemRepo = cartItemRepository;

@@ -1,21 +1,23 @@
 ﻿using Application.Dtos;
 using Application.Queries;
-using Domain.Entities;
-using Domain.Enums;
+using Domain.Entities.Users;
+using Domain.Enums.Users;
 using Domain.Interfaces.Repositories;
+using Domain.Interfaces.Repositories.Content;
+using Domain.Interfaces.Repositories.Users;
 using MediatR;
 using System.Data;
-using CourseEntity = Domain.Entities.Course;
+using CourseEntity = Domain.Entities.Content.Course;
 namespace Application.Handlers.Course
 {
     public class GetCoursesQueryHandler : IRequestHandler<GetCoursesQuery, PagedResult<CourseDto>>
     {
        
-        private readonly IGenericRepository<CourseEntity> _courseRepo;
-        private readonly IGenericRepository<Wishlist> _wishRepo;
-        private readonly IGenericRepository<User> _userRepo;
+        private readonly ICourseRepository _courseRepo;
+        private readonly IWishListRepository _wishRepo;
+        private readonly IUserRepository _userRepo;
 
-        public GetCoursesQueryHandler(IGenericRepository<CourseEntity> courseRepository,IGenericRepository<Wishlist> wishRepo,IGenericRepository<User> userRepo)
+        public GetCoursesQueryHandler(ICourseRepository courseRepository, IWishListRepository wishRepo,IUserRepository userRepo)
         {
             _courseRepo = courseRepository;
             _wishRepo = wishRepo;

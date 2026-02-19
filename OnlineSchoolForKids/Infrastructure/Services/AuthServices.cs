@@ -1,6 +1,6 @@
-﻿using Domain.Entities;
-using Domain.Enums;
-using Domain.Interfaces.Repositories;
+﻿using Domain.Entities.Users;
+using Domain.Enums.Users;
+using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services;
 using Infrastructure.Settings;
 using Microsoft.Extensions.Logging;

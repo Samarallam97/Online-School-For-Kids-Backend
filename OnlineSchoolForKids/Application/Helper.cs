@@ -1,7 +1,8 @@
-﻿using Application.DTOs;
+﻿using Application.Commands.Profile.Users;
+using Application.DTOs;
 using Application.DTOs.Profile;
-using Domain.Entities;
-using Domain.Enums;
+using Domain.Entities.Users;
+using Domain.Enums.Users;
 
 
 namespace Application;
@@ -96,8 +97,6 @@ public class Helper
                 Role = user.Role.ToString(),
                 ProfilePictureUrl = user.ProfilePictureUrl,
                 Phone = user.Phone,
-                Country = user.Country,
-                Bio = user.Bio,
                 CreatedAt = user.CreatedAt
             }
         };

@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Application.Commands.Profile.Users;
+using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -16,17 +17,7 @@ public class ParentProfileDto : BaseProfileDto
 
 }
 
-public class PaymentMethodDto
-{
-    public string Id { get; set; } = string.Empty;
-    public string Type { get; set; } = string.Empty; // "card", "vodafone_cash", "instapay", "fawry", "bank_account"
-    public string DisplayInfo { get; set; } = string.Empty; // User-friendly display text
-    public bool IsDefault { get; set; }
-    public string? Last4 { get; set; }
-    public string? Brand { get; set; }
-    public int? ExpiryMonth { get; set; }
-    public int? ExpiryYear { get; set; }
-}
+
 
 public class ChildDto
 {
@@ -53,7 +44,7 @@ public class AddPaymentMethodDto
     public string? CardNumber { get; set; }
     public int? ExpiryMonth { get; set; }
     public int? ExpiryYear { get; set; }
-    public string? Cvc { get; set; }
+    public string? Cvv { get; set; }
     public string? CardholderName { get; set; }
 
     // Vodafone Cash

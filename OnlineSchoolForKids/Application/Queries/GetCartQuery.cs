@@ -1,5 +1,6 @@
-﻿using Domain.Enums;
-using Domain.Interfaces.Repositories;
+﻿using Domain.Enums.Users;
+using Domain.Interfaces.Repositories.Content;
+using Domain.Interfaces.Repositories.Users;
 using FluentValidation;
 using MediatR;
 
@@ -15,10 +16,10 @@ namespace Application.Queries
 
         private const decimal TaxRate = 0.0m; // 0% tax, adjust as needed
         private readonly ICartItemRepository _cartItemRepo;
-        private readonly IGenericRepository<Domain.Entities.Course> _courseRepo;
+        private readonly ICourseRepository _courseRepo;
         private readonly IUserRepository _userRepo;
 
-        public GetCartQueryHandler(ICartItemRepository cartItemRepo, IGenericRepository<Domain.Entities.Course> courseRepo,IUserRepository userRepo)
+        public GetCartQueryHandler(ICartItemRepository cartItemRepo, ICourseRepository courseRepo,IUserRepository userRepo)
         {
             _cartItemRepo = cartItemRepo;
             _courseRepo = courseRepo;

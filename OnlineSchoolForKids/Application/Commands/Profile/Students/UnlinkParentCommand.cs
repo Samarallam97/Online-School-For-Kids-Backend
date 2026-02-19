@@ -1,4 +1,5 @@
-﻿using Domain.Interfaces.Repositories;
+﻿using Domain.Enums.Users;
+using Domain.Interfaces.Repositories.Users;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,7 @@ public class UnlinkParentCommandHandler : IRequestHandler<UnlinkParentCommand, U
         if (student == null)
             throw new KeyNotFoundException("Student not found");
 
-        if (student.Role != Domain.Enums.UserRole.Student)
+        if (student.Role != UserRole.Student)
             throw new InvalidOperationException("User is not a student");
 
         if (string.IsNullOrEmpty(student.ParentId))

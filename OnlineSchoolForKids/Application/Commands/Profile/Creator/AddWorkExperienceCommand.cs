@@ -1,6 +1,6 @@
 ﻿using Application.DTOs.Profile;
-using Domain.Entities;
-using Domain.Interfaces.Repositories;
+using Domain.Entities.Users;
+using Domain.Interfaces.Repositories.Users;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -44,7 +44,7 @@ public class AddWorkExperienceCommandHandler : IRequestHandler<AddWorkExperience
         };
 
         if (user.WorkExperiences == null)
-            user.WorkExperiences = new List<Domain.Entities.WorkExperience>();
+            user.WorkExperiences = new List<WorkExperience>();
 
         user.WorkExperiences.Add(workExperience);
         await _userRepository.UpdateAsync(user.Id,user);

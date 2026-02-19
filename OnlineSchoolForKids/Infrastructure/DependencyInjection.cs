@@ -1,7 +1,11 @@
 ﻿using Domain.Interfaces.Repositories;
+using Domain.Interfaces.Repositories.Content;
+using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
+using Infrastructure.Repositories.Content;
+using Infrastructure.Repositories.Users;
 using Infrastructure.Services;
 using Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,8 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Conventions;
-using System;
-using System.Collections.Generic;
+using StackExchange.Redis;
 using System.Text;
 
 namespace Infrastructure;
@@ -36,13 +39,21 @@ public static class DependencyInjection
         
         services.AddSingleton<MongoDbContext>();
 
+        var redisConnection = configuration.GetConnectionString("Redis");
+        services.AddSingleton<IConnectionMultiplexer>(
+            ConnectionMultiplexer.Connect(redisConnection));
+
+
         // Repositories
+        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IPayoutRepository, PayoutRepository>();
         services.AddScoped(typeof(IOrderRepository), typeof(OrderRepository));
         services.AddScoped<ICartItemRepository, CartItemRepository>();
-
+        services.AddScoped<ICourseRepository, CourseRepository>();
+        services.AddScoped<IWishListRepository, WishListRepository>();
+        services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
 
 
         // Authentication Services

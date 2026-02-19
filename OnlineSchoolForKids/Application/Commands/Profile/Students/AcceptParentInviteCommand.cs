@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Profile;
-using Domain.Interfaces.Repositories;
+using Domain.Enums.Users;
+using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services;
 using MediatR;
 using Microsoft.Extensions.Configuration;
@@ -50,7 +51,7 @@ public class AcceptParentInviteCommandHandler : IRequestHandler<AcceptParentInvi
         if (child == null)
             throw new KeyNotFoundException("Child not found");
 
-        if (child.Role != Domain.Enums.UserRole.Student)
+        if (child.Role != UserRole.Student)
             throw new InvalidOperationException("User is not a student");
 
         // Check if already linked to another parent

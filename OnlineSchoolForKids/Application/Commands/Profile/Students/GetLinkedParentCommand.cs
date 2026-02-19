@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Profile;
-using Domain.Interfaces.Repositories;
+using Domain.Enums.Users;
+using Domain.Interfaces.Repositories.Users;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -30,7 +31,7 @@ public class GetLinkedParentQueryHandler : IRequestHandler<GetLinkedParentQuery,
         if (student == null)
             throw new KeyNotFoundException("Student not found");
 
-        if (student.Role != Domain.Enums.UserRole.Student)
+        if (student.Role != UserRole.Student)
             throw new InvalidOperationException("User is not a student");
 
         // Check if student has a linked parent

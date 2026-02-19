@@ -1,9 +1,10 @@
 ﻿using Application.Commands;
 using Domain.Entities;
-using Domain.Interfaces.Repositories;
+using Domain.Entities.Content;
+using Domain.Interfaces.Repositories.Content;
 using MediatR;
 using MongoDB.Bson;
-using CourseEntity = Domain.Entities.Course;
+using CourseEntity = Domain.Entities.Content.Course;
 
 namespace Application.Handlers.Course
 {
@@ -11,11 +12,11 @@ namespace Application.Handlers.Course
     {
         
         
-        private readonly IGenericRepository<CourseEntity> _courseRepo;
-        private readonly IGenericRepository<Wishlist> _wishRepo;
+        private readonly ICourseRepository _courseRepo;
+        private readonly IWishListRepository _wishRepo;
 
-        public AddToFavouriteCommandHandler(         
-            IGenericRepository<CourseEntity> courseRepo,IGenericRepository<Wishlist> wishRepo)
+        public AddToFavouriteCommandHandler(
+            ICourseRepository courseRepo, IWishListRepository wishRepo)
         {
           
          

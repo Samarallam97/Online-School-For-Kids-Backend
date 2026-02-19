@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Domain.Entities;
-using Domain.Interfaces.Repositories;
+using Domain.Entities.Users;
+using Domain.Enums.Users;
+using Domain.Interfaces.Repositories.Users;
 using global::Application.DTOs.Profile;
 using MediatR;
 

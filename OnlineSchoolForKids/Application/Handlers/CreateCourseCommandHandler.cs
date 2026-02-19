@@ -1,19 +1,22 @@
 ﻿using Application.Commands;
 using Application.Dtos;
 using AutoMapper;
-using Domain.Entities;
-using Domain.Interfaces.Repositories;
+using Domain.Entities.Content;
+using Domain.Entities.Users;
+using Domain.Entities.Users;
+using Domain.Interfaces.Repositories.Content;
+using Domain.Interfaces.Repositories.Users;
 using MediatR;
-using CourseEntity = Domain.Entities.Course;
+using CourseEntity = Domain.Entities.Content.Course;
 
 namespace EduPlatform.Application.Commands.CreateCourse
 {
     public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, CourseDto>
     {
-        private readonly IGenericRepository<CourseEntity> _courseRepo;
+        private readonly ICourseRepository _courseRepo;
         private readonly IUserRepository _userRepo;
 
-        public CreateCourseCommandHandler( IGenericRepository<CourseEntity> courseRepo,IUserRepository userRepo)
+        public CreateCourseCommandHandler( ICourseRepository courseRepo,IUserRepository userRepo)
         {
             _courseRepo = courseRepo;
             _userRepo = userRepo;
@@ -86,12 +89,12 @@ namespace EduPlatform.Application.Commands.CreateCourse
     {
 
         private readonly IMapper _mapper;
-        private readonly IGenericRepository<CourseEntity> _courseRepo;
+        private readonly ICourseRepository _courseRepo;
 
         public UpdateCourseCommandHandler(
             
             IMapper mapper
-           , IGenericRepository<CourseEntity> courseRepo)
+           , ICourseRepository courseRepo)
         {
      
             _mapper = mapper;

@@ -1,6 +1,6 @@
 ﻿using Application.DTOs.Profile;
-using Domain.Entities;
-using Domain.Interfaces.Repositories;
+using Domain.Entities.Users;
+using Domain.Interfaces.Repositories.Users;
 using MediatR;
 using System;
 using System.Collections.Generic;

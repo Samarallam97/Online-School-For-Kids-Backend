@@ -1,6 +1,8 @@
 ﻿using Application.DTOs.Profile;
 using Domain.Entities;
-using Domain.Interfaces.Repositories;
+using Domain.Entities.Users;
+using Domain.Enums.Users;
+using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services;
 using MediatR;
 using Microsoft.Extensions.Configuration;
@@ -48,7 +50,7 @@ public class CreateAndLinkChildCommandHandler : IRequestHandler<CreateAndLinkChi
         if (parent == null)
             throw new KeyNotFoundException("Parent not found");
 
-        if (parent.Role != Domain.Enums.UserRole.Parent)
+        if (parent.Role != UserRole.Parent)
             throw new UnauthorizedAccessException("User is not a parent");
 
         // Validate passwords match
@@ -75,11 +77,11 @@ public class CreateAndLinkChildCommandHandler : IRequestHandler<CreateAndLinkChi
         {
             FullName = request.FullName,
             Email = request.Email,
-            Role = Domain.Enums.UserRole.Student,
+            Role = UserRole.Student,
             DateOfBirth = request.DateOfBirth,
             Country = request.Country,
             ParentId = request.ParentUserId,
-            Status = Domain.Enums.UserStatus.Active,
+            Status = UserStatus.Active,
             EmailVerified = false, 
             EmailVerificationTokenExpiry = DateTime.UtcNow.AddHours(24),
             EmailVerificationToken = verificationToken,

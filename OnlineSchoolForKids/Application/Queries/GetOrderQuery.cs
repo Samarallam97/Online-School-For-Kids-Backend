@@ -1,6 +1,6 @@
 ﻿using Application.DTOs;
-using Domain.Entities.Order;
-using Domain.Interfaces.Repositories;
+using Domain.Entities.Content.Order;
+using Domain.Interfaces.Repositories.Content;
 using MediatR;
 
 namespace Application.Queries

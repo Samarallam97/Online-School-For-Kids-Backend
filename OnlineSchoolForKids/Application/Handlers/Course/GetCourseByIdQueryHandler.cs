@@ -1,17 +1,17 @@
 ﻿using Application.Dtos;
 using Application.Queries;
 using AutoMapper;
-using Domain.Interfaces.Repositories;
+using Domain.Interfaces.Repositories.Content;
 using MediatR;
-using CourseEntity = Domain.Entities.Course;
+using CourseEntity = Domain.Entities.Content.Course;
 namespace Application.Handlers.Course
 {
     public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, CourseDto>
     {
-        private readonly IGenericRepository<CourseEntity> _courseRepo;
+        private readonly ICourseRepository _courseRepo;
         private readonly IMapper _mapper;
 
-        public GetCourseByIdQueryHandler(IGenericRepository<CourseEntity> courseRepo, IMapper mapper)
+        public GetCourseByIdQueryHandler(ICourseRepository courseRepo, IMapper mapper)
         {
             _courseRepo = courseRepo;
             _mapper = mapper;

@@ -1,7 +1,9 @@
 ﻿using Domain.Entities;
-using Domain.Entities.Order;
-using Domain.Enums;
-using Domain.Interfaces.Repositories;
+using Domain.Entities.Content.Order;
+using Domain.Enums.Content;
+using Domain.Enums.Users;
+using Domain.Interfaces.Repositories.Content;
+using Domain.Interfaces.Repositories.Users;
 using MediatR;
 using System.Data;
 
@@ -10,22 +12,22 @@ namespace Application.Commands.Order
     public class CreateOrderCommand : IRequest<CreateOrderResponse>
     {
         public string UserId { get; set; } = string.Empty;
-        public Domain.Enums.PaymentMethod PaymentMethod { get; set; }
+        public PaymentMethod PaymentMethod { get; set; }
         public string? Notes { get; set; }
     }
     public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, CreateOrderResponse>
     {
         private readonly IOrderRepository _orderRepository;
         private readonly ICartItemRepository _cartRepository;
-        private readonly IGenericRepository<Domain.Entities.Course> _courseRepository;
-        private readonly IGenericRepository<User> _userRepo;
-        private readonly IGenericRepository<Enrollment> _enrollmentRepository;
+        private readonly ICourseRepository _courseRepository;
+        private readonly IUserRepository _userRepo;
+        private readonly IEnrollmentRepository _enrollmentRepository;
 
         public CreateOrderCommandHandler(
             IOrderRepository orderRepository,
             ICartItemRepository cartRepository,
-            IGenericRepository<Domain.Entities.Course> courseRepository,IGenericRepository<User> userRepo,
-            IGenericRepository<Enrollment> enrollmentRepository
+           ICourseRepository courseRepository,IUserRepository userRepo,
+            IEnrollmentRepository enrollmentRepository
             )
         {
             _orderRepository = orderRepository;
@@ -110,7 +112,7 @@ namespace Application.Commands.Order
             var total = subtotal + tax;
 
             // Create order
-            var order = new Domain.Entities.Order.Order
+            var order = new Domain.Entities.Content.Order.Order
             {
                 UserId = request.UserId,
                 Status = OrderStatus.Pending,

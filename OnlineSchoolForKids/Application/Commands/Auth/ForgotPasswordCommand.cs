@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
-using Domain.Interfaces.Repositories;
+using Domain.Enums.Users;
+using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services;
 using MediatR;
 using Microsoft.Extensions.Configuration;
@@ -34,7 +35,7 @@ public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordComman
         var user = await _userRepository.GetByEmailAsync(request.Email.ToLower(), cancellationToken);
 
         // For security, always return success even if user doesn't exist
-        if (user == null || user.AuthProvider != Domain.Enums.AuthProvider.Local)
+        if (user == null || user.AuthProvider != AuthProvider.Local)
         {
             return Result<string>.Success("If the email exists, a reset link has been sent.");
         }

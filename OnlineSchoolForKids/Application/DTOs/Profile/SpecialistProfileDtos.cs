@@ -1,4 +1,6 @@
-﻿using Domain.Entities;
+﻿using Application.Commands.Profile.Users;
+using Application.Queries.Profile.Specialists;
+using Domain.Entities.Users;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -28,8 +30,3 @@ public class CertificationDto
     public string? DocumentUrl { get; set; }
 }
 
-public class AvailabilitySlotDto
-{
-    public DayOfWeek DayOfWeek { get; set; }
-    public List<string> TimeSlots { get; set; } = new();
-}

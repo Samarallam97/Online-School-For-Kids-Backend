@@ -1,30 +1,17 @@
 using API.Middleware;
 using Application;
-using Application.Commands;
 using Application.Mapping;
-using Application.Queries;
-using Domain.Entities;
-using Domain.Entities.Order;
-using Domain.Interfaces.Repositories;
 using Infrastructure;
-using Infrastructure.Data;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using MongoDB.Driver;
-using StackExchange.Redis;
 
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// Swagger with JWT support
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -65,64 +52,7 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 
-// Add this
-builder.Services.AddMediatR(cfg => {
-    cfg.RegisterServicesFromAssembly(typeof(CreateCourseCommand).Assembly);
-});
-builder.Services.AddMediatR(cfg =>
-{
-    cfg.RegisterServicesFromAssembly(typeof(GetCourseByIdQuery).Assembly);
-});
-builder.Services.AddMediatR(cfg =>
-{
-    cfg.RegisterServicesFromAssembly(typeof(GetCoursesQuery).Assembly);
-});
 builder.Services.AddAutoMapper(typeof(CourseMappingProfile).Assembly);
-
-// Collections
-builder.Services.AddSingleton<IMongoCollection<Domain.Entities.Course>>(sp =>
-    sp.GetRequiredService<IMongoDatabase>().GetCollection<Domain.Entities.Course>("courses"));
-
-builder.Services.AddSingleton<IMongoCollection<User>>(sp =>
-    sp.GetRequiredService<IMongoDatabase>().GetCollection<User>("users"));
-
-builder.Services.AddSingleton<IMongoCollection<Wishlist>>(sp =>
-    sp.GetRequiredService<IMongoDatabase>().GetCollection<Wishlist>("wishlists"));
-
-builder.Services.AddSingleton<IMongoCollection<Enrollment>>(sp =>
-    sp.GetRequiredService<IMongoDatabase>().GetCollection<Enrollment>("enrollments"));
-builder.Services.AddSingleton<IMongoCollection<Domain.Entities.Order.Order>>(sp =>
-{
-    var database = sp.GetRequiredService<IMongoDatabase>();
-    return database.GetCollection< Domain.Entities.Order.Order> ("orders");
-});
-
-builder.Services.AddSingleton<IMongoCollection<CartItem>>(sp =>
-{
-    var database = sp.GetRequiredService<IMongoDatabase>();
-    return database.GetCollection<CartItem>("cartItems");
-});
-
-
-builder.Services.AddSingleton<IMongoClient>(sp =>
-{
-    var connectionString = builder.Configuration["MongoDbSettings:ConnectionString"];
-    return new MongoClient(connectionString);
-});
-builder.Services.AddSingleton<IMongoDatabase>(sp =>
-{
-    var client = sp.GetRequiredService<IMongoClient>();
-    var databaseName = builder.Configuration["MongoDbSettings:DatabaseName"];
-    return client.GetDatabase(databaseName);
-});
-
-builder.Services.AddSingleton<MongoDbContext>();
-
-builder.Services.AddSingleton<IConnectionMultiplexer>((serviveProvider) =>  
-{
-    var connection = builder.Configuration.GetConnectionString("Redis");  
-    return ConnectionMultiplexer.Connect(connection);    
-});
 
 // CORS
 builder.Services.AddCors(options =>
@@ -139,6 +69,8 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Files
+
 builder.Services.Configure<FormOptions>(options =>
 {
     options.MultipartBodyLengthLimit = 10 * 1024 * 1024; // 10MB max
@@ -151,24 +83,21 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
     serverOptions.Limits.MaxRequestBodySize = 10 * 1024 * 1024; // 10MB
 });
 
+
 // Health checks
 builder.Services.AddHealthChecks();
 
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var mongoContext = scope.ServiceProvider.GetRequiredService<MongoDbContext>();
-    await mongoContext.SeedDataAsync();
-}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "EduPlatform API V1");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ma'man API V1");
     });
 }
 

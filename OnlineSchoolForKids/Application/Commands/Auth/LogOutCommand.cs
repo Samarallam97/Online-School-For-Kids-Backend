@@ -1,5 +1,5 @@
 ﻿using Application.DTOs;
-using Domain.Interfaces.Repositories;
+using Domain.Interfaces.Repositories.Users;
 using MediatR;
 using System;
 using System.Collections.Generic;

@@ -1,16 +1,16 @@
 ﻿using Domain.Entities;
-using Domain.Interfaces.Repositories;
+using Domain.Interfaces.Repositories.Content;
 using MediatR;
 namespace Application.Commands
 {
     public class DeleteFromFavouriteCommandHandler : IRequestHandler<DeleteFromFavouriteCommand, DeleteFromFavouriteResponse>
     {
         
-        private readonly IGenericRepository<Wishlist> _wishRepo;
+        private readonly IWishListRepository _wishRepo;
         
 
         public DeleteFromFavouriteCommandHandler(
-             IGenericRepository<Wishlist> wishRepo)
+             IWishListRepository wishRepo)
         {       
             _wishRepo = wishRepo;
         }

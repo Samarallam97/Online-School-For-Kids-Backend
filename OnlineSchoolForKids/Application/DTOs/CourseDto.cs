@@ -1,5 +1,5 @@
 ﻿using Domain.Entities;
-using Domain.Enums;
+using Domain.Enums.Content;
 
 namespace Application.Dtos
 {

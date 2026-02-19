@@ -1,6 +1,7 @@
 ﻿using Application.DTOs.Profile;
-using Domain.Entities;
-using Domain.Interfaces.Repositories;
+using Domain.Entities.Users;
+using Domain.Enums.Users;
+using Domain.Interfaces.Repositories.Users;
 using FluentValidation;
 using MediatR;
 
@@ -30,7 +31,7 @@ public class AddChildCommandHandler : IRequestHandler<AddChildCommand, ChildDto>
         if (parent == null)
             throw new KeyNotFoundException("Parent not found");
 
-        if (parent.Role != Domain.Enums.UserRole.Parent)
+        if (parent.Role != UserRole.Parent)
             throw new UnauthorizedAccessException("User is not a parent");
 
         // Validate input
@@ -65,11 +66,11 @@ public class AddChildCommandHandler : IRequestHandler<AddChildCommand, ChildDto>
             {
                 FullName = request.Name,
                 Email = request.Email ?? $"child_{Guid.NewGuid()}@temp.com",
-                Role = Domain.Enums.UserRole.Student,
+                Role = UserRole.Student,
                 DateOfBirth = dateOfBirth,
                 Country = parent.Country,
                 ParentId = request.UserId,
-                Status = Domain.Enums.UserStatus.Active,
+                Status = UserStatus.Active,
                 EmailVerified = string.IsNullOrWhiteSpace(request.Email),
                 IsFirstLogin = true,
                 CreatedAt = DateTime.UtcNow,

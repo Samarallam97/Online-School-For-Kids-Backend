@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Application.Commands.Profile.Users;
+using Domain.Entities;
 
 
 namespace Application.DTOs.Profile;

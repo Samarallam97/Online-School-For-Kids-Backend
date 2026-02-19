@@ -1,11 +1,29 @@
-﻿using Application.DTOs.Profile;
-using Domain.Entities;
-using Domain.Enums;
-using Domain.Interfaces.Repositories;
+﻿using Domain.Entities.Users;
+using Domain.Enums.Users;
+using Domain.Interfaces.Repositories.Users;
 using FluentValidation;
 using MediatR;
 
 namespace Application.Commands.Profile.Users;
+
+public class UpdateProfileRequest
+{
+    // Common fields
+    public string? FullName { get; set; }
+    public string? Phone { get; set; }
+    public string? Country { get; set; }
+    public string? Bio { get; set; }
+
+    // student , parent
+    public string? LearningGoals { get; set; }
+
+    // creator , specialist
+    public List<string>? ExpertiseTags { get; set; }
+
+    // Specialist
+    public string? ProfessionalTitle { get; set; }
+    public int? YearsOfExperience { get; set; }
+}
 
 public class UpdateProfileCommand : IRequest<BaseProfileDto>
 {
@@ -26,55 +44,6 @@ public class UpdateProfileCommand : IRequest<BaseProfileDto>
     // Specialist
     public string? ProfessionalTitle { get; set; }
     public int? YearsOfExperience { get; set; }
-}
-
-
-public class UpdateProfileCommandValidator : AbstractValidator<UpdateProfileCommand>
-{
-    public UpdateProfileCommandValidator()
-    {
-        RuleFor(x => x.UserId)
-            .NotEmpty().WithMessage("User ID is required");
-
-        When(x => !string.IsNullOrEmpty(x.FullName), () =>
-        {
-            RuleFor(x => x.FullName)
-                .MinimumLength(2).WithMessage("Full name must be at least 2 characters")
-                .MaximumLength(100).WithMessage("Full name cannot exceed 100 characters");
-        });
-
-        When(x => !string.IsNullOrEmpty(x.Phone), () =>
-        {
-            RuleFor(x => x.Phone)
-                .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Invalid phone number format");
-        });
-
-        When(x => !string.IsNullOrEmpty(x.Country), () =>
-        {
-            RuleFor(x => x.Country)
-                .MinimumLength(2).WithMessage("Country must be at least 2 characters")
-                .MaximumLength(100).WithMessage("Country cannot exceed 100 characters");
-        });
-
-        When(x => !string.IsNullOrEmpty(x.Bio), () =>
-        {
-            RuleFor(x => x.Bio)
-                .MaximumLength(500).WithMessage("Bio cannot exceed 500 characters");
-        });
-
-        When(x => !string.IsNullOrEmpty(x.LearningGoals), () =>
-        {
-            RuleFor(x => x.LearningGoals)
-                .MaximumLength(1000).WithMessage("Learning goals cannot exceed 1000 characters");
-        });
-
-        When(x => x.YearsOfExperience.HasValue, () =>
-        {
-            RuleFor(x => x.YearsOfExperience)
-                .GreaterThanOrEqualTo(0).WithMessage("Years of experience must be non-negative")
-                .LessThanOrEqualTo(100).WithMessage("Years of experience seems unrealistic");
-        });
-    }
 }
 
 public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand, BaseProfileDto>
@@ -165,5 +134,66 @@ public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand,
     }
 
 
+}
+
+public class UpdateProfileCommandValidator : AbstractValidator<UpdateProfileCommand>
+{
+    public UpdateProfileCommandValidator()
+    {
+        RuleFor(x => x.UserId)
+            .NotEmpty().WithMessage("User ID is required");
+
+        When(x => !string.IsNullOrEmpty(x.FullName), () =>
+        {
+            RuleFor(x => x.FullName)
+                .MinimumLength(2).WithMessage("Full name must be at least 2 characters")
+                .MaximumLength(100).WithMessage("Full name cannot exceed 100 characters");
+        });
+
+        When(x => !string.IsNullOrEmpty(x.Phone), () =>
+        {
+            RuleFor(x => x.Phone)
+                .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Invalid phone number format");
+        });
+
+        When(x => !string.IsNullOrEmpty(x.Country), () =>
+        {
+            RuleFor(x => x.Country)
+                .MinimumLength(2).WithMessage("Country must be at least 2 characters")
+                .MaximumLength(100).WithMessage("Country cannot exceed 100 characters");
+        });
+
+        When(x => !string.IsNullOrEmpty(x.Bio), () =>
+        {
+            RuleFor(x => x.Bio)
+                .MaximumLength(500).WithMessage("Bio cannot exceed 500 characters");
+        });
+
+        When(x => !string.IsNullOrEmpty(x.LearningGoals), () =>
+        {
+            RuleFor(x => x.LearningGoals)
+                .MaximumLength(1000).WithMessage("Learning goals cannot exceed 1000 characters");
+        });
+
+        When(x => x.YearsOfExperience.HasValue, () =>
+        {
+            RuleFor(x => x.YearsOfExperience)
+                .GreaterThanOrEqualTo(0).WithMessage("Years of experience must be non-negative")
+                .LessThanOrEqualTo(100).WithMessage("Years of experience seems unrealistic");
+        });
+    }
+}
+
+public class BaseProfileDto
+{
+    public string Id { get; set; }
+    public string FullName { get; set; }
+    public string Email { get; set; }
+    public string Role { get; set; }
+    public string? ProfilePictureUrl { get; set; }
+    public string? Phone { get; set; }
+    public string Country { get; set; }
+    public string? Bio { get; set; }
+    public DateTime CreatedAt { get; set; }
 }
 

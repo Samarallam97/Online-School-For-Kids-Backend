@@ -1,5 +1,5 @@
-﻿using Domain.Entities;
-using Domain.Interfaces.Repositories;
+﻿using Domain.Entities.Users;
+using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services;
 using System;
 using System.Collections.Generic;

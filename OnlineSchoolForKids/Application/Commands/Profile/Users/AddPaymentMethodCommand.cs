@@ -1,6 +1,9 @@
 ﻿using Application.DTOs.Profile;
+using Application.Queries.Profile.Users;
 using Domain.Entities;
-using Domain.Interfaces.Repositories;
+using Domain.Entities.Users;
+using Domain.Enums.Users;
+using Domain.Interfaces.Repositories.Users;
 using FluentValidation;
 using MediatR;
 using System;
@@ -18,7 +21,7 @@ public class AddPaymentMethodCommand : IRequest<PaymentMethodDto>
     public string? CardNumber { get; set; }
     public int? ExpiryMonth { get; set; }
     public int? ExpiryYear { get; set; }
-    public string? Cvc { get; set; }
+    public string? Cvv { get; set; }
     public string? CardholderName { get; set; }
 
     // Vodafone Cash
@@ -303,7 +306,7 @@ public class AddPaymentMethodCommandValidator : AbstractValidator<AddPaymentMeth
                 .GreaterThanOrEqualTo(DateTime.UtcNow.Year)
                 .WithMessage("Card has expired");
 
-            RuleFor(x => x.Cvc)
+            RuleFor(x => x.Cvv)
                 .NotEmpty()
                 .WithMessage("CVC is required")
                 .Matches(@"^\d{3,4}$")

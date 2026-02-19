@@ -1,5 +1,6 @@
-﻿using Domain.Entities;
-using Domain.Interfaces.Repositories;
+﻿using Domain.Entities.Users;
+using Domain.Enums.Users;
+using Domain.Interfaces.Repositories.Users;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -33,7 +34,7 @@ public class UpdateChildNotificationPreferencesCommandHandler
         if (parent == null)
             throw new KeyNotFoundException("Parent not found");
 
-        if (parent.Role != Domain.Enums.UserRole.Parent)
+        if (parent.Role != UserRole.Parent)
             throw new UnauthorizedAccessException("User is not a parent");
 
         // Verify child
@@ -41,7 +42,7 @@ public class UpdateChildNotificationPreferencesCommandHandler
         if (child == null)
             throw new KeyNotFoundException("Child not found");
 
-        if (child.Role != Domain.Enums.UserRole.Student)
+        if (child.Role != UserRole.Student)
             throw new InvalidOperationException("User is not a student");
 
         // Verify child is linked to this parent

@@ -1,5 +1,5 @@
-﻿using Domain.Entities;
-using Domain.Enums;
+﻿using Domain.Entities.Content;
+using Domain.Enums.Content;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System;

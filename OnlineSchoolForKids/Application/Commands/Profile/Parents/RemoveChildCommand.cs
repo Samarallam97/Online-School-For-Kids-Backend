@@ -1,4 +1,5 @@
-﻿using Domain.Interfaces.Repositories;
+﻿using Domain.Enums.Users;
+using Domain.Interfaces.Repositories.Users;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ public class RemoveChildCommandHandler : IRequestHandler<RemoveChildCommand, Uni
         if (parent == null)
             throw new KeyNotFoundException("Parent not found");
 
-        if (parent.Role != Domain.Enums.UserRole.Parent)
+        if (parent.Role != UserRole.Parent)
             throw new UnauthorizedAccessException("User is not a parent");
 
         var child = await _userRepository.GetByIdAsync(request.ChildId);
