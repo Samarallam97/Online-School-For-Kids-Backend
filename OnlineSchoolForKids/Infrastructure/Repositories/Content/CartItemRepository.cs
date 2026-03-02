@@ -1,4 +1,4 @@
-﻿using Domain.Entities.Content;
+﻿using Domain.Entities.Content.Order;
 using Domain.Interfaces.Repositories.Content;
 using StackExchange.Redis;
 using System.Text.Json;

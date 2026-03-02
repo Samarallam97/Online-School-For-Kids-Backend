@@ -1,14 +1,4 @@
-﻿using Application.Commands.Profile;
-using Application.Commands.Profile.Creator;
-using Application.DTOs.Profile;
-using Domain.Entities.Users;
-using Domain.Enums.Users;
-using Domain.Interfaces.Repositories.Users;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+﻿using Application.Commands.Profile.Creator;
 
 namespace API.Controllers;
 

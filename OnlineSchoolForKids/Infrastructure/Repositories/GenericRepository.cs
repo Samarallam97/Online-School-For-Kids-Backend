@@ -1,5 +1,7 @@
 ﻿using Domain.Entities;
+using Domain.Entities.Content.Progress;
 using Domain.Interfaces.Repositories;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Linq.Expressions;
 
@@ -90,8 +92,10 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
 
         var count = await _collection.CountDocumentsAsync(combinedFilter, cancellationToken: cancellationToken);
         return count > 0;
-    }
 
+
+    }
+    
     public async Task<long> CountAsync(Expression<Func<T, bool>>? filter = null, CancellationToken cancellationToken = default)
     {
         var deletedFilter = Builders<T>.Filter.Eq(e => e.IsDeleted, false);

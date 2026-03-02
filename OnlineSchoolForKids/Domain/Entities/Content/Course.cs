@@ -1,4 +1,5 @@
-﻿using Domain.Enums.Content;
+﻿using Domain.Entities.Content.Progress;
+using Domain.Enums.Content;
 
 namespace Domain.Entities.Content
 {
@@ -29,7 +30,7 @@ namespace Domain.Entities.Content
         // Navigation Properties
         public Category Category { get; set; } = null!;
         public ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();
-
+        public ICollection<Section>? Sections { get; set; }
         public List<string> EnrolledStudentIds { get; set; } = new();
     }
 }

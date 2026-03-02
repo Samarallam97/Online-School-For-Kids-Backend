@@ -121,7 +121,7 @@ namespace Application.Queries.Content
             };
         }
 
-        // ✅ ADD THIS METHOD
+        // ADD THIS METHOD
         private async Task<CourseDto> MapToCourseDto(CourseEntity course, HashSet<string> wishlistCourseIds, IGenericRepository<User> userRepository)
         {
             var instructor = await _userRepo.GetByIdAsync(course.InstructorId);

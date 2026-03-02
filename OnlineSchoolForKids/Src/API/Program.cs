@@ -4,7 +4,7 @@ using Application.Mapping;
 using Infrastructure;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.OpenApi.Models;
-
+using MongoDB.Driver;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -89,7 +89,6 @@ builder.Services.AddHealthChecks();
 
 
 var app = builder.Build();
-
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

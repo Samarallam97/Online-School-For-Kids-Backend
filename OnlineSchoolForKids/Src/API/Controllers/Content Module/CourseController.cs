@@ -49,8 +49,6 @@ namespace API.Controllers
             try
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-
                 var query = new GetCourseByIdQuery
                 {
                     CourseId = id,

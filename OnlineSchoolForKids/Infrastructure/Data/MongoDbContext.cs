@@ -1,6 +1,8 @@
 ﻿using Domain.Entities;
 using Domain.Entities.Content;
 using Domain.Entities.Content.Order;
+using Domain.Entities.Content.Progress;
+using Domain.Entities.Content.Quiz;
 using Domain.Entities.Users;
 using Infrastructure.Settings;
 using Microsoft.Extensions.Options;
@@ -32,6 +34,14 @@ public class MongoDbContext
     public IMongoCollection<CartItem> CartItems => _database.GetCollection<CartItem>("cartItems");
     public IMongoCollection<Order> Orders => _database.GetCollection<Order>("orders");
     public IMongoCollection<Enrollment> Enrollments => _database.GetCollection<Enrollment>("enrollments");
+    public IMongoCollection<Quiz> Quizzes => _database.GetCollection<Quiz>("quizzes");
+    public IMongoCollection<QuizAttempt> QuizAttempts => _database.GetCollection<QuizAttempt>("quizAttempts");
+    public IMongoCollection<Section> Sections => _database.GetCollection<Section>("sections");
+    public IMongoCollection<Lesson> Lessons => _database.GetCollection<Lesson>("lessons");
+    public IMongoCollection<CourseProgress> CoursesProgress => _database.GetCollection<CourseProgress>("coursesprogress");
+    public IMongoCollection<LessonProgress> LessonsProgress => _database.GetCollection<LessonProgress>("lessonsprogress");
+    public IMongoCollection<Note> Notes => _database.GetCollection<Note>("notes");
+    public IMongoCollection<Bookmark> Bookmarks => _database.GetCollection<Bookmark>("bookmarks");
     public IMongoCollection<Payment> Payments => _database.GetCollection<Payment>("payments");
 
 
