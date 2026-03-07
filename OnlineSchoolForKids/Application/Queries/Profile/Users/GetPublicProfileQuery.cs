@@ -118,7 +118,9 @@ public class GetPublicProfileQueryHandler : IRequestHandler<GetPublicProfileQuer
             Id = c.Id,
             Name = c.Name,
             Issuer = c.Issuer,
-            Year = c.Year
+            Year = c.Year,
+            DocumentUrl = c.DocumentUrl
+            
         }).ToList();
 
         // Work experiences
@@ -172,7 +174,9 @@ public class GetPublicProfileQueryHandler : IRequestHandler<GetPublicProfileQuer
             Id = c.Id,
             Name = c.Name,
             Issuer = c.Issuer,
-            Year = c.Year
+            Year = c.Year,
+            DocumentUrl = c.DocumentUrl
+
         }).ToList();
 
         dto.Experiences = user.WorkExperiences?.Select(e => new WorkExperienceDto
