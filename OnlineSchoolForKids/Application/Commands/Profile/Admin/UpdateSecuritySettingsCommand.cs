@@ -8,9 +8,13 @@ using Application.Queries.Profile.Admin;
 using Domain.Interfaces.Repositories.Users;
 using MediatR;
 
+public record UpdateSecuritySettingsRequest(
+    bool LoginNotifications,
+    bool SuspiciousActivityAlerts
+);
+
 public record UpdateSecuritySettingsCommand(
     string UserId,
-    bool TwoFactorEnabled,
     bool LoginNotifications,
     bool SuspiciousActivityAlerts
 ) : IRequest<AdminSecuritySettingsDto>;
@@ -30,7 +34,6 @@ public class UpdateSecuritySettingsCommandHandler : IRequestHandler<UpdateSecuri
         var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken)
             ?? throw new KeyNotFoundException("User not found.");
 
-        user.TwoFactorEnabled = request.TwoFactorEnabled;
         user.LoginNotifications = request.LoginNotifications;
         user.SuspiciousActivityAlerts = request.SuspiciousActivityAlerts;
 

@@ -30,6 +30,10 @@ public class AuthResponse
     public string RefreshToken { get; set; } = string.Empty;
     public UserDto User { get; set; } = null!;
     public DateTime ExpiresAt { get; set; }
+
+    // 2FA fields
+    public bool Requires2FA { get; set; } = false;
+    public string? TempToken { get; set; }
 }
 
 public record UserDto

@@ -1,4 +1,5 @@
 ﻿using Application.Commands.Auth;
+using Application.Queries.Auth;
 using Domain.Enums.Users;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
@@ -112,6 +113,23 @@ public class AuthController : ControllerBase
         {
             return BadRequest(new { error = result.Error });
         }
+
+        return Ok(result.Data);
+    }
+
+    [HttpPost("login/verify-2fa")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Verify2FA([FromBody] Verify2FARequest request, CancellationToken ct)
+    {
+        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+        var userAgent = HttpContext.Request.Headers.UserAgent.ToString();
+
+        var command = new Verify2FACommand(request.TempToken, request.Code, ipAddress, userAgent);
+        var result = await _mediator.Send(command, ct);
+
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
 
         return Ok(result.Data);
     }
@@ -331,4 +349,40 @@ public class AuthController : ControllerBase
         });
     }
 
+
+    [HttpGet("status")]
+    public async Task<IActionResult> GetStatus(CancellationToken ct)
+    {
+        string UserId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        var result = await _mediator.Send(new Get2FAStatusQuery(UserId), ct);
+        return result.IsSuccess ? Ok(result.Data) : BadRequest(new { error = result.Error });
+    }
+
+    [HttpPost("setup")]
+    public async Task<IActionResult> Setup(CancellationToken ct)
+    {
+        string UserId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+
+        var result = await _mediator.Send(new Setup2FACommand(UserId), ct);
+        return result.IsSuccess ? Ok(result.Data) : BadRequest(new { error = result.Error });
+    }
+
+    [HttpPost("confirm-setup")]
+    public async Task<IActionResult> ConfirmSetup([FromBody] ConfirmSetupRequest req, CancellationToken ct)
+    {
+        string UserId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+
+        var result = await _mediator.Send(new ConfirmSetup2FACommand(UserId, req.Secret, req.Code), ct);
+        return result.IsSuccess ? Ok(new { message = result.Data }) : BadRequest(new { error = result.Error });
+    }
+
+    [HttpPost("disable")]
+    public async Task<IActionResult> Disable([FromBody] DisableRequest req, CancellationToken ct)
+    {
+        string UserId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+
+        var result = await _mediator.Send(new Disable2FACommand(UserId, req.Code), ct);
+        return result.IsSuccess ? Ok(new { message = result.Data }) : BadRequest(new { error = result.Error });
+    }
 }
+

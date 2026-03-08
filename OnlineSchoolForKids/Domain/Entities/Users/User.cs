@@ -91,7 +91,7 @@ public class User : BaseEntity
     public bool? IsSuperAdmin { get; set; }
 
     public bool? TwoFactorEnabled { get; set; }
-
+    public string? TwoFactorSecret { get; set; }
     public bool? LoginNotifications { get; set; }
 
     public bool? SuspiciousActivityAlerts { get; set; }

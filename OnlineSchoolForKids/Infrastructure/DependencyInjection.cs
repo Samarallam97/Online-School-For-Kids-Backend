@@ -129,6 +129,7 @@ public static class DependencyInjection
 
         services.AddScoped<ITempTokenService, TempTokenService>();
 
+        services.AddScoped<ITotpService, TotpService>();
 
         // HTTP Client for Google Auth
         services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
