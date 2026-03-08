@@ -1,4 +1,5 @@
-﻿using Domain.Entities.Content.Progress;
+﻿using Domain.Entities.Content.Moderation;
+using Domain.Entities.Content.Progress;
 using Domain.Enums.Content;
 
 namespace Domain.Entities.Content
@@ -25,7 +26,7 @@ namespace Domain.Entities.Content
         public bool IsPublished { get; set; }
         public bool IsFeatured { get; set; }
         public bool IsVisible { get; set; } = true;
-
+        public CourseModerationStatus? ModerationStatus { get; set; }
 
         // Navigation Properties
         public Category Category { get; set; } = null!;

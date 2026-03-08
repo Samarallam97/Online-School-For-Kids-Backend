@@ -65,7 +65,6 @@ public class UserController : ControllerBase
             ProfessionalTitle = updateProfileRequest.ProfessionalTitle,
             YearsOfExperience = updateProfileRequest.YearsOfExperience,
         };
-
         try
         {
             var result = await _mediator.Send(command);
@@ -294,7 +293,7 @@ public class UserController : ControllerBase
     }
 
 
- 
+
     [HttpPost("profile-picture")]
     [ProducesResponseType(typeof(UploadProfilePictureDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
