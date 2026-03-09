@@ -13,8 +13,6 @@ namespace API.Controllers;
 
 [Route("api/[controller]")]
 [Authorize(Roles = "Admin")]
-//[Authorize]
-
 public class AdminController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -22,7 +20,6 @@ public class AdminController : ControllerBase
 
     public AdminController(IMediator mediator) => _mediator = mediator;
 
-    // GET /api/Admin/security-settings
     [HttpGet("security-settings")]
     public async Task<IActionResult> GetSecuritySettings(CancellationToken ct)
     {
@@ -30,7 +27,6 @@ public class AdminController : ControllerBase
         return Ok(result);
     }
 
-    // PUT /api/Admin/security-settings
     [HttpPut("security-settings")]
     public async Task<IActionResult> UpdateSecuritySettings(
         [FromBody] UpdateSecuritySettingsRequest dto,
@@ -45,7 +41,6 @@ public class AdminController : ControllerBase
         return Ok(result);
     }
 
-    // PUT /api/Admin/change-password
     [HttpPut("change-password")]
     public async Task<IActionResult> ChangePassword(
         [FromBody] ChangePasswordDto dto,
@@ -61,7 +56,6 @@ public class AdminController : ControllerBase
         return NoContent();
     }
 
-    // GET /api/Admin/activity-log?page=1&limit=10
     [HttpGet("activity-log")]
     public async Task<IActionResult> GetActivityLog(
         [FromQuery] int page = 1,
@@ -106,7 +100,6 @@ public class AdminController : ControllerBase
          [FromQuery] bool isSuperAdmin = false,
          CancellationToken ct = default)
     {
-        // Double-check: only trust isSuperAdmin=true if the JWT claim agrees
         var callerIsSuperAdmin = isSuperAdmin && CallerIsSuperAdmin;
 
         var result = await _mediator.Send(
@@ -114,7 +107,6 @@ public class AdminController : ControllerBase
         return Ok(result);
     }
 
-    // ── GET /api/Admin/users/{userId} ──────────────────────────────────────
 
     [HttpGet("users/{userId}")]
     [ProducesResponseType(typeof(AdminUserDetailDto), 200)]
@@ -130,7 +122,6 @@ public class AdminController : ControllerBase
         catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
     }
 
-    // ── PUT /api/Admin/users/{userId}/approve ──────────────────────────────
 
     [HttpPut("users/{userId}/approve")]
     [ProducesResponseType(typeof(AdminUserDto), 200)]
@@ -147,7 +138,6 @@ public class AdminController : ControllerBase
         catch (InvalidOperationException ex) { return BadRequest(new { message = ex.Message }); }
     }
 
-    // ── PUT /api/Admin/users/{userId}/suspend ──────────────────────────────
 
     [HttpPut("users/{userId}/suspend")]
     [ProducesResponseType(typeof(AdminUserDto), 200)]
@@ -164,7 +154,6 @@ public class AdminController : ControllerBase
         catch (InvalidOperationException ex) { return BadRequest(new { message = ex.Message }); }
     }
 
-    // ── DELETE /api/Admin/users/{userId} ───────────────────────────────────
 
     [HttpDelete("users/{userId}")]
     [ProducesResponseType(204)]
@@ -179,7 +168,6 @@ public class AdminController : ControllerBase
         catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
     }
 
-    // ── PUT /api/Admin/users/{userId}/change-password  (SuperAdmin only) ──
 
     [HttpPut("users/{userId}/change-password")]
     [ProducesResponseType(204)]
@@ -202,7 +190,6 @@ public class AdminController : ControllerBase
         catch (ArgumentException ex) { return BadRequest(new { message = ex.Message }); }
     }
 
-    // ── POST /api/Admin/users/bulk/approve ─────────────────────────────────
 
     [HttpPost("users/bulk/approve")]
     [ProducesResponseType(typeof(BulkActionResponse), 200)]
@@ -212,7 +199,6 @@ public class AdminController : ControllerBase
         return Ok(result);
     }
 
-    // ── POST /api/Admin/users/bulk/suspend ─────────────────────────────────
 
     [HttpPost("users/bulk/suspend")]
     [ProducesResponseType(typeof(BulkActionResponse), 200)]
@@ -222,7 +208,6 @@ public class AdminController : ControllerBase
         return Ok(result);
     }
 
-    // ── POST /api/Admin/users/bulk/delete ──────────────────────────────────
 
     [HttpPost("users/bulk/delete")]
     [ProducesResponseType(typeof(BulkActionResponse), 200)]

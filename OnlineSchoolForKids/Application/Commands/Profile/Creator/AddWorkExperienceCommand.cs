@@ -1,4 +1,4 @@
-﻿using Application.DTOs.Profile;
+﻿using Application.DTOs;
 using Domain.Entities.Users;
 using Domain.Interfaces.Repositories.Users;
 using MediatR;

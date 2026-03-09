@@ -1,5 +1,4 @@
-﻿using Application.DTOs.Profile;
-using Domain.Interfaces.Repositories.Users;
+﻿using Domain.Interfaces.Repositories.Users;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -76,4 +75,14 @@ public class UpdateWorkExperienceCommandHandler : IRequestHandler<UpdateWorkExpe
             IsCurrentRole = experience.IsCurrentRole
         };
     }
+}
+
+public class WorkExperienceDto
+{
+    public string Id { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
+    public string Place { get; set; } = string.Empty;
+    public string StartDate { get; set; } = string.Empty; // Format: "YYYY-MM"
+    public string? EndDate { get; set; } // Format: "YYYY-MM" or null if current
+    public bool IsCurrentRole { get; set; }
 }

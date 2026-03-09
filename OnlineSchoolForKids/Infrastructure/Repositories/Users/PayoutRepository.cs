@@ -1,5 +1,4 @@
-﻿// Infrastructure/Repositories/PayoutRepository.cs
-using Domain.Entities.Users;
+﻿using Domain.Entities.Users;
 using Domain.Enums.Users;
 using Domain.Interfaces.Repositories.Users;
 using Infrastructure.Data;
@@ -29,7 +28,6 @@ public class PayoutRepository : GenericRepository<Payout>, IPayoutRepository
         int? limit = null,
         CancellationToken cancellationToken = default)
     {
-        // Build filter
         Expression<Func<Payout, bool>> filter = p => p.CreatorId == creatorId;
 
         if (status.HasValue)
@@ -37,7 +35,6 @@ public class PayoutRepository : GenericRepository<Payout>, IPayoutRepository
             filter = p => p.CreatorId == creatorId && p.Status == status.Value;
         }
 
-        // Use the base GetPagedAsync method
         return await GetPagedAsync(
             filter: filter,
             orderBy: p => p.ScheduledDate,

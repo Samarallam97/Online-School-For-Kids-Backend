@@ -4,6 +4,7 @@ using Domain.Entities.Users;
 using Domain.Enums.Users;
 using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services;
+using Domain.Interfaces.Services.Shared;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Configuration;

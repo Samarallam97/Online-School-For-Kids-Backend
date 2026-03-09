@@ -1,7 +1,8 @@
 ﻿using Application;
 using Application.Commands.Profile.Creator;
 using Application.Commands.Profile.Users;
-using Application.DTOs.Profile;
+using Application.DTOs;
+using Application.Queries.Profile.Creators;
 using Application.Queries.Profile.Users;
 using Domain.Entities.Users;
 using Domain.Enums.Users;
@@ -366,7 +367,7 @@ public class UserController : ControllerBase
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null) return Unauthorized();
 
-            var query = new GetSocialLinksCommand { UserId = userId };
+            var query = new GetSocialLinksQuery { UserId = userId };
             var links = await _mediator.Send(query);
 
             return Ok(links);
@@ -493,7 +494,7 @@ public class UserController : ControllerBase
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null) return Unauthorized();
 
-            var command = new GetWorkExperiencesCommand { UserId = userId };
+            var command = new GetWorkExperiencesQuery { UserId = userId };
             var experiences = await _mediator.Send(command);
 
             return Ok(experiences);

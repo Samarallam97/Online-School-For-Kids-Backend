@@ -1,8 +1,5 @@
 ﻿using Domain.Entities.Users;
 using Domain.Enums.Users;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Domain.Interfaces.Repositories.Users;
 

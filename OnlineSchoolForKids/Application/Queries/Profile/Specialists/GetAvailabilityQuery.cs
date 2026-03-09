@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Domain.Interfaces.Repositories.Users;
+using MediatR;
 
 namespace Application.Queries.Profile.Specialists;
 
-using Application.DTOs.Profile;
-using Domain.Interfaces.Repositories.Users;
-using MediatR;
+
 public record GetAvailabilityQuery(string UserId) : IRequest<List<AvailabilitySlotDto>>;
 
 public class GetAvailabilityQueryHandler : IRequestHandler<GetAvailabilityQuery, List<AvailabilitySlotDto>>

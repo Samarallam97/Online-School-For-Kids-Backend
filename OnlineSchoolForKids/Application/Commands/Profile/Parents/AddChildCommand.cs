@@ -1,5 +1,4 @@
-﻿using Application.DTOs.Profile;
-using Domain.Entities.Users;
+﻿using Domain.Entities.Users;
 using Domain.Enums.Users;
 using Domain.Interfaces.Repositories.Users;
 using FluentValidation;
@@ -133,4 +132,14 @@ public class AddChildCommandValidator : AbstractValidator<AddChildCommand>
             .When(x => !string.IsNullOrWhiteSpace(x.Email))
             .WithMessage("Invalid email address");
     }
+}
+
+public class ChildDto
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public int Age { get; set; }
+    public string? Avatar { get; set; }
+    public string? ProfilePictureUrl { get; set; }
+    public int Courses { get; set; }
 }

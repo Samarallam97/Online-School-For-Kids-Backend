@@ -1,5 +1,4 @@
-﻿using Application.DTOs.Profile;
-using Domain.Entities.Users;
+﻿using Domain.Entities.Users;
 using Domain.Interfaces.Repositories.Users;
 using MediatR;
 using System;
@@ -61,4 +60,11 @@ public class UpdateSocialLinkCommandHandler : IRequestHandler<UpdateSocialLinkCo
 
         return dto;
     }
+}
+
+public class SocialLinkDto
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string Value { get; set; } = string.Empty;
 }

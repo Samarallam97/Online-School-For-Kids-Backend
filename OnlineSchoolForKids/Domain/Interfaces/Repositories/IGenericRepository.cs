@@ -13,8 +13,6 @@ public interface IGenericRepository<T> where T : class
     Task<bool> ExistsAsync(Expression<Func<T, bool>> filter, CancellationToken cancellationToken = default);
     Task<long> CountAsync(Expression<Func<T, bool>>? filter = null, CancellationToken cancellationToken = default);
 
-  
-    // Add these for pagination and sorting
     Task<(IEnumerable<T> Items, long TotalCount)> GetPagedAsync(
         Expression<Func<T, bool>>? filter = null,
         Expression<Func<T, object>>? orderBy = null,

@@ -12,7 +12,6 @@ namespace Application.Commands.Admin;
 
 public record ApproveUserCommand(string UserId) : IRequest<AdminUserDto>;
 
-// ── Handler ────────────────────────────────────────────────────────────────
 
 public class ApproveUserCommandHandler : IRequestHandler<ApproveUserCommand, AdminUserDto>
 {

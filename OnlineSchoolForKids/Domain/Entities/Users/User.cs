@@ -1,5 +1,4 @@
 ﻿using Domain.Enums.Users;
-using System.Diagnostics;
 
 namespace Domain.Entities.Users;
 
@@ -31,6 +30,7 @@ public class User : BaseEntity
 
     public NotificationPreferences? NotificationPreferences { get; set; }
     public List<PaymentMethod>? PaymentMethods { get; set; }
+    public List<SocialLink>? SocialLinks { get; set; }
 
 
 
@@ -38,62 +38,50 @@ public class User : BaseEntity
     public string? PortfolioUrl { get; set; }
     public string? CvLink { get; set; }
 
-
-    // Parent , Student-specific fields
+    // student
     public string? ParentId { get; set; }
+
+    // Parent
+    public List<string>? ChildrenIds { get; set; }
+    public List<string>? ChildInvitaions { get; set; }
+    public Dictionary<string, NotificationPreferences>? ChildNotificationPreferences { get; set; }
+
+    // Parent , Student
     public string? LearningGoals { get; set; }
     public List<string>? EnrolledCourseIds { get; set; }
     public List<string>? AchievementIds { get; set; }
     public int? TotalHoursLearned { get; set; } = 0;
+    public int? Points { get; set; } = 0; // TODO:: in frontend
 
-
-    // Parent-specific fields
-
-    public List<string>? ChildrenIds { get; set; }
-    public List<string>? ChildInvitaions { get; set; }
-
-    public Dictionary<string, NotificationPreferences>? ChildNotificationPreferences { get; set; }
-
-    // Content Creator specific fields
-    public bool? IsVerifiedCreator { get; set; }
+    
+    // Content Creator , Specialist
 
     public List<string>? ExpertiseTags { get; set; }
-
     public int? TotalStudents { get; set; }
-
     public decimal? TotalRevenue { get; set; }
-
     public double? AverageRating { get; set; }
-
     public List<string>? CreatedCourseIds { get; set; }
-
-    public List<SocialLink>? SocialLinks { get; set; }
-
     public List<WorkExperience>? WorkExperiences { get; set; }
-
-
-    //public PayoutSettings? PayoutSettings { get; set; }
-
-    // Specialist specific fields
-    public string? ProfessionalTitle { get; set; }
-
     public List<Certification>? Certifications { get; set; }
 
+
+    public bool? IsVerifiedCreator { get; set; } //TODO:: remove from front
+ 
+
+    // Specialist
+    public string? ProfessionalTitle { get; set; }
     public int? YearsOfExperience { get; set; }
-
     public List<AvailabilitySlot>? Availability { get; set; }
-
     public decimal? HourlyRate { get; set; }
-
     public SessionRates? SessionRates { get; set; }
 
-    // Admin specific fields
+    
+    // Admin
     public bool? IsSuperAdmin { get; set; }
 
     public bool? TwoFactorEnabled { get; set; }
     public string? TwoFactorSecret { get; set; }
     public bool? LoginNotifications { get; set; }
-
     public bool? SuspiciousActivityAlerts { get; set; }
 
     public List<ActivityLogEntry>? ActivityLog { get; set; }
@@ -111,7 +99,7 @@ public class NotificationPreferences
 
     public bool? ProgressUpdates { get; set; }
     public bool? AchievementAlerts { get; set; }
-    public bool? PaymentReminders { get; set; }
+    public bool? PaymentReminders { get; set; } //TODO:: for subscribtions
 
     // Content Creator
     public bool? CourseEnrollments { get; set; }
@@ -125,17 +113,13 @@ public class NotificationPreferences
 
     // Content Creator , specialist
     public bool? ReviewNotifications { get; set; }
-    public bool? PayoutAlerts { get; set; }
+    public bool? PayoutAlerts { get; set; } // period payouts
 
 
     // admin
 
     public bool? AccountLogin { get; set; }
     public bool? SuspiciousActivity { get; set; }
-
-
-
-
 
 }
 
@@ -178,18 +162,6 @@ public class PaymentMethod
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
 }
-public class PayoutSettings
-{
-    public string? BankAccountLast4 { get; set; }
-
-    public string? BankName { get; set; }
-
-    public bool IsVerified { get; set; } = false;
-
-    public DateTime? NextPayoutDate { get; set; }
-
-    public decimal NextPayoutAmount { get; set; } = 0;
-}
 
 public class Certification
 {
@@ -216,7 +188,6 @@ public class SessionRates
 {
     public decimal ThirtyMinSession { get; set; }
     public decimal SixtyMinSession { get; set; }
-
     public decimal PlatformFeePercentage { get; set; } = 15;
 }
 
@@ -225,8 +196,8 @@ public class ActivityLogEntry
     public string Id { get; set; } = Guid.NewGuid().ToString();
     public string Action { get; set; } = string.Empty;
     public string Details { get; set; } = string.Empty;
-    public string? TargetType { get; set; }   // e.g. "User", "Course"
-    public string? IpAddress { get; set; }     // caller's IP
+    public string? TargetType { get; set; }  
+    public string? IpAddress { get; set; } 
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 }
 
@@ -238,9 +209,4 @@ public class WorkExperience
     public string StartDate { get; set; }
     public string EndDate { get; set; }
     public bool IsCurrentRole { get; set; }
-
-
-
-
-
 }

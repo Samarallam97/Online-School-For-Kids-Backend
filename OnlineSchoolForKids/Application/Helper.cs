@@ -1,6 +1,5 @@
 ﻿using Application.Commands.Profile.Users;
 using Application.DTOs;
-using Application.DTOs.Profile;
 using Domain.Entities.Users;
 using Domain.Enums.Users;
 

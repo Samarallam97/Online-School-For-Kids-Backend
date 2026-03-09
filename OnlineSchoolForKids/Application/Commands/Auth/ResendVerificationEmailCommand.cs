@@ -1,6 +1,7 @@
 ﻿using Application.DTOs;
 using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services;
+using Domain.Interfaces.Services.Shared;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 

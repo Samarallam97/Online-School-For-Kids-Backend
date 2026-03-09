@@ -1,5 +1,4 @@
-﻿using Application.DTOs.Profile;
-using Application.Queries.Profile.Users;
+﻿using Application.Queries.Profile.Users;
 using Domain.Entities;
 using Domain.Entities.Users;
 using Domain.Enums.Users;

@@ -28,11 +28,11 @@ public class GetCertificationsQueryHandler : IRequestHandler<GetCertificationsQu
             Id = c.Id,
             Name = c.Name,
             Issuer = c.Issuer,
-            Year = c.Year.ToString(),
-            FileUrl = c.DocumentUrl,
-            FileName = string.IsNullOrEmpty(c.DocumentUrl)
-                ? null
-                : Path.GetFileName(c.DocumentUrl)
+            Year = c.Year,
+            DocumentUrl = c.DocumentUrl,
+            //FileName = string.IsNullOrEmpty(c.DocumentUrl)
+            //    ? null
+            //    : Path.GetFileName(c.DocumentUrl)
         }).ToList();
     }
 }

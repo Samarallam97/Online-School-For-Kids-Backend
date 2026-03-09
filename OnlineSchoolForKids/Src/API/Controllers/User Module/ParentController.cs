@@ -1,6 +1,7 @@
 ﻿using Application.Commands.Profile;
 using Application.Commands.Profile.Parents;
-using Application.DTOs.Profile;
+using Application.DTOs;
+using Application.Queries.Profile.Parents;
 using Domain.Entities.Users;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -34,7 +35,7 @@ public class ParentController : ControllerBase
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null) return Unauthorized();
 
-            var query = new SearchChildCommand
+            var query = new SearchChildQuery
             {
                 ParentUserId = userId,
                 Email = email
@@ -185,7 +186,7 @@ public class ParentController : ControllerBase
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null) return Unauthorized();
 
-            var query = new GetLinkedChildrenCommand { UserId = userId };
+            var query = new GetLinkedChildrenQuery { UserId = userId };
             var children = await _mediator.Send(query);
 
             return Ok(children);
@@ -246,7 +247,7 @@ public class ParentController : ControllerBase
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null) return Unauthorized();
 
-            var query = new GetChildNotificationPreferencesCommand
+            var query = new GetChildNotificationPreferencesQuery
             {
                 ParentUserId = userId,
                 ChildId = childId

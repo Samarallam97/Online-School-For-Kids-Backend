@@ -12,7 +12,6 @@ namespace Application.Commands.Admin;
 
 public record SuspendUserCommand(string UserId) : IRequest<AdminUserDto>;
 
-// ── Handler ────────────────────────────────────────────────────────────────
 
 public class SuspendUserCommandHandler : IRequestHandler<SuspendUserCommand, AdminUserDto>
 {

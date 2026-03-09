@@ -1,5 +1,5 @@
 ﻿using Application.Commands.Profile.Students;
-using Application.DTOs.Profile;
+using Application.Queries.Profile.Students;
 using Domain.Interfaces.Repositories.Users;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

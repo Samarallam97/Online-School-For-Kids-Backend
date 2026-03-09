@@ -1,7 +1,7 @@
-﻿using Application.DTOs.Profile;
-using Domain.Entities.Users;
+﻿using Domain.Entities.Users;
 using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services;
+using Domain.Interfaces.Services.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using System;

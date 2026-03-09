@@ -4,7 +4,7 @@ namespace Domain.Entities.Users;
 
 public class Payout : BaseEntity
 {
-    public string CreatorId { get; set; } = string.Empty;
+    public string CreatorId { get; set; } = string.Empty; //TODO:: UserId
     public decimal Amount { get; set; }
     public PayoutStatus Status { get; set; } = PayoutStatus.Pending;
     public string PaymentMethodId { get; set; } = string.Empty;

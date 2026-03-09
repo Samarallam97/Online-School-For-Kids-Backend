@@ -1,7 +1,7 @@
-﻿using Application.DTOs.Profile;
-using Domain.Enums.Users;
+﻿using Domain.Enums.Users;
 using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services;
+using Domain.Interfaces.Services.Shared;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -87,12 +87,8 @@ public class AcceptParentInviteCommandHandler : IRequestHandler<AcceptParentInvi
     }
 }
 
-
-
-
-
-
-
-
-
-
+public class AcceptParentInviteDto
+{
+    public string Message { get; set; } = string.Empty;
+    public string ParentName { get; set; } = string.Empty;
+}

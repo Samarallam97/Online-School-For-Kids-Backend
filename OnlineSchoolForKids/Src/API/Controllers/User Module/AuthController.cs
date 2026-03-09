@@ -24,9 +24,6 @@ public class AuthController : ControllerBase
 
     }
 
-    /// <summary>
-    /// Register a new user account
-    /// </summary>
     [HttpPost("register")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -54,9 +51,7 @@ public class AuthController : ControllerBase
         return Ok(result.Data);
     }
 
-    /// <summary>
-    /// Resend email verification link
-    /// </summary>
+
     [HttpPost("resend-verification")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> ResendVerification([FromBody] ResendVerificationRequest request)
@@ -68,9 +63,7 @@ public class AuthController : ControllerBase
     }
 
 
-    /// <summary>
-    /// Verify email with token
-    /// </summary>
+
     [HttpPost("verify-email")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -88,9 +81,6 @@ public class AuthController : ControllerBase
     }
 
     
-    /// <summary>
-    /// Login with email and password
-    /// </summary>
     [HttpPost("login")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -135,9 +125,6 @@ public class AuthController : ControllerBase
     }
 
 
-    /// <summary>
-    /// Request password reset email
-    /// </summary>
     [HttpPost("forgot-password")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
@@ -148,9 +135,6 @@ public class AuthController : ControllerBase
         return Ok(new { message = result.Data });
     }
 
-    /// <summary>
-    /// Reset password with token
-    /// </summary>
     [HttpPost("reset-password")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -172,9 +156,6 @@ public class AuthController : ControllerBase
     }
 
 
-    /// <summary>
-    /// Refresh access token using refresh token
-    /// </summary>
     [HttpPost("refresh-token")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -193,9 +174,6 @@ public class AuthController : ControllerBase
         return Ok(result.Data);
     }
 
-    /// <summary>
-    /// LogOut
-    /// </summary>
     [HttpPost("logout")]
     [Authorize]
     public async Task<IActionResult> Logout()
@@ -326,9 +304,7 @@ public class AuthController : ControllerBase
 
         return Ok(result.Data);
     }
-    /// <summary>
-    /// Get current user info (requires authentication)
-    /// </summary>
+
     [HttpGet("me")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]

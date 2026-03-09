@@ -1,5 +1,6 @@
 ﻿using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services;
+using Domain.Interfaces.Services.Shared;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,6 @@ public class ChangePasswordRequest
 }
 public record ChangeUserPasswordCommand(string UserId, string NewPassword) : IRequest;
 
-// ── Handler ────────────────────────────────────────────────────────────────
 
 public class ChangeUserPasswordCommandHandler : IRequestHandler<ChangeUserPasswordCommand>
 {

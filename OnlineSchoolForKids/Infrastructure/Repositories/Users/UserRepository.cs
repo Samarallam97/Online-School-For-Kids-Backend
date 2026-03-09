@@ -74,7 +74,6 @@ public class UserRepository : GenericRepository<User>, IUserRepository
             Builders<User>.Filter.Eq(u => u.IsDeleted, false)
         };
 
-        // Exclude Admin-role users for non-super-admin callers
         if (excludeAdmins)
             filters.Add(Builders<User>.Filter.Ne(u => u.Role, UserRole.Admin));
 
@@ -100,7 +99,6 @@ public class UserRepository : GenericRepository<User>, IUserRepository
 
         var combined = Builders<User>.Filter.And(filters);
 
-        // Count uses the same filter — total is always accurate
         var totalCount = await _collection.CountDocumentsAsync(combined, cancellationToken: ct);
 
         var items = await _collection
@@ -113,7 +111,6 @@ public class UserRepository : GenericRepository<User>, IUserRepository
         return (items, totalCount);
     }
 
-    // ── Admin: fetch multiple users by id list ─────────────────────────────
 
     public async Task<List<User>> GetManyByIdsAsync(List<string> ids, CancellationToken ct = default)
     {
@@ -123,8 +120,6 @@ public class UserRepository : GenericRepository<User>, IUserRepository
         );
         return await _collection.Find(filter).ToListAsync(ct);
     }
-
-    // ── Hard delete — permanently removes the document ────────────────────
 
     public async Task<bool> HardDeleteAsync(string id, CancellationToken ct = default)
     {

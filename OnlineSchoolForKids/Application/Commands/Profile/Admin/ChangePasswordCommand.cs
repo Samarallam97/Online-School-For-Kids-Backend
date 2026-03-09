@@ -1,6 +1,7 @@
 ﻿using Domain.Entities.Users;
 using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services;
+using Domain.Interfaces.Services.Shared;
 using MediatR;
 using System;
 using System.Collections.Generic;

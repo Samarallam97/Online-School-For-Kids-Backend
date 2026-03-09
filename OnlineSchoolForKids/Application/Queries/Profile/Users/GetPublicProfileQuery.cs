@@ -1,4 +1,4 @@
-﻿using Application.DTOs.Profile;
+﻿using Application.Commands.Profile.Creator;
 using Application.Queries.Profile.Creators;
 using Application.Queries.Profile.Specialists;
 using Domain.Entities.Users;
@@ -239,14 +239,25 @@ public class PublicProfileDto
 }
 
 
+public class EnrolledCourseDto
+{
+    public string Name { get; set; } = string.Empty;
+    public string Instructor { get; set; } = string.Empty;
+    public int? Progress { get; set; }
+}
 
+public class CertificationDto
+{
+    public string Id { get; set; }
+    public string Name { get; set; }
+    public string Issuer { get; set; }
+    public int Year { get; set; }
+    public string? DocumentUrl { get; set; }
+}
 
-
-
-
-
-
-
-
-
+public class RecentAchievementDto
+{
+    public string Name { get; set; } = string.Empty;
+    public DateTime EarnedDate { get; set; }
+}
 
