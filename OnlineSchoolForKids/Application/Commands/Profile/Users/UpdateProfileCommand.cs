@@ -195,5 +195,7 @@ public class BaseProfileDto
     public string Country { get; set; }
     public string? Bio { get; set; }
     public DateTime CreatedAt { get; set; }
+
+    public bool IsSuperAdmin { get; set; }
 }
 

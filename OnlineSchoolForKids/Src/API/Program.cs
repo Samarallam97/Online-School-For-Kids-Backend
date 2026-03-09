@@ -2,6 +2,7 @@ using API.Middleware;
 using Application;
 using Application.Mapping;
 using Infrastructure;
+using Infrastructure.Data;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
@@ -120,5 +121,7 @@ var cleanupTimer = new System.Threading.Timer(_ =>
 {
     RateLimitingMiddleware.CleanupOldEntries();
 }, null, TimeSpan.Zero, TimeSpan.FromMinutes(5));
+
+await SuperAdminSeeder.SeedAsync(app);
 
 app.Run();

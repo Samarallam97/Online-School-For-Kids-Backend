@@ -193,6 +193,62 @@ public class JwtTokenService : IJwtTokenService
 
         return (newAccessToken, newRefreshToken);
     }
+
+    public string GenerateTempToken(string userId)
+    {
+        var claims = new[]
+        {
+        new Claim(JwtRegisteredClaimNames.Sub, userId),
+        new Claim("type", "2fa_pending")
+    };
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret!));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+            issuer: _jwtSettings.Issuer,
+            audience: _jwtSettings.Audience,
+            claims: claims,
+            expires: DateTime.UtcNow.AddMinutes(5),
+            signingCredentials: creds
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public string? ValidateTempToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret!));
+
+        try
+        {
+            tokenHandler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = key,
+                ValidateIssuer = true,
+                ValidIssuer = _jwtSettings.Issuer,
+                ValidateAudience = true,
+                ValidAudience = _jwtSettings.Audience,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero   // strict 5-min expiry, no extra grace period
+            }, out var validatedToken);
+
+            var jwt = (JwtSecurityToken)validatedToken;
+
+            // Reject if not a 2fa_pending token (prevents using a real access token here)
+            var type = jwt.Claims.FirstOrDefault(c => c.Type == "type")?.Value;
+            if (type != "2fa_pending")
+                return null;
+
+            return jwt.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
+        }
+        catch
+        {
+            return null;
+        }
+    }
 }
 
 

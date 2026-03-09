@@ -8,7 +8,11 @@ public interface IJwtTokenService
     string GenerateRefreshToken();
     Task<RefreshToken> CreateRefreshTokenAsync(string userId, string token, string? ipAddress = null, string? deviceInfo = null);
     Task<(string AccessToken, string RefreshToken)?> RefreshTokenAsync(string refreshToken, string? ipAddress = null);
+
+    string GenerateTempToken(string userId);
+    string? ValidateTempToken(string tempToken);
 }
+
 
 public interface IPasswordHasher
 {

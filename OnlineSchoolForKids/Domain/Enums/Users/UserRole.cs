@@ -7,5 +7,4 @@ public enum UserRole
     ContentCreator = 3,
     Specialist = 4,
     Admin = 5,
-    SuperAdmin = 6
 }

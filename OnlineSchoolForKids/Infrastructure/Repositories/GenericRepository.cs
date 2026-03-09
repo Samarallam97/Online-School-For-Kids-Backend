@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Domain.Interfaces.Repositories;
+using Infrastructure.Data;
 using MongoDB.Driver;
 using System.Linq.Expressions;
 
@@ -13,6 +14,12 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     public GenericRepository(IMongoCollection<T> collection)
     {
         _collection = collection;
+    }
+
+    public GenericRepository(MongoDbContext context)
+    {
+        var collectionName = typeof(T).Name + "s";
+        _collection = context.GetCollection<T>(collectionName);
     }
     public async Task<T> CreateAsync(T entity, CancellationToken cancellationToken = default)
     {

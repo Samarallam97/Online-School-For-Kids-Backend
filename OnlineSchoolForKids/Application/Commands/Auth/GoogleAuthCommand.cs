@@ -8,85 +8,128 @@ using MediatR;
 
 namespace Application.Commands.Auth;
 
+
 public record GoogleAuthRequest(
-    string GoogleToken,
-    UserRole Role
+    string GoogleId,
+    string Email,
+    string FullName,
+    string? ProfilePictureUrl,
+    bool EmailVerified,
+    UserRole? Role           // null when the backend could not determine role yet
 );
 
+
 public record GoogleAuthCommand(
-    string GoogleToken,
-    UserRole Role,
+    string GoogleId,
+    string Email,
+    string FullName,
+    string? ProfilePictureUrl,
+    bool EmailVerified,
+    UserRole? Role,
     string? IpAddress = null,
     string? DeviceInfo = null
-) : IRequest<Result<AuthResponse>>;
+) : IRequest<Result<GoogleAuthResponse>>;
 
-public class GoogleAuthCommandHandler : IRequestHandler<GoogleAuthCommand, Result<AuthResponse>>
+
+public class GoogleAuthCommandHandler : IRequestHandler<GoogleAuthCommand, Result<GoogleAuthResponse>>
 {
     private readonly IUserRepository _userRepository;
-    private readonly IGoogleAuthService _googleAuthService;
     private readonly IJwtTokenService _jwtTokenService;
+    private readonly ITempTokenService _tempTokenService;
 
     public GoogleAuthCommandHandler(
         IUserRepository userRepository,
-        IGoogleAuthService googleAuthService,
-        IJwtTokenService jwtTokenService)
+        IJwtTokenService jwtTokenService,
+        ITempTokenService tempTokenService)
     {
         _userRepository = userRepository;
-        _googleAuthService = googleAuthService;
         _jwtTokenService = jwtTokenService;
+        _tempTokenService = tempTokenService;
     }
 
-    public async Task<Result<AuthResponse>> Handle(GoogleAuthCommand request, CancellationToken cancellationToken)
+    public async Task<Result<GoogleAuthResponse>> Handle(
+        GoogleAuthCommand request,
+        CancellationToken cancellationToken)
     {
-        // Validate Google token
-        var googleUserInfo = await _googleAuthService.ValidateGoogleTokenAsync(request.GoogleToken, cancellationToken);
+        // ── 1. Look up existing user ─────────────────────────────────────────
+        var user = await _userRepository.GetByGoogleIdAsync(request.GoogleId, cancellationToken)
+                   ?? await _userRepository.GetByEmailAsync(request.Email.ToLower(), cancellationToken);
 
-        if (googleUserInfo == null)
+        bool isNewUser = user == null;
+
+        // ── 2. New user – role not yet known → defer to role-selection page ──
+        if (isNewUser && request.Role == null)
         {
-            return Result<AuthResponse>.Failure("Invalid Google token.");
+            var tempToken = await _tempTokenService.StorePendingGoogleUserAsync(new PendingGoogleUser
+            {
+                GoogleId = request.GoogleId,
+                Email = request.Email,
+                FullName = request.FullName,
+                ProfilePictureUrl = request.ProfilePictureUrl,
+                EmailVerified = request.EmailVerified
+            });
+
+            return Result<GoogleAuthResponse>.Success(new GoogleAuthResponse
+            {
+                RequiresRoleSelection = true,
+                TempToken = tempToken
+            });
         }
 
-        // Check if user exists by Google ID or email
-        var user = await _userRepository.GetByGoogleIdAsync(googleUserInfo.GoogleId, cancellationToken)
-                   ?? await _userRepository.GetByEmailAsync(googleUserInfo.Email.ToLower(), cancellationToken);
-
-        if (user == null)
+        // ── 3. New user + role provided → create account ─────────────────────
+        if (isNewUser)
         {
-            // Create new user
             user = new User
             {
-                FullName = googleUserInfo.FullName,
-                Email = googleUserInfo.Email.ToLower(),
-                GoogleId = googleUserInfo.GoogleId,
-                Role = request.Role,
+                FullName = request.FullName,
+                Email = request.Email.ToLower(),
+                GoogleId = request.GoogleId,
+                Role = request.Role!.Value,
                 AuthProvider = AuthProvider.Google,
-                EmailVerified = googleUserInfo.EmailVerified,
-                ProfilePictureUrl = googleUserInfo.ProfilePictureUrl,
-                LastLoginAt = DateTime.UtcNow
+                EmailVerified = request.EmailVerified,
+                ProfilePictureUrl = request.ProfilePictureUrl,
+                LastLoginAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow
             };
+
+            // ContentCreator and Specialist need admin approval — mirrors RegisterCommandHandler
+            if (request.Role == UserRole.ContentCreator || request.Role == UserRole.Specialist)
+                user.Status = UserStatus.Pending;
 
             await _userRepository.CreateAsync(user, cancellationToken);
         }
+        // ── 4. Existing user → update login metadata (role is never changed) ─
         else
         {
-            // Update existing user
-            if (user.GoogleId == null)
-            {
-                user.GoogleId = googleUserInfo.GoogleId;
-            }
+            if (user!.GoogleId == null)
+                user.GoogleId = request.GoogleId;
 
             user.LastLoginAt = DateTime.UtcNow;
-            user.EmailVerified = true; // Google verifies emails
+            user.EmailVerified = true; // Google guarantees email ownership
 
-            if (string.IsNullOrEmpty(user.ProfilePictureUrl) && !string.IsNullOrEmpty(googleUserInfo.ProfilePictureUrl))
-            {
-                user.ProfilePictureUrl = googleUserInfo.ProfilePictureUrl;
-            }
+            if (string.IsNullOrEmpty(user.ProfilePictureUrl) && !string.IsNullOrEmpty(request.ProfilePictureUrl))
+                user.ProfilePictureUrl = request.ProfilePictureUrl;
 
             await _userRepository.UpdateAsync(user.Id, user, cancellationToken);
         }
 
-        // Generate tokens
+        // ── 5. Check account status — mirrors LoginCommandHandler ─────────────
+        if (user!.Status != UserStatus.Active)
+        {
+            return Result<GoogleAuthResponse>.Failure(
+                "Account is deactivated or not approved. Please contact support.");
+        }
+
+        // Uses the shared Helper.MapToUserDto — same as RegisterCommandHandler
+
+        var userDto = Helper.MapToUserDto(user);
+        if (user.IsFirstLogin)
+        {
+            user.IsFirstLogin = false;
+            await _userRepository.UpdateAsync(user.Id, user, cancellationToken);
+        }
+
+        // ── 7. Generate tokens ────────────────────────────────────────────────
         var accessToken = _jwtTokenService.GenerateAccessToken(user);
         var refreshToken = _jwtTokenService.GenerateRefreshToken();
 
@@ -97,21 +140,27 @@ public class GoogleAuthCommandHandler : IRequestHandler<GoogleAuthCommand, Resul
             request.DeviceInfo
         );
 
-        return Result<AuthResponse>.Success(new AuthResponse
+        return Result<GoogleAuthResponse>.Success(new GoogleAuthResponse
         {
+            RequiresRoleSelection = false,
             AccessToken = accessToken,
             RefreshToken = refreshToken,
-            User = MapToUserDto(user),
+            User = userDto,
             ExpiresAt = DateTime.UtcNow.AddMinutes(15)
         });
     }
+}
 
-    private static UserDto MapToUserDto(User user) => new()
-    {
-        Id = user.Id,
-        FullName = user.FullName,
-        Role = user.Role.ToString(),
-        ProfilePictureUrl = user.ProfilePictureUrl,
-        IsFirstLogin = user.IsFirstLogin
-    };
+public class GoogleAuthResponse
+{
+    public bool RequiresRoleSelection { get; set; }
+
+    // Populated only when RequiresRoleSelection = true
+    public string? TempToken { get; set; }
+
+    // Populated only when RequiresRoleSelection = false
+    public string? AccessToken { get; set; }
+    public string? RefreshToken { get; set; }
+    public UserDto? User { get; set; }
+    public DateTime ExpiresAt { get; set; }
 }
