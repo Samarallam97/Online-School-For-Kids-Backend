@@ -90,6 +90,9 @@ public static class DependencyInjection
         services.AddScoped<ICourseProgressRepository, CourseProgressRepository>();
         services.AddScoped<IBookmarkRepository, BookmarkRepository>();
         services.AddScoped<IEventRepository, EventRepository>();
+
+        services.AddScoped<ICommentRepository, CommentRepository>();
+        services.AddScoped<IReportedContentRepository, ReportedContentRepository>();
         #endregion
 
 
