@@ -1,11 +1,11 @@
 ﻿namespace Domain.Enums.Content
 {
-    public enum CourseLevel
-    {
-        Beginner = 1,
-        Intermediate = 2,
-        Advanced = 3
-    }
+    //public enum CourseLevel
+    //{
+    //    Beginner = 1,
+    //    Intermediate = 2,
+    //    Advanced = 3
+    //}
     public enum CourseStatus
     {
         Draft = 1,

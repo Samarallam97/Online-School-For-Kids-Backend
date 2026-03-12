@@ -32,6 +32,8 @@ public class MongoDbContext
     // Content Module
 
     public IMongoCollection<Course> Courses => _database.GetCollection<Course>("courses");
+
+    public IMongoCollection<Category> Categories => GetCollection<Category>("categories");
     public IMongoCollection<Wishlist> Wishlists => _database.GetCollection<Wishlist>("wishlist");
     public IMongoCollection<CartItem> CartItems => _database.GetCollection<CartItem>("cartItems");
     public IMongoCollection<Order> Orders => _database.GetCollection<Order>("orders");

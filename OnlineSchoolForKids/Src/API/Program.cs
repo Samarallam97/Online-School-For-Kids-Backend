@@ -131,5 +131,6 @@ var cleanupTimer = new Timer(_ =>
 }, null, TimeSpan.Zero, TimeSpan.FromMinutes(5));
 
 await SuperAdminSeeder.SeedAsync(app);
+await CourseSeeder.SeedAsync(app);
 
 app.Run();

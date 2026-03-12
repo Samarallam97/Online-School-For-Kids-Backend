@@ -12,7 +12,7 @@ namespace Application.Mapping
 
                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src =>
                    src.Category != null ? src.Category.Name : "Unknown"))
-               .ForMember(dest => dest.LevelDisplay, opt => opt.MapFrom(src => src.Level.ToString()))
+               .ForMember(dest => dest.LevelDisplay, opt => opt.MapFrom(src => src.AgeGroup.ToString()))
                .ForMember(dest => dest.IsInWishlist, opt => opt.Ignore()) // Set manually
                .ForMember(dest => dest.IsInCart, opt => opt.Ignore()); // Set manually
 

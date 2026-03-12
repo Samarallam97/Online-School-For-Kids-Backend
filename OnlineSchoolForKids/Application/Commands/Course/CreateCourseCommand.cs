@@ -38,7 +38,7 @@ namespace Application.Commands
                     Title = dto.Title,
                     Description = dto.Description,
                     CategoryId = dto.CategoryId,
-                    Level = Enum.Parse<CourseLevel>(dto.Level, true),
+                    AgeGroup = Enum.Parse<AgeGroup>(dto.AgeGroup, true),
                     Price = dto.Price,
                     ThumbnailUrl = dto.ThumbnailUrl ?? "",
                     IsPublished = false,
@@ -105,7 +105,7 @@ namespace Application.Commands
                 course.Title = dto.Title;
                 course.Description = dto.Description;
                 course.CategoryId = dto.CategoryId;
-                course.Level = dto.Level;
+                course.AgeGroup = dto.AgeGroup;
                 course.Price = dto.Price;
                 course.ThumbnailUrl = dto.ThumbnailUrl ?? course.ThumbnailUrl;
                 course.IsPublished = dto.IsPublished;
@@ -217,8 +217,8 @@ namespace Application.Commands
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
        
-        public string CategoryId { get; set; } = string.Empty;   // بدل Category
-        public string Level { get; set; } = "Beginner";
+        public string CategoryId { get; set; } = string.Empty;   
+        public string AgeGroup { get; set; }
         public decimal Price { get; set; }
         public string? ThumbnailUrl { get; set; }
     }
@@ -232,7 +232,7 @@ public class CourseDto : BaseEntity
     public string InstructorId { get; set; } = string.Empty;
     public string CategoryName { get; set; } = string.Empty;
     public string CategoryId { get; set; } = string.Empty;
-    public CourseLevel Level { get; set; }
+    public AgeGroup AgeGroup { get; set; }
     public string LevelDisplay { get; set; } = string.Empty;
     public decimal Price { get; set; }
     public decimal? DiscountPrice { get; set; }
@@ -265,7 +265,7 @@ public class UpdateCourseDto
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string CategoryId { get; set; } = string.Empty;
-    public CourseLevel Level { get; set; } 
+    public AgeGroup AgeGroup { get; set; } 
     public decimal Price { get; set; }
     public string? ThumbnailUrl { get; set; }
     public string? PreviewVideoUrl { get; set; }

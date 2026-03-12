@@ -20,7 +20,8 @@ public class AuthController : ControllerBase
 
     public AuthController(IMediator mediator, IConfiguration configuration )
     {
-        _mediator = mediator;        _configuration=configuration;
+        _mediator = mediator;
+        _configuration=configuration;
 
     }
 

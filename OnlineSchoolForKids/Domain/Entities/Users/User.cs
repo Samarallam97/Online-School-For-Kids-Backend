@@ -60,6 +60,12 @@ public class User : BaseEntity
     public int? TotalStudents { get; set; }
     public decimal? TotalRevenue { get; set; }
     public double? AverageRating { get; set; }
+    public int? ReviewsCount { get; set; }
+    public int? StudentsCount { get; set; }
+    public int? CoursesCount { get; set; }
+
+
+
     public List<string>? CreatedCourseIds { get; set; }
     public List<WorkExperience>? WorkExperiences { get; set; }
     public List<Certification>? Certifications { get; set; }

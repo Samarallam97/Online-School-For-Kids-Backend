@@ -93,6 +93,8 @@ public static class DependencyInjection
 
         services.AddScoped<ICommentRepository, CommentRepository>();
         services.AddScoped<IReportedContentRepository, ReportedContentRepository>();
+
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
         #endregion
 
 

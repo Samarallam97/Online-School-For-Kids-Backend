@@ -1,4 +1,5 @@
 ﻿using Application.Commands;
+using Application.Commands.Course;
 using Application.Queries.Content;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -10,7 +11,7 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class CourseController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -22,7 +23,7 @@ namespace API.Controllers
             _logger = logger;
         }
         [HttpGet]
-        public async Task<ActionResult<PagedResult<CourseDto>>> GetCourses([FromQuery] GetCoursesQuery query)
+        public async Task<ActionResult<PagedResult<GetCoursesDto>>> GetCourses([FromQuery] GetCoursesQuery query)
         {
             try
             {
@@ -38,11 +39,12 @@ namespace API.Controllers
                 return StatusCode(500, new { message = "An error occurred while retrieving courses.", success = false });
             }
         }
+       
+        
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(CourseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Authorize(Roles = "Student")]
 
         public async Task<ActionResult<CourseDto>> GetCourseById(string id)
         {
@@ -145,6 +147,51 @@ namespace API.Controllers
                 });
             }
         }
+
+        [HttpDelete("favourite/clear")]
+        [ProducesResponseType(typeof(ClearWishlistResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ClearWishlistResponse>> ClearWishlist()
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (String.IsNullOrEmpty(userId))
+                    return Unauthorized(new { message = "User not authenticated", success = false });
+
+                var command = new ClearWishlistCommand { UserId = userId };
+                var result = await _mediator.Send(command);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error clearing wishlist");
+                return StatusCode(500, new
+                {
+                    message = "An error occurred while clearing wishlist",
+                    success = false,
+                });
+            }
+        }
+
+
+
+
+        [HttpGet("favourite/count")]
+        [ProducesResponseType(typeof(GetWishlistCountResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<GetWishlistCountResponse>> GetWishlistCount()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new { message = "User not authenticated", success = false });
+
+            var result = await _mediator.Send(new GetWishlistCountQuery { UserId = userId });
+            return Ok(new { data = result, message = "Count retrieved", success = true });
+        }
+
+
         [HttpPost("favourite")]
         [ProducesResponseType(typeof(AddToFavouriteResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -235,6 +282,48 @@ namespace API.Controllers
                 {
                     message = "An error occurred while removing from favourites",
                     success = false
+                });
+            }
+        }
+
+
+        [HttpGet("favourite")]
+        [ProducesResponseType(typeof(GetUserWishlistResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<GetUserWishlistResponse>> GetWishlist(
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 12)
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized(new { message = "User not authenticated", success = false });
+
+                var query = new GetUserWishlistQuery
+                {
+                    UserId   = userId,
+                    Page     = Math.Max(1, page),
+                    PageSize = Math.Clamp(pageSize, 1, 50),
+                };
+
+                var result = await _mediator.Send(query);
+
+                return Ok(new
+                {
+                    data = result,
+                    message = result.Message,
+                    success = true,
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching user wishlist");
+                return StatusCode(500, new
+                {
+                    message = "An error occurred while fetching your wishlist",
+                    success = false,
                 });
             }
         }
