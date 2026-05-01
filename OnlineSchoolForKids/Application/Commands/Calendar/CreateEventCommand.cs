@@ -1,6 +1,7 @@
 ﻿using Domain.Entities.Content.Calendar;
 using Domain.Enums.Content;
 using Domain.Interfaces.Repositories.Content;
+using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
@@ -11,7 +12,6 @@ namespace Application.Commands.Calendar
     public class CreateEventCommand : IRequest<EventDto?>
     {
         public string InstructorId { get; set; } = string.Empty;
-        public string InstructorName { get; set; } = string.Empty;
         public CreateEventDto Dto { get; set; } = new();
     }
 
@@ -53,7 +53,6 @@ namespace Application.Commands.Calendar
                     CourseId = dto.CourseId,
                     CourseName = courseName,
                     InstructorId = request.InstructorId,
-                    InstructorName = request.InstructorName,
                     StartDateTime = dto.StartDateTime,
                     EndDateTime = dto.StartDateTime.AddMinutes(dto.Duration),
                     Duration = dto.Duration,
@@ -171,7 +170,6 @@ namespace Application.Commands.Calendar
         public class JoinEventCommand : IRequest<JoinEventResponse>
         {
             public string UserId { get; set; } = string.Empty;
-            public string UserName { get; set; } = string.Empty;
             public string EventId { get; set; } = string.Empty;
         }
         public class JoinEventResponse
@@ -236,7 +234,6 @@ namespace Application.Commands.Calendar
                     eventEntity.Attendees.Add(new EventAttendee
                     {
                         UserId = request.UserId,
-                        UserName = request.UserName,
                         JoinedAt = DateTime.UtcNow,
                         Status = AttendeeStatus.Registered
                     });
@@ -263,6 +260,80 @@ namespace Application.Commands.Calendar
                 }
             }
 
+        }
+        public class CreateEventDtoValidator : AbstractValidator<CreateEventDto>
+        {
+            public CreateEventDtoValidator()
+            {
+                RuleFor(x => x.Title)
+                    .NotEmpty().WithMessage("Event title is required")
+                    .MinimumLength(5).WithMessage("Title must be at least 5 characters")
+                    .MaximumLength(200).WithMessage("Title cannot exceed 200 characters");
+
+                RuleFor(x => x.Description)
+                    .MaximumLength(2000).WithMessage("Description cannot exceed 2000 characters")
+                    .When(x => !string.IsNullOrEmpty(x.Description));
+
+                RuleFor(x => x.Type)
+                    .NotEmpty().WithMessage("Event type is required")
+                    .Must(type => new[] { "LiveSession", "Assignment", "StudyGroup", "Webinar", "Exam", "Deadline", "Other" }.Contains(type))
+                    .WithMessage("Invalid event type");
+
+                RuleFor(x => x.StartDateTime)
+                    .NotEmpty().WithMessage("Start date/time is required")
+                    .Must(date => date > DateTime.UtcNow)
+                    .WithMessage("Start date/time must be in the future");
+
+                RuleFor(x => x.Duration)
+                    .GreaterThan(0).WithMessage("Duration must be greater than 0 minutes")
+                    .LessThanOrEqualTo(600).WithMessage("Duration cannot exceed 10 hours (600 minutes)");
+
+                RuleFor(x => x.MeetingUrl)
+                    .MaximumLength(500).WithMessage("Meeting URL cannot exceed 500 characters")
+                    .Must(url => url == null || url.StartsWith("http://") || url.StartsWith("https://"))
+                    .WithMessage("Meeting URL must be a valid URL")
+                    .When(x => !string.IsNullOrEmpty(x.MeetingUrl));
+
+                RuleFor(x => x.MaxAttendees)
+                    .GreaterThan(0).WithMessage("Max attendees must be greater than 0")
+                    .LessThanOrEqualTo(10000).WithMessage("Max attendees cannot exceed 10,000")
+                    .When(x => x.MaxAttendees.HasValue);
+            }
+        }
+        public class UpdateEventDtoValidator : AbstractValidator<UpdateEventDto>
+        {
+            public UpdateEventDtoValidator()
+            {
+                RuleFor(x => x.Title)
+                    .NotEmpty().WithMessage("Event title is required")
+                    .MinimumLength(5).WithMessage("Title must be at least 5 characters")
+                    .MaximumLength(200).WithMessage("Title cannot exceed 200 characters");
+
+                RuleFor(x => x.Description)
+                    .MaximumLength(2000).WithMessage("Description cannot exceed 2000 characters")
+                    .When(x => !string.IsNullOrEmpty(x.Description));
+
+                RuleFor(x => x.StartDateTime)
+                    .NotEmpty().WithMessage("Start date/time is required");
+
+                RuleFor(x => x.Duration)
+                    .GreaterThan(0).WithMessage("Duration must be greater than 0 minutes")
+                    .LessThanOrEqualTo(600).WithMessage("Duration cannot exceed 10 hours");
+
+                RuleFor(x => x.MeetingUrl)
+                    .MaximumLength(500).WithMessage("Meeting URL cannot exceed 500 characters")
+                    .Must(url => url == null || url.StartsWith("http://") || url.StartsWith("https://"))
+                    .WithMessage("Meeting URL must be a valid URL")
+                    .When(x => !string.IsNullOrEmpty(x.MeetingUrl));
+            }
+        }
+        public class JoinEventDtoValidator : AbstractValidator<JoinEventDto>
+        {
+            public JoinEventDtoValidator()
+            {
+                RuleFor(x => x.EventId)
+                    .NotEmpty().WithMessage("Event ID is required");
+            }
         }
         public class EventDto
         {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Application.Queries.Profile.Admin;
+﻿namespace Application.Queries.Profile.Admin;
 
 using Domain.Interfaces.Repositories.Users;
 using MediatR;

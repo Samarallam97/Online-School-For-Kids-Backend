@@ -10,7 +10,6 @@ namespace Application.Commands.Moderation
     public class ReportContentCommand : IRequest<bool>
     {
         public string UserId { get; set; } = string.Empty;
-        public string UserName { get; set; } = string.Empty;
         public ReportContentDto Dto { get; set; } = new();
     }
 
@@ -43,7 +42,6 @@ namespace Application.Commands.Moderation
                 var report = new ReportedContent
                 {
                     ReportedBy = request.UserId,
-                    ReportedByName = request.UserName,
                     ContentType = Enum.Parse<ContentType>(request.Dto.ContentType),
                     ContentId = request.Dto.ContentId,
                     ContentTitle = request.Dto.ContentTitle,

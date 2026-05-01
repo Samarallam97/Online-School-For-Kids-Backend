@@ -18,10 +18,9 @@ public class AuthController : ControllerBase
     private readonly IConfiguration _configuration;
 
 
-    public AuthController(IMediator mediator, IConfiguration configuration )
+    public AuthController(IMediator mediator, IConfiguration configuration)
     {
-        _mediator = mediator;
-        _configuration=configuration;
+        _mediator = mediator;        _configuration = configuration;
 
     }
 
@@ -81,7 +80,6 @@ public class AuthController : ControllerBase
         return Ok(new { message = result.Data });
     }
 
-    
     [HttpPost("login")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -104,27 +102,9 @@ public class AuthController : ControllerBase
         {
             return BadRequest(new { error = result.Error });
         }
-
         return Ok(result.Data);
+
     }
-
-    [HttpPost("login/verify-2fa")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Verify2FA([FromBody] Verify2FARequest request, CancellationToken ct)
-    {
-        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-        var userAgent = HttpContext.Request.Headers.UserAgent.ToString();
-
-        var command = new Verify2FACommand(request.TempToken, request.Code, ipAddress, userAgent);
-        var result = await _mediator.Send(command, ct);
-
-        if (!result.IsSuccess)
-            return BadRequest(new { error = result.Error });
-
-        return Ok(result.Data);
-    }
-
 
     [HttpPost("forgot-password")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -135,7 +115,7 @@ public class AuthController : ControllerBase
 
         return Ok(new { message = result.Data });
     }
-
+ 
     [HttpPost("reset-password")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -155,6 +135,25 @@ public class AuthController : ControllerBase
 
         return Ok(new { message = result.Data });
     }
+
+
+    [HttpPost("login/verify-2fa")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Verify2FA([FromBody] Verify2FARequest request, CancellationToken ct)
+    {
+        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+        var userAgent = HttpContext.Request.Headers.UserAgent.ToString();
+
+        var command = new Verify2FACommand(request.TempToken, request.Code, ipAddress, userAgent);
+        var result = await _mediator.Send(command, ct);
+
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+
+        return Ok(result.Data);
+    }
+
 
 
     [HttpPost("refresh-token")]
@@ -361,5 +360,5 @@ public class AuthController : ControllerBase
         var result = await _mediator.Send(new Disable2FACommand(UserId, req.Code), ct);
         return result.IsSuccess ? Ok(new { message = result.Data }) : BadRequest(new { error = result.Error });
     }
-}
 
+}

@@ -1,8 +1,5 @@
 ﻿using Domain.Interfaces.Repositories.Users;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Application.Queries.Profile.Admin;
 

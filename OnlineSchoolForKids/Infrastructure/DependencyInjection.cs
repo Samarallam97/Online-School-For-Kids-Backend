@@ -1,7 +1,4 @@
-﻿using Domain.Entities.Content.Moderation;
-using Domain.Entities.Content.Progress;
-using Domain.Entities.Content.Quiz;
-using Domain.Interfaces.Repositories;
+﻿using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Repositories.Content;
 using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services;
@@ -22,7 +19,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Conventions;
-using MongoDB.Driver;
 using StackExchange.Redis;
 using System.Text;
 
@@ -66,8 +62,10 @@ public static class DependencyInjection
         }
         #endregion
 
-        services.AddMemoryCache();
 
+
+        services.AddMemoryCache();
+      
         #region Repositories
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         
@@ -91,8 +89,12 @@ public static class DependencyInjection
         services.AddScoped<ICourseProgressRepository, CourseProgressRepository>();
         services.AddScoped<IBookmarkRepository, BookmarkRepository>();
         services.AddScoped<IEventRepository, EventRepository>();
-
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<ICourseRepository, CourseRepository>();
+        services.AddScoped<IUserPointsRepository, UserPointsRepository>();
         services.AddScoped<ICommentRepository, CommentRepository>();
+        services.AddScoped<IBadgeRepository, BadgeRepository>();
+        services.AddScoped<IPointTransactionRepository, PointTransactionRepository>();
         services.AddScoped<IReportedContentRepository, ReportedContentRepository>();
 
         services.AddScoped<ICategoryRepository, CategoryRepository>();
@@ -101,6 +103,7 @@ public static class DependencyInjection
         services.AddScoped<ICouponRepository, CouponRepository>();
 
         #endregion
+
 
 
         #region Services

@@ -234,16 +234,13 @@ namespace API.Controllers.Content_Module
         {
             try
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var userName = User.FindFirst(ClaimTypes.Name)?.Value;
-
-                if (userId == null || userName == null)
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;               
+                if (userId == null )
                     return Unauthorized(new { message = "User not authenticated", success = false });
 
                 var command = new CreateCommentCommand
                 {
-                    UserId = userId,
-                    UserName = userName,
+                    UserId = userId,                   
                     Dto = dto
                 };
 

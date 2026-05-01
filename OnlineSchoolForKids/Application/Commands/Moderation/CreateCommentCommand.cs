@@ -11,7 +11,6 @@ namespace Application.Commands.Moderation
     public class CreateCommentCommand : IRequest<CommentDto?>
     {
         public string UserId { get; set; } = string.Empty;
-        public string UserName { get; set; } = string.Empty;
         public CreateCommentDto Dto { get; set; } = new();
     }
 
@@ -49,7 +48,6 @@ namespace Application.Commands.Moderation
                 {
                     Id = ObjectId.GenerateNewId().ToString(),
                     UserId = request.UserId,
-                    UserName = request.UserName,
                     CourseId = dto.CourseId,
                     CourseName = course.Title,
                     LessonId = dto.LessonId,

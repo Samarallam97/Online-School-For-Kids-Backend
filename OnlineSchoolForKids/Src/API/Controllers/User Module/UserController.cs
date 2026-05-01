@@ -308,15 +308,15 @@ public class UserController : ControllerBase
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null) return Unauthorized();
 
-            var command = new UploadProfilePictureCommand
-            {
-                UserId = userId,
-                File = profilePicture
-            };
+    var command = new UploadProfilePictureCommand
+    {
+        UserId = userId,
+        File = profilePicture
+    };
 
-            var result = await _mediator.Send(command);
+    var result = await _mediator.Send(command);
             return Ok(result);
-        }
+}
         catch (KeyNotFoundException ex)
         {
             return NotFound(new { message = ex.Message });

@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Domain.Entities.Content;
 using Domain.Entities.Content.Calendar;
+using Domain.Entities.Content.Leaderboard;
 using Domain.Entities.Content.Moderation;
 using Domain.Entities.Content.Orders;
 using Domain.Entities.Content.Progress;
@@ -51,6 +52,9 @@ public class MongoDbContext
     public IMongoCollection<Comment> Comments => _database.GetCollection<Comment>("comments");
     public IMongoCollection<Coupon> Coupons => _database.GetCollection<Coupon>("coupons");
     public IMongoCollection<ReportedContent> ReportedContents => _database.GetCollection<ReportedContent>("reportedContents");
+    public IMongoCollection<UserPoints> UserPoints => _database.GetCollection<UserPoints>("userPoints");
+    public IMongoCollection<Badge> Badges => _database.GetCollection<Badge>("badges");
+    public IMongoCollection<PointTransaction> PointTransactions => _database.GetCollection<PointTransaction>("pointTransactions");
 
     public IMongoCollection<T> GetCollection<T>(string name)
     {

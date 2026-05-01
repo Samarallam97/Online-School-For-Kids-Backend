@@ -30,15 +30,13 @@ namespace API.Controllers.Content_Module
             try
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var userName = User.FindFirst(ClaimTypes.Name)?.Value;
 
-                if (userId == null || userName == null)
+                if (userId == null)
                     return Unauthorized(new { message = "User not authenticated", success = false });
 
                 var command = new CreateEventCommand
                 {
                     InstructorId = userId,
-                    InstructorName = userName,
                     Dto = dto
                 };
 
@@ -119,14 +117,12 @@ namespace API.Controllers.Content_Module
             {
 
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var userName = User.FindFirst(ClaimTypes.Name)?.Value;
-                if (userId == null || userName == null)
+                if (userId == null )
                     return Unauthorized(new { message = "User not authenticated", success = false });
 
                 var command = new JoinEventCommand
                 {
                     UserId = userId,
-                    UserName = userName,
                     EventId = dto.EventId
                 };
 

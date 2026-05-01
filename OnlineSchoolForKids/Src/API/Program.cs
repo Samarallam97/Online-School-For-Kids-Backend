@@ -5,8 +5,6 @@ using Infrastructure;
 using Infrastructure.Data.Seeding;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.OpenApi.Models;
-using MongoDB.Driver;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,15 +14,15 @@ builder.Services.AddEndpointsApiExplorer();
 #region Swagger
 builder.Services.AddSwaggerGen(c =>
 {
-c.SwaggerDoc("v1", new OpenApiInfo
-{
-Title = "EduPlatform API",
-Version = "v1",
-Description = "Educational platform API with JWT authentication"
-});
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "EduPlatform API",
+        Version = "v1",
+        Description = "Educational platform API with JWT authentication"
+    }); 
 
     // Add JWT Authentication to Swagger
-c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
 {
 Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
 Name = "Authorization",
