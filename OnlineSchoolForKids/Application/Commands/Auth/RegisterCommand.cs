@@ -1,9 +1,7 @@
 ﻿using Application.DTOs;
-using Domain.Entities;
 using Domain.Entities.Users;
 using Domain.Enums.Users;
 using Domain.Interfaces.Repositories.Users;
-using Domain.Interfaces.Services;
 using Domain.Interfaces.Services.Shared;
 using FluentValidation;
 using MediatR;
@@ -158,7 +156,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
         if (request.Role == UserRole.ContentCreator || request.Role == UserRole.Specialist)
         {
             user.Status = UserStatus.Pending;
-            user.ExpertiseTags = new ( ) { request.Expertise };
+            user.ExpertiseTags = new() { request.Expertise };
             user.PortfolioUrl = request.PortfolioUrl;
             user.CvLink = request.CvLink;
         }
@@ -180,7 +178,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
             }
             catch
             {
-                
+
             }
         }, cancellationToken);
 
@@ -190,7 +188,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
         });
     }
 
-    
+
 }
 
 

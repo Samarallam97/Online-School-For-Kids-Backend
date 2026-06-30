@@ -1,18 +1,14 @@
 ﻿using Domain.Entities;
+using Domain.Enums.Content;
 using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services.Shared;
 using Infrastructure.Settings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
 using System.Globalization;
-using System.IO;
 using System.Net;
 using System.Net.Mail;
-using System.Net.Mime;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 // No MimeKit / MailKit imports — everything goes through System.Net.Mail,
 // which works directly with Gmail on port 587 + EnableSsl = true.
@@ -23,16 +19,19 @@ public class EmailService : IEmailService
 {
     private readonly ILogger<EmailService> _logger;
     private readonly IUserRepository _userRepository;
+    private readonly INotificationService _notificationService;
     private readonly EmailSettings _emailSettings;
 
     public EmailService(
         IOptions<EmailSettings> emailSettings,
         ILogger<EmailService> logger,
-        IUserRepository userRepository)
+        IUserRepository userRepository,
+        INotificationService notificationService)
     {
-        _emailSettings  = emailSettings.Value;
-        _logger         = logger;
+        _emailSettings = emailSettings.Value;
+        _logger = logger;
         _userRepository = userRepository;
+        _notificationService = notificationService;
     }
 
     // ── Core delivery ─────────────────────────────────────────────────────────
@@ -115,46 +114,48 @@ public class EmailService : IEmailService
                 <p>Best regards,<br/>The Team</p>
             </body>
             </html>";
-
+        // 1. Send the email (keep as-is per the task requirement)
         await SendEmailAsync(to, subject, body, true, cancellationToken);
+        // 2. In-app notification → saved to MongoDB → pushed via SignalR
+        var user = await _userRepository.GetByEmailAsync(to, cancellationToken);
+        if (user is not null)
+        {
+            await _notificationService.SendAsync(
+                userId: user.Id,
+                title: "Welcome to the Platform! 🎉",
+                message: $"Hi {userName}, your account is ready. Start exploring our courses!",
+                type: NotificationType.Welcome,
+                actionUrl: "/dashboard",
+                ct: cancellationToken);
+        }
     }
 
     public async Task SendParentLinkInvitationAsync(
         string childEmail, string childName, string parentName, string inviteLink,
         CancellationToken cancellationToken = default)
     {
-        var subject = "Parent Invitation";
-        var body = $@"
-            <html>
-            <body style='font-family: Arial, sans-serif;'>
-                <h2>Hello {childName},</h2>
-                <p>{parentName} asked to link your account</p>
-                <p><a href='{inviteLink}' style='background-color: #4CAF50; color: white; padding: 14px 20px; text-decoration: none; border-radius: 4px;'>Accept Invite</a></p>
-                <p>If you didn't know them, please ignore this email.</p>
-                <br/>
-                <p>Best regards,<br/>The Team</p>
-            </body>
-            </html>";
-
-        await SendEmailAsync(childEmail, subject, body, true, cancellationToken);
+        var child = await _userRepository.GetByEmailAsync(childEmail, cancellationToken);
+        if (child is not null)
+            await _notificationService.SendAsync(
+                child.Id,
+                "Parent Link Request",
+                $"{parentName} wants to link their account with yours. Tap to review.",
+                NotificationType.ParentLinkInvitation,
+                inviteLink, cancellationToken);
     }
 
     public async Task SendParentLinkedNotificationAsync(
-        string childEmail, string childName, string parentName,
-        CancellationToken cancellationToken = default)
+         string childEmail, string childName, string parentName,
+         CancellationToken cancellationToken = default)
     {
-        var subject = "Student Invitation Acceptance";
-        var body = $@"
-            <html>
-            <body style='font-family: Arial, sans-serif;'>
-                <h2>Hello {childName},</h2>
-                <p>you accepted the invite sent from {parentName}</p>
-                <br/>
-                <p>Best regards,<br/>The Team</p>
-            </body>
-            </html>";
-
-        await SendEmailAsync(childEmail, subject, body, true, cancellationToken);
+        var child = await _userRepository.GetByEmailAsync(childEmail, cancellationToken);
+        if (child is not null)
+            await _notificationService.SendAsync(
+                child.Id,
+                "Account linked",
+                $"You have successfully linked your account with {parentName}.",
+                NotificationType.ParentLinked,
+                "/profile", cancellationToken);
     }
 
     public async Task SendParentLinkAcceptedNotificationAsync(
@@ -205,9 +206,19 @@ public class EmailService : IEmailService
             </div>
         </body>
         </html>";
-
+        // 1. Email (permanent record for the parent)
         await SendEmailAsync(parentEmail, subject, body);
+        // 2. Notification → saved to MongoDB → pushed via SignalR
+        var parent = await _userRepository.GetByEmailAsync(parentEmail);
+        if (parent is not null)
+            await _notificationService.SendAsync(
+                parent.Id,
+                $"{childName} accepted your invitation! 🎉",
+                $"You can now monitor {childName}'s progress, achievements, and study time.",
+                NotificationType.ParentLinkAccepted,
+                childProgressUrl);
     }
+
 
     // ── Booking emails ────────────────────────────────────────────────────────
 
@@ -222,7 +233,7 @@ public class EmailService : IEmailService
             .ToString("dddd, MMMM d, yyyy", CultureInfo.InvariantCulture);
         var timeStr = $"{appt.StartTime} – {appt.EndTime} UTC";
 
-        var icsBytes = BuildIcs(appt, specialistName, meetLink);
+        //var icsBytes = BuildIcs(appt, specialistName, meetLink);
 
         var studentBody = $@"
             <h2>Your session is confirmed! 🎉</h2>
@@ -242,10 +253,42 @@ public class EmailService : IEmailService
             <p><strong>Join here:</strong> <a href='{meetLink}'>{meetLink}</a></p>
             <p>The calendar invite (.ics) is attached.</p>";
 
-        var icsAttachment = BuildIcsAttachment(icsBytes);
+        var icsBytes = BuildIcs(appt, specialistName, meetLink);
 
-        await DeliverAsync(studentEmail, $"Session confirmed: {appt.Title}", studentBody, isHtml: true, icsAttachment, ct);
-        await DeliverAsync(specialistEmail, $"New session: {appt.Title}", specialistBody, isHtml: true, icsAttachment, ct);
+        await DeliverAsync(
+            studentEmail,
+            $"Session confirmed: {appt.Title}",
+            studentBody,
+            true,
+            BuildIcsAttachment(icsBytes),
+            ct);
+
+        await DeliverAsync(
+            specialistEmail,
+            $"New session: {appt.Title}",
+            specialistBody,
+            true,
+            BuildIcsAttachment(icsBytes),
+            ct);
+        // 2. Notifications → saved to MongoDB → pushed via SignalR to each user
+        var student = await _userRepository.GetByEmailAsync(studentEmail, ct);
+        var specialist = await _userRepository.GetByEmailAsync(specialistEmail, ct);
+
+        if (student is not null)
+            await _notificationService.SendAsync(
+                student.Id,
+                "Session confirmed ✅",
+                $"Your session \"{appt.Title}\" with {specialistName} is set for {dateStr} at {appt.StartTime} UTC.",
+                NotificationType.BookingConfirmed,
+                "/sessions", ct);
+
+        if (specialist is not null)
+            await _notificationService.SendAsync(
+                specialist.Id,
+                "New booking",
+                $"{studentName} booked \"{appt.Title}\" with you on {dateStr} at {appt.StartTime} UTC.",
+                NotificationType.BookingConfirmed,
+                "/sessions", ct);
     }
 
     public async Task SendBookingCancelledAsync(
@@ -276,8 +319,26 @@ public class EmailService : IEmailService
 
         await SendEmailAsync(studentEmail, $"Session cancelled: {appt.Title}", body, true, ct);
         await SendEmailAsync(specialistEmail, $"Session cancelled: {appt.Title}", body, true, ct);
-    }
+        // 2. Notifications → saved to MongoDB → pushed via SignalR
+        var baseMsg = string.IsNullOrWhiteSpace(reason)
+            ? $"The session \"{appt.Title}\" on {dateStr} has been cancelled."
+            : $"The session \"{appt.Title}\" on {dateStr} has been cancelled. Reason: {reason}";
 
+        var student = await _userRepository.GetByEmailAsync(studentEmail, ct);
+        var specialist = await _userRepository.GetByEmailAsync(specialistEmail, ct);
+
+        if (student is not null)
+            await _notificationService.SendAsync(
+                student.Id, "Session cancelled",
+                refundIssued ? baseMsg + " A refund has been issued." : baseMsg,
+                NotificationType.BookingCancelled, "/sessions", ct);
+
+        if (specialist is not null)
+            await _notificationService.SendAsync(
+                specialist.Id, "Session cancelled",
+                baseMsg, NotificationType.BookingCancelled, "/sessions", ct);
+
+    }
     // ── Private helpers ───────────────────────────────────────────────────────
 
     /// <summary>
@@ -292,15 +353,15 @@ public class EmailService : IEmailService
         {
             using var smtpClient = new SmtpClient(_emailSettings.SmtpHost, _emailSettings.SmtpPort)
             {
-                EnableSsl   = _emailSettings.EnableSsl,
+                EnableSsl = _emailSettings.EnableSsl,
                 Credentials = new NetworkCredential(_emailSettings.Username, _emailSettings.Password)
             };
 
             using var message = new MailMessage
             {
-                From       = new MailAddress(_emailSettings.FromEmail, _emailSettings.FromName),
-                Subject    = subject,
-                Body       = body,
+                From = new MailAddress(_emailSettings.FromEmail, _emailSettings.FromName),
+                Subject = subject,
+                Body = body,
                 IsBodyHtml = isHtml,
             };
 
@@ -329,9 +390,9 @@ public class EmailService : IEmailService
     private static Attachment BuildIcsAttachment(byte[] icsBytes)
     {
         var stream = new MemoryStream(icsBytes);
-        var contentType = new ContentType("text/calendar")
+        var contentType = new System.Net.Mime.ContentType("text/calendar")
         {
-            Name       = "session.ics",
+            Name = "session.ics",
             Parameters = { { "method", "REQUEST" } }
         };
 

@@ -1,51 +1,76 @@
 ﻿using Domain.Interfaces.Repositories.Content;
+using Domain.Interfaces.Services.Shared;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Commands.Leaderboard
+namespace Application.Commands.Leaderboard;
+
+public class RecalculateRanksCommand : IRequest<bool> { }
+
+public class RecalculateRanksHandler : IRequestHandler<RecalculateRanksCommand, bool>
 {
-    public class RecalculateRanksCommand : IRequest<bool>
+    private readonly IUserPointsRepository _userPointsRepo;
+    private readonly INotificationService _notification;
+    private readonly ILogger<RecalculateRanksHandler> _logger;
+
+    public RecalculateRanksHandler(
+        IUserPointsRepository userPointsRepo,
+        INotificationService notification,
+        ILogger<RecalculateRanksHandler> logger)
     {
+        _userPointsRepo = userPointsRepo;
+        _notification = notification;
+        _logger = logger;
     }
 
-    public class RecalculateRanksHandler : IRequestHandler<RecalculateRanksCommand, bool>
+    public async Task<bool> Handle(RecalculateRanksCommand request, CancellationToken ct)
     {
-        private readonly IUserPointsRepository _userPointsRepo;
-        private readonly ILogger<RecalculateRanksHandler> _logger;
-
-        public RecalculateRanksHandler(
-            IUserPointsRepository userPointsRepo,
-            ILogger<RecalculateRanksHandler> logger)
+        try
         {
-            _userPointsRepo = userPointsRepo;
-            _logger = logger;
-        }
+            var allUsers = await _userPointsRepo.GetAllAsync(_ => true, ct);
 
-        public async Task<bool> Handle(RecalculateRanksCommand request, CancellationToken ct)
-        {
-            try
+            var sortedUsers = allUsers
+                .OrderByDescending(u => u.TotalPoints)
+                .ToList();
+
+            var oldRanks = allUsers.ToDictionary(x => x.UserId, x => x.Rank);
+
+            for (int i = 0; i < sortedUsers.Count; i++)
             {
-                var allUsers = await _userPointsRepo.GetAllAsync(_ => true, ct);
-                var sortedUsers = allUsers.OrderByDescending(u => u.TotalPoints).ToList();
+                var userPoints = sortedUsers[i];
 
-                for (int i = 0; i < sortedUsers.Count; i++)
+                int previousRank = oldRanks.ContainsKey(userPoints.UserId)
+                    ? oldRanks[userPoints.UserId]
+                    : 0;
+
+                int newRank = i + 1;
+
+                userPoints.PreviousRank = previousRank;
+                userPoints.Rank = newRank;
+
+                await _userPointsRepo.UpdateAsync(userPoints.Id, userPoints, ct);
+
+                // 🔔 notification only when rank improves
+                if (previousRank > 0 && newRank < previousRank)
                 {
-                    var user = sortedUsers[i];
-                    user.PreviousRank = user.Rank;
-                    user.Rank = i + 1;
-                    await _userPointsRepo.UpdateAsync(user.Id, user, ct);
+                    await _notification.SendRankAchievedNotificationAsync(
+                        userPoints.UserId,
+                        newRank,
+                        previousRank,
+                        ct);
                 }
+            }
 
-                _logger.LogInformation("Ranks recalculated for {Count} users", sortedUsers.Count);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error recalculating ranks");
-                return false;
-            }
+            _logger.LogInformation(
+                "Ranks recalculated for {Count} users",
+                sortedUsers.Count);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error recalculating ranks");
+            return false;
         }
     }
 }
-
-

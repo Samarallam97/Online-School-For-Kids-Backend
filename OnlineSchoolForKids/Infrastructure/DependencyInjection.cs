@@ -2,13 +2,11 @@
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Repositories.Content;
 using Domain.Interfaces.Repositories.Users;
-using Domain.Interfaces.Services;
 using Domain.Interfaces.Services.Shared;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Infrastructure.Repositories.Content;
 using Infrastructure.Repositories.Users;
-using Infrastructure.Services;
 using Infrastructure.Services.Shared;
 using Infrastructure.Services.Shared.Payment;
 using Infrastructure.Settings;
@@ -20,7 +18,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Conventions;
-using StackExchange.Redis;
 using System.Text;
 
 namespace Infrastructure;
@@ -62,7 +59,7 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IPayoutRepository, PayoutRepository>();
-
+        services.AddScoped<INotificationRepository, NotificationRepository>();
         // Content Module
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<ICartItemRepository, CartItemRepository>();
@@ -96,7 +93,8 @@ public static class DependencyInjection
         services.AddScoped<IPostReactionRepository, PostReactionRepository>();
         services.AddScoped<IPostCommentRepository, PostCommentRepository>();
         services.AddScoped<IFollowRepository, FollowRepository>();
-
+        services.AddScoped<ILiveSessionRepository, LiveSessionRepository>();
+        services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
         // Chat
         services.AddScoped<ChatRepository>();
         #endregion
@@ -105,6 +103,7 @@ public static class DependencyInjection
         services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
+        services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IEmailService, EmailService>();
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
         services.AddScoped<ITempTokenService, TempTokenService>();
@@ -114,49 +113,60 @@ public static class DependencyInjection
         services.AddScoped<ICouponValidationService, CouponValidationService>();
         services.AddScoped<IVideoProcessingJobRepository, VideoProcessingJobRepository>();
         services.AddScoped<IFeedService, FeedService>();
+        services.AddScoped<ILiveNotifier, LiveNotifier>();
         services.AddPaymentProcessors();
         #endregion
 
+
         #region JWT Authentication
+
         var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>();
 
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme    = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultSignInScheme       = CookieAuthenticationDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
         })
         .AddJwtBearer(options =>
         {
             options.RequireHttpsMetadata = true;
             options.SaveToken = true;
+
             options.TokenValidationParameters = new TokenValidationParameters
             {
-                ValidateIssuer           = true,
-                ValidateAudience         = true,
-                ValidateLifetime         = true,
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer              = jwtSettings?.Issuer,
-                ValidAudience            = jwtSettings?.Audience,
-                IssuerSigningKey         = new SymmetricSecurityKey(
+
+                ValidIssuer = jwtSettings?.Issuer,
+                ValidAudience = jwtSettings?.Audience,
+
+                IssuerSigningKey = new SymmetricSecurityKey(
                     Encoding.UTF8.GetBytes(jwtSettings?.Secret ?? string.Empty)),
+
                 ClockSkew = TimeSpan.Zero
             };
 
-            // ── Required for SignalR ──────────────────────────────────────────
-            // The SignalR JS client sends the JWT as ?access_token=... in the
-            // WebSocket handshake URL because browsers can't set Authorization
-            // headers on WebSocket connections.
+
+            // ── SignalR JWT Authentication ─────────────────────────────────────
+            // SignalR sends JWT as ?access_token=... in the WebSocket URL
+            // because browsers cannot set Authorization headers for WebSockets.
+            // This allows JwtBearer middleware to read the token from query string.
             options.Events = new JwtBearerEvents
             {
                 OnMessageReceived = context =>
                 {
-                    var token = context.Request.Query["access_token"];
-                    if (!string.IsNullOrEmpty(token) &&
-                        context.HttpContext.Request.Path.StartsWithSegments("/hubs"))
+                    var accessToken = context.Request.Query["access_token"];
+                    var path = context.HttpContext.Request.Path;
+
+                    if (!string.IsNullOrEmpty(accessToken) &&
+                        path.StartsWithSegments("/hubs"))
                     {
-                        context.Token = token;
+                        context.Token = accessToken;
                     }
+
                     return Task.CompletedTask;
                 }
             };
@@ -164,14 +174,18 @@ public static class DependencyInjection
         .AddCookie()
         .AddGoogle(options =>
         {
-            options.ClientId     = configuration["Google:ClientId"]!;
+            options.ClientId = configuration["Google:ClientId"]!;
             options.ClientSecret = configuration["Google:ClientSecret"]!;
-            options.SaveTokens   = true;
+
+            options.SaveTokens = true;
+
             options.ClaimActions.MapJsonKey("picture", "picture");
             options.ClaimActions.MapJsonKey("email_verified", "email_verified");
         });
 
+
         services.AddAuthorization();
+
         #endregion
 
         return services;

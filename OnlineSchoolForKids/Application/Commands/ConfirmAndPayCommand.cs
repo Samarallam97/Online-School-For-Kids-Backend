@@ -2,11 +2,6 @@
 using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services.Shared;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Commands;
 public record ConfirmAndPayCommand(
@@ -38,10 +33,10 @@ public class ConfirmAndPayCommandHandler : IRequestHandler<ConfirmAndPayCommand,
         IEmailService email)
     {
         _appointmentRepo = appointmentRepo;
-        _userRepo        = userRepo;
-        _paymentFactory  = paymentFactory;
-        _googleMeet      = googleMeet;
-        _email           = email;
+        _userRepo = userRepo;
+        _paymentFactory = paymentFactory;
+        _googleMeet = googleMeet;
+        _email = email;
     }
 
     public async Task<ConfirmAndPayResult> Handle(
@@ -100,12 +95,12 @@ public class ConfirmAndPayCommandHandler : IRequestHandler<ConfirmAndPayCommand,
             ct: cancellationToken);
 
         // 6. Persist confirmation
-        appt.Status               = Domain.Enums.AppointmentStatus.Confirmed;
-        appt.GoogleMeetLink       = meetLink;
+        appt.Status = Domain.Enums.AppointmentStatus.Confirmed;
+        appt.GoogleMeetLink = meetLink;
         appt.PaymentTransactionId = chargeResult.TransactionId;
-        appt.PaymentMethodId      = request.PaymentMethodId;   // stored for refund lookup
-        appt.AmountPaid           = specialist.HourlyRate;
-        appt.ConfirmedAtUtc       = DateTime.UtcNow;
+        appt.PaymentMethodId = request.PaymentMethodId;   // stored for refund lookup
+        appt.AmountPaid = specialist.HourlyRate;
+        appt.ConfirmedAtUtc = DateTime.UtcNow;
 
         await _appointmentRepo.UpdateAsync(appt.Id, appt, cancellationToken);
 
@@ -117,7 +112,7 @@ public class ConfirmAndPayCommandHandler : IRequestHandler<ConfirmAndPayCommand,
             student.Email,
             student.FullName,
             meetLink,
-            cancellationToken);
+            System.Threading.CancellationToken.None);
 
         return new ConfirmAndPayResult(appt.Id, meetLink, specialist.HourlyRate ?? 0);
     }

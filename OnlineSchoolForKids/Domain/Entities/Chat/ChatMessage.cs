@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Domain.Entities.Chat;
+﻿namespace Domain.Entities.Chat;
 
 
 // ── Message ───────────────────────────────────────────────────────────────────
@@ -25,7 +19,8 @@ public class ChatMessage : BaseEntity
 
     /// <summary>Populated only for DMs. List of user-ids who have read this message.</summary>
     public List<string> ReadBy { get; set; } = new();
-
+    public string? SessionId { get; set; }
+    public bool IsHost { get; set; } = false;
     public List<MessageReaction> Reactions { get; set; } = new();
 
     /// <summary>Non-null if this is a reply to another message.</summary>

@@ -3,11 +3,6 @@ using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services.Shared;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Commands;
 public record UpdateAppointmentStatusCommand(
@@ -31,9 +26,9 @@ public class UpdateAppointmentStatusCommandHandler : IRequestHandler<UpdateAppoi
         IEmailService email)
     {
         _appointmentRepo = appointmentRepo;
-        _userRepo        = userRepo;
-        _paymentFactory  = paymentFactory;
-        _email           = email;
+        _userRepo = userRepo;
+        _paymentFactory = paymentFactory;
+        _email = email;
     }
 
     public async Task Handle(
@@ -43,7 +38,7 @@ public class UpdateAppointmentStatusCommandHandler : IRequestHandler<UpdateAppoi
             ?? throw new KeyNotFoundException("Appointment not found.");
 
         var isSpecialist = appt.SpecialistId == request.RequesterId;
-        var isStudent = appt.StudentId    == request.RequesterId;
+        var isStudent = appt.StudentId == request.RequesterId;
 
         if (!isSpecialist && !isStudent)
             throw new UnauthorizedAccessException("You don't have access to this appointment.");
@@ -56,7 +51,7 @@ public class UpdateAppointmentStatusCommandHandler : IRequestHandler<UpdateAppoi
             case AppointmentStatus.Confirmed:
                 if (!isSpecialist)
                     throw new UnauthorizedAccessException("Only the specialist can confirm appointments.");
-                appt.Status         = AppointmentStatus.Confirmed;
+                appt.Status = AppointmentStatus.Confirmed;
                 appt.ConfirmedAtUtc = DateTime.UtcNow;
                 break;
 
@@ -66,9 +61,9 @@ public class UpdateAppointmentStatusCommandHandler : IRequestHandler<UpdateAppoi
                     throw new InvalidOperationException(
                         "Cancellations must be made at least 30 minutes before the session.");
 
-                appt.Status             = AppointmentStatus.Cancelled;
+                appt.Status = AppointmentStatus.Cancelled;
                 appt.CancellationReason = request.CancellationReason;
-                appt.CancelledAtUtc     = DateTime.UtcNow;
+                appt.CancelledAtUtc = DateTime.UtcNow;
 
                 // Refund if payment was taken
                 await HandleRefundAsync(appt, cancellationToken);
@@ -126,6 +121,6 @@ public class UpdateAppointmentStatusCommandHandler : IRequestHandler<UpdateAppoi
             student.Email,
             reason,
             refundIssued,
-            ct);
+            CancellationToken.None);
     }
 }
