@@ -8,5 +8,6 @@
         public int Points { get; set; } = 1;
         public List<QuizOption> Options { get; set; } = new();
         public string? Explanation { get; set; }
+        public int CorrectAnswer { get; set; }
     }
 }

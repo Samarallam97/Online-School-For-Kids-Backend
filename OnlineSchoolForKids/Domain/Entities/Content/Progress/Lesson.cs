@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using Domain.Entities.Content.Quiz;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Domain.Entities.Content.Progress
@@ -22,6 +23,7 @@ namespace Domain.Entities.Content.Progress
             public bool IsFree { get; set; } = false;
             public ICollection<Material> Materials { get; set; }
 
+        public List<LessonQuiz> Quizzes { get; set; } = new();
         // Navigation
         public Course? Course { get; set; }
             public Section? Section { get; set; }

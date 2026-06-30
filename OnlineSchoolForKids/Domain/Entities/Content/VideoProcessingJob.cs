@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Domain.Entities.Content;
+
 public class VideoProcessingJob : BaseEntity
 {
     public string InstructorId { get; set; } = string.Empty;
@@ -13,17 +11,34 @@ public class VideoProcessingJob : BaseEntity
     /// <summary>"upload" or "youtube"</summary>
     public string SourceType { get; set; } = string.Empty;
 
-    /// <summary>YouTube URL or uploaded file URL</summary>
+    /// <summary>YouTube URL or uploaded file name</summary>
     public string SourceUrl { get; set; } = string.Empty;
 
     /// <summary>pending | processing | awaiting_review | completed | failed</summary>
     public string Status { get; set; } = "pending";
 
     public string? ErrorMessage { get; set; }
-
     public string? RawTranscript { get; set; }
 
+    /// <summary>
+    /// Course-level metadata returned by the pipeline's "description" object.
+    /// Stored here so the instructor can review / edit it before applying it.
+    /// </summary>
+    public PipelineDescription? Description { get; set; }
+
     public List<VideoChunk> Chunks { get; set; } = new();
+}
+
+/// <summary>
+/// Mirrors the pipeline API's DescribeResponse object.
+/// All fields are editable by the instructor on the review page.
+/// </summary>
+public class PipelineDescription
+{
+    public string Summary { get; set; } = string.Empty;
+    public string TargetAudience { get; set; } = string.Empty;
+    public string ToneAndStyle { get; set; } = string.Empty;
+    public List<string> SeoTags { get; set; } = new();
 }
 
 public class VideoChunk
@@ -41,13 +56,9 @@ public class VideoChunk
 
     /// <summary>Set by instructor during review</summary>
     public string? SectionId { get; set; }
-
-    /// <summary>Set by instructor during review</summary>
     public string? LessonTitle { get; set; }
 
-    /// <summary>Whether this chunk has been mapped to a lesson</summary>
+    /// <summary>Whether this chunk has been saved as a lesson</summary>
     public bool IsSaved { get; set; } = false;
-
-    /// <summary>LessonId after it has been persisted</summary>
     public string? LessonId { get; set; }
 }

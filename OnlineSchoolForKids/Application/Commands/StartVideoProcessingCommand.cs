@@ -5,12 +5,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Json;
-using System.Text;
+using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Application.Commands;
+
 public class StartVideoProcessingCommand : IRequest<StartVideoProcessingResponse>
 {
     public string InstructorId { get; set; } = string.Empty;
@@ -22,7 +23,7 @@ public class StartVideoProcessingCommand : IRequest<StartVideoProcessingResponse
     /// <summary>YouTube URL (when SourceType == "youtube")</summary>
     public string? YoutubeUrl { get; set; }
 
-    /// <summary>Raw video bytes (when SourceType == "upload")</summary>
+    /// <summary>Raw video stream (when SourceType == "upload")</summary>
     public Stream? VideoStream { get; set; }
     public string? FileName { get; set; }
 }
@@ -34,7 +35,7 @@ public class StartVideoProcessingResponse
     public string? JobId { get; set; }
 }
 
-// ── Handler ───────────────────────────────────────────────────────────────
+// ── Handler ───────────────────────────────────────────────────────────────────
 
 public class StartVideoProcessingHandler
     : IRequestHandler<StartVideoProcessingCommand, StartVideoProcessingResponse>
@@ -44,8 +45,8 @@ public class StartVideoProcessingHandler
     private readonly IConfiguration _config;
     private readonly ILogger<StartVideoProcessingHandler> _logger;
 
-    private string PipelineBaseUrl => _config["VideoPipeline:BaseUrl"]
-        ?? "https://web-production-12d4d.up.railway.app";
+    private string PipelineBaseUrl =>
+        _config["VideoPipeline:BaseUrl"] ?? "https://web-production-12d4d.up.railway.app";
 
     public StartVideoProcessingHandler(
         IVideoProcessingJobRepository jobRepo,
@@ -53,23 +54,21 @@ public class StartVideoProcessingHandler
         IConfiguration config,
         ILogger<StartVideoProcessingHandler> logger)
     {
-        _jobRepo = jobRepo;
+        _jobRepo    = jobRepo;
         _courseRepo = courseRepo;
-        _config = config;
-        _logger = logger;
+        _config     = config;
+        _logger     = logger;
     }
 
     public async Task<StartVideoProcessingResponse> Handle(
-        StartVideoProcessingCommand request,
-        CancellationToken ct)
+        StartVideoProcessingCommand request, CancellationToken ct)
     {
         try
         {
-            // 1. Validate course exists and belongs to instructor
+            // 1. Validate course ownership
             var course = await _courseRepo.GetByIdAsync(request.CourseId, ct);
             if (course == null)
                 return Fail("Course not found");
-
             if (course.InstructorId != request.InstructorId)
                 return Fail("Unauthorized");
 
@@ -77,50 +76,55 @@ public class StartVideoProcessingHandler
             var job = new VideoProcessingJob
             {
                 InstructorId = request.InstructorId,
-                CourseId = request.CourseId,
-                SourceType = request.SourceType,
-                SourceUrl = request.YoutubeUrl ?? request.FileName ?? "",
-                Status = "processing"
+                CourseId     = request.CourseId,
+                SourceType   = request.SourceType,
+                SourceUrl    = request.YoutubeUrl ?? request.FileName ?? "",
+                Status       = "processing"
             };
-
             await _jobRepo.CreateAsync(job, ct);
 
-            // 3. Call the pipeline API
-            PipelineResult? result = null;
+            // 3. Call the AI pipeline
+            using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(15) };
 
-            using var http = new HttpClient();
-            http.Timeout = TimeSpan.FromMinutes(15);
-
-            if (request.SourceType == "youtube")
-            {
-                result = await CallYoutubePipeline(http, request.YoutubeUrl!, ct);
-            }
-            else
-            {
-                result = await CallVideoPipeline(http, request.VideoStream!, request.FileName!, ct);
-            }
+            PipelineResult? result = request.SourceType == "youtube"
+                ? await CallYoutubePipeline(http, request.YoutubeUrl!, ct)
+                : await CallVideoPipeline(http, request.VideoStream!, request.FileName!, ct);
 
             if (result == null || !result.Success)
             {
-                job.Status = "failed";
+                job.Status       = "failed";
                 job.ErrorMessage = result?.Error ?? "Pipeline call failed";
                 await _jobRepo.UpdateAsync(job.Id, job, ct);
                 return Fail(job.ErrorMessage);
             }
 
-            // 4. Store result on job
+            // 4. Store everything returned by the pipeline
             job.RawTranscript = result.Transcript;
+
+            // Pipeline description object (course-level metadata)
+            if (result.Description != null)
+            {
+                job.Description = new PipelineDescription
+                {
+                    Summary        = result.Description.Summary        ?? string.Empty,
+                    TargetAudience = result.Description.TargetAudience ?? string.Empty,
+                    ToneAndStyle   = result.Description.ToneAndStyle   ?? string.Empty,
+                    SeoTags        = result.Description.SeoTags        ?? new List<string>()
+                };
+            }
+
+            // Video chunks / segments
             job.Chunks = result.Segments.Select((s, i) => new VideoChunk
             {
-                Index = i,
-                Title = s.Title,
-                Summary = s.Summary,
-                Transcript = s.Text,
+                Index     = i,
+                Title     = s.Title,
+                Summary   = s.Summary,
+                Transcript= s.Text,
                 StartTime = s.StartTime,
-                EndTime = s.EndTime
+                EndTime   = s.EndTime
             }).ToList();
-            job.Status = "awaiting_review";
 
+            job.Status = "awaiting_review";
             await _jobRepo.UpdateAsync(job.Id, job, ct);
 
             _logger.LogInformation(
@@ -131,7 +135,7 @@ public class StartVideoProcessingHandler
             {
                 Success = true,
                 Message = "Processing complete",
-                JobId = job.Id
+                JobId   = job.Id
             };
         }
         catch (Exception ex)
@@ -141,14 +145,13 @@ public class StartVideoProcessingHandler
         }
     }
 
-    // ── Pipeline callers ─────────────────────────────────────────────────
+    // ── Pipeline callers ──────────────────────────────────────────────────────
 
     private async Task<PipelineResult?> CallYoutubePipeline(
         HttpClient http, string youtubeUrl, CancellationToken ct)
     {
         var payload = new { url = youtubeUrl };
-        var resp = await http.PostAsJsonAsync(
-            $"{PipelineBaseUrl}/pipeline/youtube", payload, ct);
+        var resp = await http.PostAsJsonAsync($"{PipelineBaseUrl}/pipeline/youtube", payload, ct);
 
         if (!resp.IsSuccessStatusCode)
             return new PipelineResult { Success = false, Error = $"Pipeline returned {resp.StatusCode}" };
@@ -164,8 +167,7 @@ public class StartVideoProcessingHandler
         using var streamContent = new StreamContent(videoStream);
         form.Add(streamContent, "file", fileName);
 
-        var resp = await http.PostAsync(
-            $"{PipelineBaseUrl}/pipeline/video", form, ct);
+        var resp = await http.PostAsync($"{PipelineBaseUrl}/pipeline/video", form, ct);
 
         if (!resp.IsSuccessStatusCode)
             return new PipelineResult { Success = false, Error = $"Pipeline returned {resp.StatusCode}" };
@@ -181,31 +183,65 @@ public class StartVideoProcessingHandler
 
         return new PipelineResult
         {
-            Success = true,
-            Transcript = data.Transcript,
-            Segments = data.Segments ?? new()
+            Success     = true,
+            Transcript  = data.Transcript,
+            Segments    = data.Segments    ?? new(),
+            Description = data.Description
         };
     }
 
     private static StartVideoProcessingResponse Fail(string message) =>
         new() { Success = false, Message = message };
 
-    // ── Internal DTOs mirroring the pipeline API ─────────────────────────
+    // ── DTOs mirroring the pipeline API response ──────────────────────────────
 
     private class PipelineApiResponse
     {
+        [JsonPropertyName("transcript")]
         public string? Transcript { get; set; }
+
+        [JsonPropertyName("segments")]
         public List<PipelineSegment>? Segments { get; set; }
+
+        [JsonPropertyName("description")]
+        public PipelineDescriptionApi? Description { get; set; }
     }
 
     private class PipelineSegment
     {
+        [JsonPropertyName("index")]
         public int Index { get; set; }
+
+        [JsonPropertyName("title")]
         public string Title { get; set; } = string.Empty;
+
+        [JsonPropertyName("summary")]
         public string Summary { get; set; } = string.Empty;
+
+        /// <summary>The pipeline returns chunk text in the "text" field.</summary>
+        [JsonPropertyName("text")]
         public string Text { get; set; } = string.Empty;
+
+        [JsonPropertyName("start_time")]
         public string StartTime { get; set; } = string.Empty;
+
+        [JsonPropertyName("end_time")]
         public string EndTime { get; set; } = string.Empty;
+    }
+
+    private class PipelineDescriptionApi
+    {
+        [JsonPropertyName("summary")]
+        public string? Summary { get; set; }
+
+        [JsonPropertyName("target_audience")]
+        public string? TargetAudience { get; set; }
+
+        [JsonPropertyName("tone_and_style")]
+        public string? ToneAndStyle { get; set; }
+
+        [JsonPropertyName("seo_tags")]
+        public List<string>? SeoTags { get; set; }
     }
 
     private class PipelineResult
@@ -214,5 +250,6 @@ public class StartVideoProcessingHandler
         public string? Error { get; set; }
         public string? Transcript { get; set; }
         public List<PipelineSegment> Segments { get; set; } = new();
+        public PipelineDescriptionApi? Description { get; set; }
     }
 }
