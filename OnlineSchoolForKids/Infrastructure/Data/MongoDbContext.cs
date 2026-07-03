@@ -6,7 +6,7 @@ using Domain.Entities.Content.Leaderboard;
 using Domain.Entities.Content.Moderation;
 using Domain.Entities.Content.Orders;
 using Domain.Entities.Content.Progress;
-using Domain.Entities.Content.Quiz;
+using Domain.Entities.Content.Quizes;
 using Domain.Entities.Feed;
 using Domain.Entities.Users;
 using Infrastructure.Settings;

@@ -23,6 +23,20 @@ namespace Domain.Entities.Content
         public bool IsFeatured { get; set; }
         public bool IsVisible { get; set; } = true;
         public CourseModerationStatus? ModerationStatus { get; set; }
+
+        // ── Metadata fields ──────────────────────────────────────────────
+        /// <summary>Short tagline shown under the course title.</summary>
+        public string? Subtitle { get; set; }
+
+        /// <summary>Bullet list of learning outcomes ("What you'll learn").</summary>
+        public List<string> WhatYoullLearn { get; set; } = new();
+
+        /// <summary>Bullet list of prerequisites.</summary>
+        public List<string> Requirements { get; set; } = new();
+
+        /// <summary>Short promotional clip shown before purchase (uploaded, not a lesson).</summary>
+        public string? PreviewVideoUrl { get; set; }
+
         // Navigation Properties
         public Category Category { get; set; } = null!;
         public User Instructor { get; set; } = null!;

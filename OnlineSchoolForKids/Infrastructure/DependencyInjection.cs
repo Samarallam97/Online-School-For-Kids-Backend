@@ -5,6 +5,7 @@ using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services;
 using Domain.Interfaces.Services.Shared;
 using Infrastructure.Data;
+using Infrastructure.ExternalServices;
 using Infrastructure.Repositories;
 using Infrastructure.Repositories.Content;
 using Infrastructure.Repositories.Users;
@@ -69,8 +70,6 @@ public static class DependencyInjection
         services.AddScoped<ICourseRepository, CourseRepository>();
         services.AddScoped<IWishListRepository, WishListRepository>();
         services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
-        services.AddScoped<IQuizRepository, QuizRepository>();
-        services.AddScoped<IAttemptRepository, AttemptRepository>();
         services.AddScoped<ISectionRepository, SectionRepository>();
         services.AddScoped<INoteRepository, NoteRepository>();
         services.AddScoped<ILessonProgressRepository, LessonProgressRepository>();
@@ -78,8 +77,6 @@ public static class DependencyInjection
         services.AddScoped<ICourseProgressRepository, CourseProgressRepository>();
         services.AddScoped<IBookmarkRepository, BookmarkRepository>();
         services.AddScoped<IEventRepository, EventRepository>();
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<ICourseRepository, CourseRepository>();
         services.AddScoped<IUserPointsRepository, UserPointsRepository>();
         services.AddScoped<ICommentRepository, CommentRepository>();
         services.AddScoped<IBadgeRepository, BadgeRepository>();
@@ -92,13 +89,19 @@ public static class DependencyInjection
         services.Configure<GoogleMeetOptions>(configuration.GetSection("GoogleMeet"));
         services.AddScoped<IGoogleMeetService, GoogleMeetService>();
         services.AddHostedService<BackgroundJobs.AppointmentExpiryJob>();
+        services.AddHostedService<BackgroundJobs.VideoJobCleanupJob>();
         services.AddScoped<IPostRepository, PostRepository>();
         services.AddScoped<IPostReactionRepository, PostReactionRepository>();
         services.AddScoped<IPostCommentRepository, PostCommentRepository>();
         services.AddScoped<IFollowRepository, FollowRepository>();
+        services.AddScoped<IVideoProcessingJobRepository, VideoProcessingJobRepository>();
 
         // Chat
         services.AddScoped<ChatRepository>();
+
+
+        services.AddScoped<IQuizRepository, QuizRepository>();
+        services.AddScoped<IAttemptRepository, AttemptRepository>();
         #endregion
 
         #region Services
@@ -112,9 +115,11 @@ public static class DependencyInjection
         services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
         services.AddScoped<IFileStorageService, FileStorageService>();
         services.AddScoped<ICouponValidationService, CouponValidationService>();
-        services.AddScoped<IVideoProcessingJobRepository, VideoProcessingJobRepository>();
         services.AddScoped<IFeedService, FeedService>();
         services.AddPaymentProcessors();
+
+        // ── AI services ──────────────────────────────────────────────────
+        services.AddHttpClient<ITextCorrectionClient, TextCorrectionClient>();
         #endregion
 
         #region JWT Authentication

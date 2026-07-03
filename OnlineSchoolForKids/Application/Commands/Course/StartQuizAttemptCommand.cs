@@ -1,4 +1,4 @@
-﻿using Domain.Entities.Content.Quiz;
+﻿using Domain.Entities.Content.Quizes;
 using Domain.Enums.Content;
 using Domain.Interfaces.Repositories.Content;
 using MediatR;

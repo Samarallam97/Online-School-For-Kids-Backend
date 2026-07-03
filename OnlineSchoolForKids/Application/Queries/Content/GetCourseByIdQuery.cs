@@ -134,6 +134,7 @@ public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, Cou
             Id = course.Id,
             Title = course.Title,
             Description = course.Description,
+            Subtitle = course.Subtitle,
 
             InstructorId = course.InstructorId,
             InstructorName = instructorName,
@@ -158,11 +159,15 @@ public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, Cou
             LecturesCount = totalLectures,
 
             ThumbnailUrl = course.ThumbnailUrl,
+            PreviewVideoUrl = course.PreviewVideoUrl,
             Language = course.Language,
             IsFeatured = course.IsFeatured,
             IsInWishlist = isInWishlist,
             IsInCart = isInCart,
             LastUpdated = (course.UpdatedAt ?? course.CreatedAt).ToString("MMMM yyyy"),
+
+            WhatYoullLearn = course.WhatYoullLearn,
+            Requirements = course.Requirements,
 
             Modules = moduleDtos,
             RelatedCourses = relatedCourseDtos,
@@ -237,6 +242,7 @@ public class CourseDto
     public string Id { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public string? Subtitle { get; set; }
 
     // ── Instructor ────────────────────────────────────────────────────────
     public string InstructorId { get; set; } = string.Empty;
@@ -266,12 +272,17 @@ public class CourseDto
 
     // ── Meta ──────────────────────────────────────────────────────────────
     public string ThumbnailUrl { get; set; } = string.Empty;
+    public string? PreviewVideoUrl { get; set; }
     public string Language { get; set; } = string.Empty;
     public bool IsFeatured { get; set; }
     public bool IsInWishlist { get; set; }
     public bool IsInCart { get; set; }
     /// <summary>Formatted as "MMMM yyyy", e.g. "January 2024"</summary>
     public string LastUpdated { get; set; } = string.Empty;
+
+    // ── Learning outcomes ────────────────────────────────────────────────
+    public List<string> WhatYoullLearn { get; set; } = new();
+    public List<string> Requirements { get; set; } = new();
 
     // ── Curriculum ────────────────────────────────────────────────────────
     public List<CourseModuleDto> Modules { get; set; } = new();

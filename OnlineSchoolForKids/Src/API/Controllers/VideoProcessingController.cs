@@ -1,5 +1,4 @@
 ﻿using Application.Commands;
-using Application.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -22,74 +21,97 @@ public class VideoProcessingController : ControllerBase
         _logger = logger;
     }
 
-    /// <summary>
-    /// Start a video processing job from a YouTube URL.
-    /// POST /api/videoprocessing/youtube
-    /// Body: { courseId, youtubeUrl }
-    /// </summary>
-    [HttpPost("youtube")]
-    public async Task<IActionResult> ProcessYoutube(
+    // ── Entry point 1 & 3: long video / long YouTube → chunked ──────────────
+
+    /// <summary>POST /api/videoprocessing/chunked/youtube</summary>
+    [HttpPost("chunked/youtube")]
+    public async Task<IActionResult> StartChunkedFromYoutube(
         [FromBody] ProcessYoutubeRequest request,
         CancellationToken ct)
     {
-        try
+        return await StartJob(new StartVideoProcessingCommand
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null) return Unauthorized();
-
-            var command = new StartVideoProcessingCommand
-            {
-                InstructorId = userId,
-                CourseId = request.CourseId,
-                SourceType = "youtube",
-                YoutubeUrl = request.YoutubeUrl
-            };
-
-            var result = await _mediator.Send(command, ct);
-
-            if (!result.Success)
-                return BadRequest(new { message = result.Message, success = false });
-
-            return Ok(new { data = new { jobId = result.JobId }, message = result.Message, success = true });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error processing YouTube video");
-            return StatusCode(500, new { message = "An error occurred", success = false });
-        }
+            InstructorId = GetUserId(),
+            CourseId = request.CourseId,
+            SectionId = request.SectionId,
+            SourceType = "youtube",
+            Mode = "chunked",
+            YoutubeUrl = request.YoutubeUrl
+        }, ct);
     }
 
-    /// <summary>
-    /// Start a video processing job from an uploaded file.
-    /// POST /api/videoprocessing/upload
-    /// Form: courseId (string), file (video file)
-    /// </summary>
-    [HttpPost("upload")]
+    /// <summary>POST /api/videoprocessing/chunked/upload</summary>
+    [HttpPost("chunked/upload")]
     [RequestSizeLimit(4L * 1024 * 1024 * 1024)] // 4 GB
-    public async Task<IActionResult> ProcessUpload(
+    public async Task<IActionResult> StartChunkedFromUpload(
         [FromForm] string courseId,
+        [FromForm] string sectionId,
         IFormFile file,
         CancellationToken ct)
     {
+        if (file == null || file.Length == 0)
+            return BadRequest(new { message = "No file provided", success = false });
+
+        return await StartJob(new StartVideoProcessingCommand
+        {
+            InstructorId = GetUserId(),
+            CourseId = courseId,
+            SectionId = sectionId,
+            SourceType = "upload",
+            Mode = "chunked",
+            VideoStream = file.OpenReadStream(),
+            FileName = file.FileName
+        }, ct);
+    }
+
+    // ── Entry point 2 & 4: small video / small YouTube → single lesson ──────
+
+    /// <summary>POST /api/videoprocessing/single/youtube</summary>
+    [HttpPost("single/youtube")]
+    public async Task<IActionResult> StartSingleFromYoutube(
+        [FromBody] ProcessYoutubeRequest request,
+        CancellationToken ct)
+    {
+        return await StartJob(new StartVideoProcessingCommand
+        {
+            InstructorId = GetUserId(),
+            CourseId = request.CourseId,
+            SectionId = request.SectionId,
+            SourceType = "youtube",
+            Mode = "single",
+            YoutubeUrl = request.YoutubeUrl
+        }, ct);
+    }
+
+    /// <summary>POST /api/videoprocessing/single/upload</summary>
+    [HttpPost("single/upload")]
+    [RequestSizeLimit(4L * 1024 * 1024 * 1024)] // 4 GB
+    public async Task<IActionResult> StartSingleFromUpload(
+        [FromForm] string courseId,
+        [FromForm] string sectionId,
+        IFormFile file,
+        CancellationToken ct)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest(new { message = "No file provided", success = false });
+
+        return await StartJob(new StartVideoProcessingCommand
+        {
+            InstructorId = GetUserId(),
+            CourseId = courseId,
+            SectionId = sectionId,
+            SourceType = "upload",
+            Mode = "single",
+            VideoStream = file.OpenReadStream(),
+            FileName = file.FileName
+        }, ct);
+    }
+
+    private async Task<IActionResult> StartJob(StartVideoProcessingCommand command, CancellationToken ct)
+    {
         try
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null) return Unauthorized();
-
-            if (file == null || file.Length == 0)
-                return BadRequest(new { message = "No file provided", success = false });
-
-            var command = new StartVideoProcessingCommand
-            {
-                InstructorId = userId,
-                CourseId = courseId,
-                SourceType = "upload",
-                VideoStream = file.OpenReadStream(),
-                FileName = file.FileName
-            };
-
             var result = await _mediator.Send(command, ct);
-
             if (!result.Success)
                 return BadRequest(new { message = result.Message, success = false });
 
@@ -97,29 +119,20 @@ public class VideoProcessingController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error processing uploaded video");
+            _logger.LogError(ex, "Error starting video processing job");
             return StatusCode(500, new { message = "An error occurred", success = false });
         }
     }
 
-    /// <summary>
-    /// Get a processing job (status + chunks) for review.
-    /// GET /api/videoprocessing/{jobId}
-    /// </summary>
+    // ── Job retrieval ─────────────────────────────────────────────────────────
+
+    /// <summary>GET /api/videoprocessing/{jobId}</summary>
     [HttpGet("{jobId}")]
     public async Task<IActionResult> GetJob(string jobId, CancellationToken ct)
     {
         try
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null) return Unauthorized();
-
-            var query = new GetVideoProcessingJobQuery
-            {
-                JobId = jobId,
-                InstructorId = userId
-            };
-
+            var query = new Application.Queries.GetVideoProcessingJobQuery { JobId = jobId, InstructorId = GetUserId() };
             var result = await _mediator.Send(query, ct);
 
             if (result == null)
@@ -134,10 +147,102 @@ public class VideoProcessingController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Update a chunk's title/transcript (auto-save during review).
-    /// PATCH /api/videoprocessing/{jobId}/chunks/{chunkId}
-    /// </summary>
+    // ── Transcript correction (runs once, pre-chunking, on the raw transcript) ──
+
+    /// <summary>POST /api/videoprocessing/{jobId}/correct-transcript — "Check accuracy" button</summary>
+    [HttpPost("{jobId}/correct-transcript")]
+    public async Task<IActionResult> CorrectTranscript(string jobId, CancellationToken ct)
+    {
+        try
+        {
+            var command = new CorrectTranscriptCommand { JobId = jobId, InstructorId = GetUserId() };
+            var result = await _mediator.Send(command, ct);
+
+            if (!result.Success)
+                return BadRequest(new { message = result.Message, success = false });
+
+            return Ok(new
+            {
+                data = new
+                {
+                    correctedTranscript = result.CorrectedTranscript,
+                    accuracy = result.Accuracy,
+                    detectedLanguage = result.DetectedLanguage,
+                    errors = result.Errors,
+                    needsRevision = result.NeedsRevision
+                },
+                message = result.Message,
+                success = true
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error correcting transcript for job {JobId}", jobId);
+            return StatusCode(500, new { message = "An error occurred", success = false });
+        }
+    }
+
+    /// <summary>POST /api/videoprocessing/{jobId}/approve-transcript — accept corrected or keep original</summary>
+    [HttpPost("{jobId}/approve-transcript")]
+    public async Task<IActionResult> ApproveTranscript(
+        string jobId,
+        [FromBody] ApproveTranscriptRequest request,
+        CancellationToken ct)
+    {
+        try
+        {
+            var command = new ApproveTranscriptCommand
+            {
+                JobId = jobId,
+                InstructorId = GetUserId(),
+                Choice = request.Choice
+            };
+            var result = await _mediator.Send(command, ct);
+
+            if (!result)
+                return BadRequest(new { message = "Failed to approve transcript", success = false });
+
+            return Ok(new { message = "Transcript approved", success = true });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error approving transcript for job {JobId}", jobId);
+            return StatusCode(500, new { message = "An error occurred", success = false });
+        }
+    }
+
+    /// <summary>PATCH /api/videoprocessing/{jobId}/transcript — manual edit of the raw transcript (pre-chunking)</summary>
+    [HttpPatch("{jobId}/transcript")]
+    public async Task<IActionResult> UpdateRawTranscript(
+        string jobId,
+        [FromBody] UpdateRawTranscriptRequest request,
+        CancellationToken ct)
+    {
+        try
+        {
+            var command = new UpdateRawTranscriptCommand
+            {
+                JobId = jobId,
+                InstructorId = GetUserId(),
+                Transcript = request.Transcript
+            };
+            var result = await _mediator.Send(command, ct);
+
+            if (!result)
+                return NotFound(new { message = "Job not found", success = false });
+
+            return Ok(new { message = "Transcript updated", success = true });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating transcript for job {JobId}", jobId);
+            return StatusCode(500, new { message = "An error occurred", success = false });
+        }
+    }
+
+    // ── Chunk boundary / content editing ─────────────────────────────────────
+
+    /// <summary>PATCH /api/videoprocessing/{jobId}/chunks/{chunkId} — edit a chunk's title/transcript/boundaries</summary>
     [HttpPatch("{jobId}/chunks/{chunkId}")]
     public async Task<IActionResult> UpdateChunk(
         string jobId,
@@ -147,24 +252,33 @@ public class VideoProcessingController : ControllerBase
     {
         try
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null) return Unauthorized();
-
             var command = new UpdateChunkCommand
             {
-                InstructorId = userId,
+                InstructorId = GetUserId(),
                 JobId = jobId,
                 ChunkId = chunkId,
                 Title = request.Title,
-                Transcript = request.Transcript
+                Transcript = request.Transcript,
+                StartTime = request.StartTime,
+                EndTime = request.EndTime
             };
 
             var result = await _mediator.Send(command, ct);
+            if (!result.Success)
+                return BadRequest(new { message = result.Message, success = false });
 
-            if (!result)
-                return NotFound(new { message = "Chunk not found", success = false });
-
-            return Ok(new { message = "Chunk updated", success = true });
+            return Ok(new
+            {
+                data = new
+                {
+                    transcript = result.Transcript,
+                    needsTranscriptReview = result.NeedsTranscriptReview,
+                    startAlignment = result.StartAlignment,
+                    endAlignment = result.EndAlignment
+                },
+                message = result.Message,
+                success = true
+            });
         }
         catch (Exception ex)
         {
@@ -173,36 +287,96 @@ public class VideoProcessingController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Save a reviewed chunk as a lesson inside a section.
-    /// POST /api/videoprocessing/{jobId}/chunks/{chunkId}/save
-    /// </summary>
-    [HttpPost("{jobId}/chunks/{chunkId}/save")]
-    public async Task<IActionResult> SaveChunk(
+    // ── Per-chunk quiz generation + editing ───────────────────────────────────
+
+    /// <summary>POST /api/videoprocessing/{jobId}/chunks/{chunkId}/generate-quiz</summary>
+    [HttpPost("{jobId}/chunks/{chunkId}/generate-quiz")]
+    public async Task<IActionResult> GenerateChunkQuiz(
         string jobId,
         string chunkId,
-        [FromBody] SaveChunkRequest request,
+        [FromBody] GenerateChunkQuizRequest request,
         CancellationToken ct)
     {
         try
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null) return Unauthorized();
-
-            var command = new SaveReviewedChunkCommand
+            var command = new GenerateChunkQuizCommand
             {
-                InstructorId = userId,
+                InstructorId = GetUserId(),
                 JobId = jobId,
                 ChunkId = chunkId,
-                CourseId = request.CourseId,
-                SectionId = request.SectionId,
-                Title = request.Title,
-                Transcript = request.Transcript,
-                Order = request.Order
+                NumQuestions = request.NumQuestions
             };
 
             var result = await _mediator.Send(command, ct);
+            if (!result.Success)
+                return BadRequest(new { message = result.Message, success = false });
 
+            return Ok(new { data = result.Quizzes, message = result.Message, success = true });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating quiz for chunk {ChunkId}", chunkId);
+            return StatusCode(500, new { message = "An error occurred", success = false });
+        }
+    }
+
+    /// <summary>PUT /api/videoprocessing/{jobId}/chunks/{chunkId}/quiz/{difficulty} — edit draft questions</summary>
+    [HttpPut("{jobId}/chunks/{chunkId}/quiz/{difficulty}")]
+    public async Task<IActionResult> UpdateChunkQuizQuestions(
+        string jobId,
+        string chunkId,
+        string difficulty,
+        [FromBody] List<DraftQuizQuestionDto> questions,
+        CancellationToken ct)
+    {
+        try
+        {
+            var command = new UpdateChunkQuizQuestionsCommand
+            {
+                InstructorId = GetUserId(),
+                JobId = jobId,
+                ChunkId = chunkId,
+                Difficulty = difficulty,
+                Questions = questions
+            };
+
+            var result = await _mediator.Send(command, ct);
+            if (!result)
+                return NotFound(new { message = "Chunk not found", success = false });
+
+            return Ok(new { message = "Quiz questions updated", success = true });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating quiz questions for chunk {ChunkId}", chunkId);
+            return StatusCode(500, new { message = "An error occurred", success = false });
+        }
+    }
+
+    // ── Final save: chunk → real Lesson (quiz required) ──────────────────────
+
+    /// <summary>POST /api/videoprocessing/{jobId}/chunks/{chunkId}/save</summary>
+    [HttpPost("{jobId}/chunks/{chunkId}/save")]
+    public async Task<IActionResult> SaveChunkAsLesson(
+        string jobId,
+        string chunkId,
+        [FromBody] SaveChunkAsLessonRequest request,
+        CancellationToken ct)
+    {
+        try
+        {
+            var command = new SaveChunkAsLessonCommand
+            {
+                InstructorId = GetUserId(),
+                JobId = jobId,
+                ChunkId = chunkId,
+                Title = request.Title,
+                Transcript = request.Transcript,
+                Order = request.Order,
+                IsFree = request.IsFree
+            };
+
+            var result = await _mediator.Send(command, ct);
             if (!result.Success)
                 return BadRequest(new { message = result.Message, success = false });
 
@@ -219,6 +393,8 @@ public class VideoProcessingController : ControllerBase
             return StatusCode(500, new { message = "An error occurred", success = false });
         }
     }
+
+    private string GetUserId() => User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
 }
 
 // ── Request DTOs ──────────────────────────────────────────────────────────
@@ -226,20 +402,38 @@ public class VideoProcessingController : ControllerBase
 public class ProcessYoutubeRequest
 {
     public string CourseId { get; set; } = string.Empty;
+    public string SectionId { get; set; } = string.Empty;
     public string YoutubeUrl { get; set; } = string.Empty;
+}
+
+public class ApproveTranscriptRequest
+{
+    /// <summary>"corrected" | "original"</summary>
+    public string Choice { get; set; } = "original";
+}
+
+public class UpdateRawTranscriptRequest
+{
+    public string Transcript { get; set; } = string.Empty;
 }
 
 public class UpdateChunkRequest
 {
-    public string Title { get; set; } = string.Empty;
-    public string Transcript { get; set; } = string.Empty;
+    public string? Title { get; set; }
+    public string? Transcript { get; set; }
+    public string? StartTime { get; set; }
+    public string? EndTime { get; set; }
 }
 
-public class SaveChunkRequest
+public class GenerateChunkQuizRequest
 {
-    public string CourseId { get; set; } = string.Empty;
-    public string SectionId { get; set; } = string.Empty;
+    public int NumQuestions { get; set; } = 5;
+}
+
+public class SaveChunkAsLessonRequest
+{
     public string Title { get; set; } = string.Empty;
     public string Transcript { get; set; } = string.Empty;
     public int Order { get; set; }
+    public bool IsFree { get; set; }
 }

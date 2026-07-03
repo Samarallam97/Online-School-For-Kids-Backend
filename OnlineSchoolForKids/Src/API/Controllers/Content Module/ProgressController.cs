@@ -14,16 +14,16 @@ namespace API.Controllers.Content_Module
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-        public class ProgressController : ControllerBase
-        {
-            private readonly IMediator _mediator;
-            private readonly ILogger<ProgressController> _logger;
+    public class ProgressController : ControllerBase
+    {
+        private readonly IMediator _mediator;
+        private readonly ILogger<ProgressController> _logger;
 
-            public ProgressController(IMediator mediator, ILogger<ProgressController> logger)
-            {
-                _mediator = mediator;
-                _logger = logger;
-            }
+        public ProgressController(IMediator mediator, ILogger<ProgressController> logger)
+        {
+            _mediator = mediator;
+            _logger = logger;
+        }
         /// <summary>
         /// Get student dashboard with all enrolled courses
         /// GET /api/progress/dashboard
@@ -80,39 +80,6 @@ namespace API.Controllers.Content_Module
                 return StatusCode(500, new { message = "An error occurred", success = false });
             }
         }
-
-
-        [HttpGet("{courseId}/quiz-scores")]
-        public async Task<IActionResult> GetQuizScores(
-            string courseId,
-            CancellationToken cancellationToken)
-        {
-            try
-            {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
-
-                var query = new GetUserQuizResultsQuery
-                {
-                    UserId = userId,
-                    CourseId = courseId
-                };
-
-                var result = await _mediator.Send(query, cancellationToken);
-
-                if (result == null)
-                    return NotFound(new { message = "No quiz results found", success = false });
-
-                return Ok(new { data = result, success = true });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting quiz scores");
-                return StatusCode(500, new { message = "An error occurred", success = false });
-            }
-        }
-
 
         [HttpPost("notes")]
         public async Task<IActionResult> CreateNote(
@@ -319,7 +286,6 @@ namespace API.Controllers.Content_Module
 
                 if (result == null)
                 {
-                    // No progress yet - start from beginning
                     return Ok(new
                     {
                         data = new
@@ -363,7 +329,3 @@ namespace API.Controllers.Content_Module
         }
     }
 }
-
-
- 
-
