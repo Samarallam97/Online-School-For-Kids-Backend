@@ -1,10 +1,5 @@
 ﻿using Domain.Interfaces.Repositories.Content;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Commands.Course;
 
@@ -43,8 +38,8 @@ public class ClearWishlistCommandHandler
         if (list.Count == 0)
             return new ClearWishlistResponse
             {
-                Success      = true,
-                Message      = "Wishlist is already empty",
+                Success = true,
+                Message = "Wishlist is already empty",
                 DeletedCount = 0,
             };
 
@@ -53,8 +48,8 @@ public class ClearWishlistCommandHandler
 
         return new ClearWishlistResponse
         {
-            Success      = true,
-            Message      = $"{list.Count} course(s) removed from wishlist",
+            Success = true,
+            Message = $"{list.Count} course(s) removed from wishlist",
             DeletedCount = list.Count,
         };
     }

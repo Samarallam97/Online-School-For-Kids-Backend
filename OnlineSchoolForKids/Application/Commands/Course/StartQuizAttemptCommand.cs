@@ -1,6 +1,5 @@
 ﻿using Domain.Entities.Content.Quizes;
 using Domain.Enums.Content;
-using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Repositories.Content;
 using MediatR;
 using Microsoft.Extensions.Logging;

@@ -1,11 +1,6 @@
 ﻿using Domain.Enums;
 using Domain.Interfaces.Repositories;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Commands;
 
@@ -27,9 +22,9 @@ public class ReleaseExpiredHoldsCommandHandler : IRequestHandler<ReleaseExpiredH
 
         foreach (var appt in expired)
         {
-            appt.Status             = AppointmentStatus.Cancelled;
+            appt.Status = AppointmentStatus.Cancelled;
             appt.CancellationReason = "Hold expired — not confirmed within 30 minutes.";
-            appt.CancelledAtUtc     = DateTime.UtcNow;
+            appt.CancelledAtUtc = DateTime.UtcNow;
         }
 
         await _appointmentRepo.UpdateManyAsync(expired, cancellationToken);

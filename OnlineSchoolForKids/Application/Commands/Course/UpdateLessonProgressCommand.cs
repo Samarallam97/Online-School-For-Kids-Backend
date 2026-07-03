@@ -2,7 +2,6 @@
 using Domain.Interfaces.Repositories.Content;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
 using static UpdateLessonProgressHandler;
 
 public class UpdateLessonProgressCommand : IRequest<UpdateLessonProgressResponse>
@@ -44,7 +43,7 @@ public class UpdateLessonProgressHandler : IRequestHandler<UpdateLessonProgressC
         {
             var dto = request.Dto;
             var lessonExists = await _lessonRepository.ExistsAsync(l => l.Id == dto.LessonId && l.CourseId == dto.CourseId, ct);
-         
+
             if (!lessonExists)
             {
                 return new UpdateLessonProgressResponse

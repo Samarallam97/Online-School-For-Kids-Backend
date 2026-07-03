@@ -1,6 +1,4 @@
-﻿using Domain.Entities.Content;
-using Domain.Entities.Content.Progress;
-using Domain.Interfaces.Repositories;
+﻿using Domain.Entities.Content.Progress;
 using Domain.Interfaces.Repositories.Content;
 using MediatR;
 using Microsoft.Extensions.Logging;

@@ -2,11 +2,6 @@
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Repositories.Users;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Commands;
 
@@ -30,7 +25,7 @@ public class BookSessionCommandHandler : IRequestHandler<BookSessionCommand, Boo
         IUserRepository userRepo)
     {
         _appointmentRepo = appointmentRepo;
-        _userRepo        = userRepo;
+        _userRepo = userRepo;
     }
 
     public async Task<BookSessionResult> Handle(
@@ -65,14 +60,14 @@ public class BookSessionCommandHandler : IRequestHandler<BookSessionCommand, Boo
         // 4. Create the appointment in Pending state with a 30-min hold
         var appointment = new Appointment
         {
-            SpecialistId     = request.SpecialistId,
-            StudentId        = request.StudentId,
-            Title            = request.Title,
-            Description      = request.Description,
-            AppointmentDate  = request.AppointmentDate,
-            StartTime        = request.StartTime,
-            EndTime          = request.EndTime,
-            Status           = Domain.Enums.AppointmentStatus.Pending,
+            SpecialistId = request.SpecialistId,
+            StudentId = request.StudentId,
+            Title = request.Title,
+            Description = request.Description,
+            AppointmentDate = request.AppointmentDate,
+            StartTime = request.StartTime,
+            EndTime = request.EndTime,
+            Status = Domain.Enums.AppointmentStatus.Pending,
             HoldExpiresAtUtc = DateTime.UtcNow.AddMinutes(30),
         };
 

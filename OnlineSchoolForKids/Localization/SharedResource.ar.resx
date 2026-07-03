@@ -1,0 +1,429 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="EmailAlreadyExists" xml:space="preserve">
+    <value>البريد الإلكتروني موجود بالفعل</value>
+  </data>
+  <data name="PhoneNumberAlreadyExists" xml:space="preserve">
+    <value>رقم الهاتف موجود بالفعل</value>
+  </data>
+  <data name="RegistrationSuccessful" xml:space="preserve">
+    <value>تم التسجيل بنجاح. يرجى التحقق من بريدك الإلكتروني للتحقق من حسابك.</value>
+  </data>
+  <data name="RegistrationFailed" xml:space="preserve">
+    <value>فشل التسجيل. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="InvalidCredentials" xml:space="preserve">
+    <value>البريد الإلكتروني أو كلمة المرور غير صحيحة</value>
+  </data>
+  <data name="AccountLockedOut" xml:space="preserve">
+    <value>الحساب مقفل حتى {0}. محاولات تسجيل دخول فاشلة كثيرة.</value>
+  </data>
+  <data name="AccountDeleted" xml:space="preserve">
+    <value>تم حذف هذا الحساب</value>
+  </data>
+  <data name="AccountSuspended" xml:space="preserve">
+    <value>تم تعليق هذا الحساب. يرجى الاتصال بالدعم.</value>
+  </data>
+  <data name="EmailNotVerified" xml:space="preserve">
+    <value>يرجى التحقق من بريدك الإلكتروني قبل تسجيل الدخول</value>
+  </data>
+  <data name="TwoFactorCodeRequired" xml:space="preserve">
+    <value>رمز المصادقة الثنائية مطلوب</value>
+  </data>
+  <data name="InvalidTwoFactorCode" xml:space="preserve">
+    <value>رمز المصادقة الثنائية غير صحيح</value>
+  </data>
+  <data name="LoginSuccessful" xml:space="preserve">
+    <value>تم تسجيل الدخول بنجاح</value>
+  </data>
+  <data name="LoginFailed" xml:space="preserve">
+    <value>فشل تسجيل الدخول. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="InvalidGoogleToken" xml:space="preserve">
+    <value>رمز جوجل غير صالح</value>
+  </data>
+  <data name="GoogleLoginFailed" xml:space="preserve">
+    <value>فشل تسجيل الدخول عبر جوجل. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="AccountNotActive" xml:space="preserve">
+    <value>هذا الحساب غير نشط</value>
+  </data>
+  <data name="InvalidRefreshToken" xml:space="preserve">
+    <value>رمز التحديث غير صالح أو منتهي الصلاحية</value>
+  </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>لم يتم العثور على المستخدم</value>
+  </data>
+  <data name="TokenRefreshFailed" xml:space="preserve">
+    <value>فشل تحديث الرمز</value>
+  </data>
+  <data name="TokenRevoked" xml:space="preserve">
+    <value>تم إلغاء الرمز بنجاح</value>
+  </data>
+  <data name="TokenRevokeFailed" xml:space="preserve">
+    <value>فشل إلغاء الرمز</value>
+  </data>
+  <data name="LogoutSuccessful" xml:space="preserve">
+    <value>تم تسجيل الخروج بنجاح</value>
+  </data>
+  <data name="LogoutFailed" xml:space="preserve">
+    <value>فشل تسجيل الخروج</value>
+  </data>
+  <data name="PasswordResetEmailSent" xml:space="preserve">
+    <value>إذا كان بريدك الإلكتروني موجودًا في نظامنا، ستتلقى رابط إعادة تعيين كلمة المرور قريبًا.</value>
+  </data>
+  <data name="PasswordResetRequestFailed" xml:space="preserve">
+    <value>فشل طلب إعادة تعيين كلمة المرور</value>
+  </data>
+  <data name="InvalidOrExpiredToken" xml:space="preserve">
+    <value>رمز غير صالح أو منتهي الصلاحية</value>
+  </data>
+  <data name="PasswordResetSuccessful" xml:space="preserve">
+    <value>تم إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة.</value>
+  </data>
+  <data name="PasswordResetFailed" xml:space="preserve">
+    <value>فشل إعادة تعيين كلمة المرور</value>
+  </data>
+  <data name="EmailAlreadyVerified" xml:space="preserve">
+    <value>تم التحقق من البريد الإلكتروني بالفعل</value>
+  </data>
+  <data name="EmailVerifiedSuccessfully" xml:space="preserve">
+    <value>تم التحقق من البريد الإلكتروني بنجاح</value>
+  </data>
+  <data name="EmailVerificationFailed" xml:space="preserve">
+    <value>فشل التحقق من البريد الإلكتروني</value>
+  </data>
+  <data name="VerificationEmailResent" xml:space="preserve">
+    <value>تم إعادة إرسال بريد التحقق</value>
+  </data>
+  <data name="ResendVerificationFailed" xml:space="preserve">
+    <value>فشل إعادة إرسال بريد التحقق</value>
+  </data>
+  <data name="InvalidPassword" xml:space="preserve">
+    <value>كلمة المرور غير صالحة</value>
+  </data>
+  <data name="TwoFactorAlreadyEnabled" xml:space="preserve">
+    <value>المصادقة الثنائية مفعلة بالفعل</value>
+  </data>
+  <data name="TwoFactorSetupInitiated" xml:space="preserve">
+    <value>تم بدء إعداد المصادقة الثنائية. يرجى مسح رمز QR باستخدام تطبيق المصادقة.</value>
+  </data>
+  <data name="TwoFactorEnableFailed" xml:space="preserve">
+    <value>فشل تفعيل المصادقة الثنائية</value>
+  </data>
+  <data name="TwoFactorNotSetup" xml:space="preserve">
+    <value>المصادقة الثنائية غير معدة</value>
+  </data>
+  <data name="TwoFactorEnabled" xml:space="preserve">
+    <value>تم تفعيل المصادقة الثنائية بنجاح</value>
+  </data>
+  <data name="TwoFactorVerifyFailed" xml:space="preserve">
+    <value>فشل التحقق من المصادقة الثنائية</value>
+  </data>
+  <data name="TwoFactorNotEnabled" xml:space="preserve">
+    <value>المصادقة الثنائية غير مفعلة</value>
+  </data>
+  <data name="TwoFactorDisabled" xml:space="preserve">
+    <value>تم تعطيل المصادقة الثنائية بنجاح</value>
+  </data>
+  <data name="TwoFactorDisableFailed" xml:space="preserve">
+    <value>فشل تعطيل المصادقة الثنائية</value>
+  </data>
+  <data name="GetProfileFailed" xml:space="preserve">
+    <value>فشل في الحصول على الملف الشخصي</value>
+  </data>
+  <data name="ProfileUpdatedSuccessfully" xml:space="preserve">
+    <value>تم تحديث الملف الشخصي بنجاح</value>
+  </data>
+  <data name="UpdateProfileFailed" xml:space="preserve">
+    <value>فشل في تحديث الملف الشخصي</value>
+  </data>
+  <data name="InvalidCurrentPassword" xml:space="preserve">
+    <value>كلمة المرور الحالية غير صحيحة</value>
+  </data>
+  <data name="PasswordChangedSuccessfully" xml:space="preserve">
+    <value>تم تغيير كلمة المرور بنجاح. لقد تم تسجيل خروجك من جميع الأجهزة.</value>
+  </data>
+  <data name="PasswordChangeFailed" xml:space="preserve">
+    <value>فشل في تغيير كلمة المرور</value>
+  </data>
+  <data name="InvalidFileType" xml:space="preserve">
+    <value>نوع الملف غير صالح. يُسمح فقط بـ JPG و JPEG و PNG و GIF.</value>
+  </data>
+  <data name="FileTooLarge" xml:space="preserve">
+    <value>حجم الملف يتجاوز الحد المسموح به وهو 5 ميجابايت</value>
+  </data>
+  <data name="ProfilePictureUploadedSuccessfully" xml:space="preserve">
+    <value>تم تحميل صورة الملف الشخصي بنجاح</value>
+  </data>
+  <data name="ProfilePictureUploadFailed" xml:space="preserve">
+    <value>فشل في تحميل صورة الملف الشخصي</value>
+  </data>
+  <data name="AccountDeletionScheduled" xml:space="preserve">
+    <value>تم جدولة حذف حسابك. لديك 30 يوماً لاستعادته.</value>
+  </data>
+  <data name="AccountDeletionFailed" xml:space="preserve">
+    <value>فشل في حذف الحساب</value>
+  </data>
+  <data name="AccountNotDeleted" xml:space="preserve">
+    <value>الحساب غير محذوف</value>
+  </data>
+  <data name="AccountCannotBeRestored" xml:space="preserve">
+    <value>لا يمكن استعادة الحساب. لقد مرّت فترة الـ 30 يوماً.</value>
+  </data>
+  <data name="AccountRestoredSuccessfully" xml:space="preserve">
+    <value>تم استعادة الحساب بنجاح</value>
+  </data>
+  <data name="AccountRestoreFailed" xml:space="preserve">
+    <value>فشل في استعادة الحساب</value>
+  </data>
+  <data name="UserPermanentlyDeleted" xml:space="preserve">
+    <value>تم حذف المستخدم نهائياً</value>
+  </data>
+  <data name="PermanentDeletionFailed" xml:space="preserve">
+    <value>فشل في حذف المستخدم نهائياً</value>
+  </data>
+  <data name="ProfileSharedSuccessfully" xml:space="preserve">
+    <value>تمت مشاركة الملف الشخصي بنجاح</value>
+  </data>
+  <data name="ProfileShareFailed" xml:space="preserve">
+    <value>فشل في مشاركة الملف الشخصي</value>
+  </data>
+  <data name="GetUsersFailed" xml:space="preserve">
+    <value>فشل في الحصول على قائمة المستخدمين</value>
+  </data>
+  <data name="VerificationCodeIsRequired" xml:space="preserve">
+    <value>مطلوب إدخال رمز التحقق</value>
+  </data>
+  <data name="CodeMustBe6Digits" xml:space="preserve">
+    <value>يجب أن يتكون الرمز من 6 أرقام</value>
+  </data>
+  <data name="CodeMustContainOnlyNumbers" xml:space="preserve">
+    <value>يجب أن يحتوي الرمز على أرقام فقط</value>
+  </data>
+  <data name="PasswordIsRequired" xml:space="preserve">
+    <value>يجب ادخال كلمة المرور</value>
+  </data>
+  <data name="GoogleIDTokenIsRequired" xml:space="preserve">
+    <value>يجب إدخال رمز تعريف Google </value>
+  </data>
+  <data name="ValidationCountryLength" xml:space="preserve">
+    <value>يجب أن يكون اسم الدولة بين 2 و100 حرفًا</value>
+  </data>
+  <data name="InvalidPhoneNumberFormat" xml:space="preserve">
+    <value>صيغة رقم الهاتف المدخَل غير صحيحة</value>
+  </data>
+  <data name="InvalidRoleSelected" xml:space="preserve">
+    <value>الدور الذي تم اختياره غير صالح</value>
+  </data>
+  <data name="VerificationTokenIsRequired" xml:space="preserve">
+    <value>مطلوب إدخال رمز التحقق</value>
+  </data>
+  <data name="RefreshTokenIsRequired" xml:space="preserve">
+    <value>يجب إدخال رمز التحديث</value>
+  </data>
+  <data name="EmailIsRequired" xml:space="preserve">
+    <value>يجب إدخال البريد الإلكتروني</value>
+  </data>
+  <data name="InvalidEmailFormat" xml:space="preserve">
+    <value>صيغة البريد الإلكتروني المدخَل غير صحيحة</value>
+  </data>
+  <data name="Two-FactorCodeLength" xml:space="preserve">
+    <value>يجب أن يتكون رمز التحقق الثنائي من 6 أرقام</value>
+  </data>
+  <data name="Two-factorCodeMustContainOnlyNumbers" xml:space="preserve">
+    <value>يجب أن يحتوي رمز التحقق الثنائي على أرقام فقط</value>
+  </data>
+  <data name="NewPasswordIsRequired" xml:space="preserve">
+    <value>مطلوب إدخال كلمة المرور الجديدة</value>
+  </data>
+  <data name="ResetTokenIsRequired" xml:space="preserve">
+    <value>مطلوب إدخال رمز إعادة التعيين</value>
+  </data>
+  <data name="PasswordMinLength" xml:space="preserve">
+    <value>يجب أن تتكون كلمة المرور من 8 أحرف على الأقل</value>
+  </data>
+  <data name="PasswordMaxLength" xml:space="preserve">
+    <value>يجب ألا تتجاوز كلمة المرور 100 حرف</value>
+  </data>
+  <data name="ValidationPasswordUppercaseRequired" xml:space="preserve">
+    <value>يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل</value>
+  </data>
+  <data name="ValidationPasswordLowercaseRequired" xml:space="preserve">
+    <value>يجب أن تحتوي كلمة المرور على حرف صغير واحد على الأقل</value>
+  </data>
+  <data name="ValidationPasswordNumberRequired" xml:space="preserve">
+    <value>يجب أن تحتوي كلمة المرور على رقم واحد على الأقل</value>
+  </data>
+  <data name="ValidationPasswordSpecialCharRequired" xml:space="preserve">
+    <value>يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل (@$!%*?&amp;#)</value>
+  </data>
+  <data name="PasswordConfirmationIsRequired" xml:space="preserve">
+    <value>مطلوب تأكيد كلمة المرور</value>
+  </data>
+  <data name="PasswordsMismatch" xml:space="preserve">
+    <value>كلمة المرور وتأكيدها غير متطابقين</value>
+  </data>
+  <data name="PhoneNumberIsRequired" xml:space="preserve">
+    <value>مطلوب إدخال رقم الهاتف</value>
+  </data>
+  <data name="CountryIsRequired" xml:space="preserve">
+    <value>مطلوب اختيار الدولة</value>
+  </data>
+  <data name="NameIsRequired" xml:space="preserve">
+    <value>يرجى إدخال الاسم</value>
+  </data>
+  <data name="ValidationNameAllowedCharacters" xml:space="preserve">
+    <value>يمكن أن يحتوي الاسم على حروف ومسافات فقط</value>
+  </data>
+  <data name="validationEmailMaxLength" xml:space="preserve">
+    <value>يجب ألا يتجاوز البريد الإلكتروني 255 حرفًا</value>
+  </data>
+  <data name="RoleIsRequired" xml:space="preserve">
+    <value>مطلوب اختيار الدور</value>
+  </data>
+  <data name="PreferredLanguageIsRequired" xml:space="preserve">
+    <value>مطلوب اختيار اللغة المفضلة</value>
+  </data>
+  <data name="ValidationPreferredLanguageAllowedValues" xml:space="preserve">
+    <value>يجب أن تكون اللغة المفضلة إما 'en-US' أو 'ar-EG'</value>
+  </data>
+  <data name="ValidationNameLength" xml:space="preserve">
+    <value>يجب أن يتراوح طول الاسم بين 2 و100 حرفًا</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>هذا الكورس غير موجود</value>
+  </data>
+  <data name="NotAvailable" xml:space="preserve">
+    <value>هذا الكورس غير متاح</value>
+  </data>
+  <data name="FieldRequired" xml:space="preserve">
+    <value> {0}  مطلوب</value>
+  </data>
+  <data name="CourseId" xml:space="preserve">
+    <value>id الكورس</value>
+  </data>
+  <data name="CartId" xml:space="preserve">
+    <value>id عربة التسوق</value>
+  </data>
+  <data name="UserId" xml:space="preserve">
+    <value>id المستخدم</value>
+  </data>
+</root>
