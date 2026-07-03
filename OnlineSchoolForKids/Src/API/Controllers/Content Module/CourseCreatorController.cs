@@ -28,14 +28,15 @@ namespace API.Controllers
             _logger = logger;
         }
 
+        private string GetUserId() => User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
 
         [HttpGet("courses/mine")]
         public async Task<IActionResult> GetMyCourses(CancellationToken cancellationToken)
         {
             try
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userId == null) return Unauthorized();
+                var userId = GetUserId();
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
                 var query = new GetMyCoursesQuery { InstructorId = userId };
                 var result = await _mediator.Send(query, cancellationToken);
@@ -56,8 +57,8 @@ namespace API.Controllers
         {
             try
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userId == null) return Unauthorized();
+                var userId = GetUserId();
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
                 var command = new CreateCourseCommand { Dto = dto, InstructorId = userId };
                 var result = await _mediator.Send(command, cancellationToken);
 
@@ -77,6 +78,7 @@ namespace API.Controllers
                 return StatusCode(500, new { message = "An error occurred", success = false });
             }
         }
+
         [HttpPut("courses/{courseId}")]
         public async Task<IActionResult> UpdateCourse(
            string courseId,
@@ -85,8 +87,8 @@ namespace API.Controllers
         {
             try
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userId == null) return Unauthorized();
+                var userId = GetUserId();
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
                 var command = new UpdateCourseCommand
                 {
                     CourseId = courseId,
@@ -107,6 +109,7 @@ namespace API.Controllers
                 return StatusCode(500, new { message = "An error occurred", success = false });
             }
         }
+
         [HttpDelete("courses/{courseId}")]
         public async Task<IActionResult> DeleteCourse(
             string courseId,
@@ -114,9 +117,9 @@ namespace API.Controllers
         {
             try
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userId == null) return Unauthorized();
-                var command = new DeleteCourseCommand { CourseId = courseId,InstructorId=userId };
+                var userId = GetUserId();
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
+                var command = new DeleteCourseCommand { CourseId = courseId, InstructorId = userId };
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (!result)
@@ -130,6 +133,7 @@ namespace API.Controllers
                 return StatusCode(500, new { message = "An error occurred", success = false });
             }
         }
+
         [HttpPost("courses/{courseId}/publish")]
         public async Task<IActionResult> PublishCourse(
            string courseId,
@@ -138,8 +142,8 @@ namespace API.Controllers
         {
             try
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userId == null) return Unauthorized();
+                var userId = GetUserId();
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
                 var command = new PublishCourseCommand
                 {
                     CourseId = courseId,
@@ -164,6 +168,7 @@ namespace API.Controllers
                 return StatusCode(500, new { message = "An error occurred", success = false });
             }
         }
+
         [HttpPost("sections")]
         public async Task<IActionResult> CreateSection(
            [FromBody] CreateSectionDto dto,
@@ -171,9 +176,9 @@ namespace API.Controllers
         {
             try
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userId == null) return Unauthorized();
-                var command = new CreateSectionCommand { Dto = dto ,InstructorId=userId};
+                var userId = GetUserId();
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
+                var command = new CreateSectionCommand { Dto = dto, InstructorId = userId };
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (!result)
@@ -187,6 +192,7 @@ namespace API.Controllers
                 return StatusCode(500, new { message = "An error occurred", success = false });
             }
         }
+
         [HttpPut("sections/{courseId}/{sectionId}")]
         public async Task<IActionResult> UpdateSection(
                   string courseId,
@@ -196,8 +202,8 @@ namespace API.Controllers
         {
             try
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userId == null) return Unauthorized();
+                var userId = GetUserId();
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
                 var command = new UpdateSectionCommand
                 {
                     CourseId = courseId,
@@ -219,6 +225,7 @@ namespace API.Controllers
                 return StatusCode(500, new { message = "An error occurred", success = false });
             }
         }
+
         [HttpDelete("sections/{courseId}/{sectionId}")]
         public async Task<IActionResult> DeleteSection(
             string courseId,
@@ -227,8 +234,8 @@ namespace API.Controllers
         {
             try
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userId == null) return Unauthorized();
+                var userId = GetUserId();
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
                 var command = new DeleteSectionCommand
                 {
                     CourseId = courseId,
@@ -249,6 +256,7 @@ namespace API.Controllers
                 return StatusCode(500, new { message = "An error occurred", success = false });
             }
         }
+
         [HttpPost("lessons")]
         public async Task<IActionResult> CreateLesson(
            [FromBody] CreateLessonDto dto,
@@ -256,15 +264,20 @@ namespace API.Controllers
         {
             try
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userId == null) return Unauthorized();
-                var command = new CreateLessonCommand { Dto = dto ,InstructorId = userId};
+                var userId = GetUserId();
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
+                var command = new CreateLessonCommand { Dto = dto, InstructorId = userId };
                 var result = await _mediator.Send(command, cancellationToken);
 
-                if (!result)
-                    return BadRequest(new { message = "Failed to create lesson", success = false });
+                if (!result.Success)
+                    return BadRequest(new { message = result.Message, success = false });
 
-                return Ok(new { message = "Lesson created successfully", success = true });
+                return Ok(new
+                {
+                    data = new { lessonId = result.LessonId },
+                    message = result.Message,
+                    success = true
+                });
             }
             catch (Exception ex)
             {
@@ -283,8 +296,8 @@ namespace API.Controllers
         {
             try
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userId == null) return Unauthorized();
+                var userId = GetUserId();
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
                 var command = new UpdateLessonCommand
                 {
                     InstructorId = userId,
@@ -317,8 +330,8 @@ namespace API.Controllers
         {
             try
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userId == null) return Unauthorized();
+                var userId = GetUserId();
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
                 var command = new DeleteLessonCommand
                 {
                     InstructorId = userId,
@@ -340,6 +353,48 @@ namespace API.Controllers
                 return StatusCode(500, new { message = "An error occurred", success = false });
             }
         }
+
+        /// <summary>PUT /api/coursecreator/lessons/{courseId}/{sectionId}/{lessonId}/quiz/{difficulty}
+        /// Edits questions for one difficulty on an already-saved lesson.</summary>
+        [HttpPut("lessons/{courseId}/{sectionId}/{lessonId}/quiz/{difficulty}")]
+        public async Task<IActionResult> UpdateLessonQuiz(
+            string courseId,
+            string sectionId,
+            string lessonId,
+            string difficulty,
+            [FromBody] List<UpdateLessonQuizQuestionDto> questions,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var userId = GetUserId();
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+                var command = new UpdateLessonQuizCommand
+                {
+                    InstructorId = userId,
+                    CourseId = courseId,
+                    SectionId = sectionId,
+                    LessonId = lessonId,
+                    Difficulty = difficulty,
+                    Questions = questions
+                };
+
+                var result = await _mediator.Send(command, cancellationToken);
+                if (!result)
+                    return NotFound(new { message = "Lesson not found", success = false });
+
+                return Ok(new { message = "Quiz updated successfully", success = true });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating lesson quiz");
+                return StatusCode(500, new { message = "An error occurred", success = false });
+            }
+        }
+
+        // ── Materials ────────────────────────────────────────────────────
+
         [HttpPost("materials")]
         public async Task<IActionResult> AddMaterial(
            [FromBody] AddMaterialDto dto,
@@ -347,15 +402,20 @@ namespace API.Controllers
         {
             try
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userId == null) return Unauthorized();
-                var command = new AddMaterialCommand { Dto = dto,InstructorId = userId };
+                var userId = GetUserId();
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
+                var command = new AddMaterialCommand { Dto = dto, InstructorId = userId };
                 var result = await _mediator.Send(command, cancellationToken);
 
-                if (!result)
-                    return BadRequest(new { message = "Failed to add material", success = false });
+                if (!result.Success)
+                    return BadRequest(new { message = result.Message, success = false });
 
-                return Ok(new { message = "Material added successfully", success = true });
+                return Ok(new
+                {
+                    data = new { materialId = result.MaterialId },
+                    message = result.Message,
+                    success = true
+                });
             }
             catch (Exception ex)
             {
@@ -364,7 +424,63 @@ namespace API.Controllers
             }
         }
 
-        
+        [HttpPut("materials")]
+        public async Task<IActionResult> UpdateMaterial(
+            [FromBody] UpdateMaterialDto dto,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var userId = GetUserId();
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
+                var command = new UpdateMaterialCommand { Dto = dto, InstructorId = userId };
+                var result = await _mediator.Send(command, cancellationToken);
+
+                if (!result)
+                    return NotFound(new { message = "Material not found", success = false });
+
+                return Ok(new { message = "Material updated successfully", success = true });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating material");
+                return StatusCode(500, new { message = "An error occurred", success = false });
+            }
+        }
+
+        [HttpDelete("materials/{courseId}/{sectionId}/{lessonId}/{materialId}")]
+        public async Task<IActionResult> DeleteMaterial(
+            string courseId,
+            string sectionId,
+            string lessonId,
+            string materialId,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var userId = GetUserId();
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
+                var command = new DeleteMaterialCommand
+                {
+                    InstructorId = userId,
+                    CourseId = courseId,
+                    SectionId = sectionId,
+                    LessonId = lessonId,
+                    MaterialId = materialId
+                };
+                var result = await _mediator.Send(command, cancellationToken);
+
+                if (!result)
+                    return NotFound(new { message = "Material not found", success = false });
+
+                return Ok(new { message = "Material deleted successfully", success = true });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting material");
+                return StatusCode(500, new { message = "An error occurred", success = false });
+            }
+        }
 
         /// <summary>
         /// Full course detail (sections + lessons) for the instructor's course
@@ -379,8 +495,8 @@ namespace API.Controllers
         {
             try
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userId == null) return Unauthorized();
+                var userId = GetUserId();
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
                 var query = new GetCourseManagementDetailQuery
                 {
@@ -400,6 +516,5 @@ namespace API.Controllers
                 return StatusCode(500, new { message = "An error occurred", success = false });
             }
         }
-
     }
 }

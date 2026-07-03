@@ -7,18 +7,50 @@ public class VideoProcessingJob : BaseEntity
 {
     public string InstructorId { get; set; } = string.Empty;
     public string CourseId { get; set; } = string.Empty;
+    public string SectionId { get; set; } = string.Empty;
 
     /// <summary>"upload" or "youtube"</summary>
     public string SourceType { get; set; } = string.Empty;
 
+    /// <summary>"chunked" (long video/youtube → many lessons) or "single" (short video/youtube → one lesson)</summary>
+    public string Mode { get; set; } = "chunked";
+
     /// <summary>YouTube URL or uploaded file name</summary>
     public string SourceUrl { get; set; } = string.Empty;
 
-    /// <summary>pending | processing | awaiting_review | completed | failed</summary>
+    /// <summary>
+    /// URL of the uploaded video, stored via the file storage service so the
+    /// creator can scrub/preview it later without re-uploading. Null for
+    /// YouTube-sourced jobs (those use the YouTube URL directly for embedding).
+    /// </summary>
+    public string? VideoUrl { get; set; }
+
+    /// <summary>
+    /// pending | processing | awaiting_correction | awaiting_review |
+    /// awaiting_quiz | completed | failed | expired
+    /// </summary>
     public string Status { get; set; } = "pending";
 
     public string? ErrorMessage { get; set; }
+
+    /// <summary>Raw transcript exactly as returned by the AI pipeline.</summary>
     public string? RawTranscript { get; set; }
+
+    /// <summary>Transcript after the creator runs "Check accuracy" and the correction API returns a result.</summary>
+    public string? CorrectedTranscript { get; set; }
+
+    /// <summary>Accuracy score (0-100) from the last correction check. Null = never checked.</summary>
+    public double? AccuracyScore { get; set; }
+
+    /// <summary>Detected language from the correction API.</summary>
+    public string? DetectedLanguage { get; set; }
+
+    /// <summary>
+    /// True once the creator has accepted a transcript version (corrected or original)
+    /// as final for this job. Any subsequent manual edit clears this flag, requiring
+    /// a fresh "Check accuracy" before quiz generation can proceed with confidence.
+    /// </summary>
+    public bool IsTranscriptApproved { get; set; } = false;
 
     /// <summary>
     /// Course-level metadata returned by the pipeline's "description" object.
@@ -54,11 +86,30 @@ public class VideoChunk
     public string StartTime { get; set; } = string.Empty;
     public string EndTime { get; set; } = string.Empty;
 
-    /// <summary>Set by instructor during review</summary>
-    public string? SectionId { get; set; }
-    public string? LessonTitle { get; set; }
+    /// <summary>
+    /// Draft quiz sets (one per difficulty) generated for this chunk after the
+    /// creator finishes editing its boundaries/transcript and clicks "Generate Quiz".
+    /// Not persisted as a real Lesson until the creator saves the chunk.
+    /// </summary>
+    public List<DraftQuizSet> DraftQuizzes { get; set; } = new();
 
-    /// <summary>Whether this chunk has been saved as a lesson</summary>
+    /// <summary>Whether this chunk has been saved as a real Lesson.</summary>
     public bool IsSaved { get; set; } = false;
     public string? LessonId { get; set; }
+}
+
+/// <summary>A draft quiz set for one difficulty level, held on a chunk before final save.</summary>
+public class DraftQuizSet
+{
+    /// <summary>"easy" | "medium" | "hard"</summary>
+    public string Difficulty { get; set; } = string.Empty;
+    public List<DraftQuizQuestion> Questions { get; set; } = new();
+}
+
+public class DraftQuizQuestion
+{
+    public string Question { get; set; } = string.Empty;
+    public List<string> Options { get; set; } = new();
+    public int CorrectAnswer { get; set; }
+    public string Explanation { get; set; } = string.Empty;
 }

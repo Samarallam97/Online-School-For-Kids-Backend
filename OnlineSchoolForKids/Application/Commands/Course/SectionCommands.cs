@@ -29,9 +29,8 @@ namespace Application.Commands.Course
         {
             try
             {
-       
                 var course = await _courseRepo.GetByIdAsync(request.Dto.CourseId, ct);
-                if (course == null) return false;
+                if (course == null || course.InstructorId != request.InstructorId) return false;
 
                 course.Sections ??= new List<Section>();
 
@@ -42,11 +41,10 @@ namespace Application.Commands.Course
                     Description = request.Dto.Description,
                     Order = request.Dto.Order,
                     Lessons = new List<Lesson>(),
-                    CourseId = course.Id   
+                    CourseId = course.Id
                 };
 
                 course.Sections.Add(section);
-
                 course.UpdatedAt = DateTime.UtcNow;
 
                 await _courseRepo.UpdateAsync(course.Id, course, ct);
@@ -59,6 +57,7 @@ namespace Application.Commands.Course
                 return false;
             }
         }
+
         public class UpdateSectionCommand : IRequest<bool>
         {
             public string CourseId { get; set; } = string.Empty;
@@ -85,9 +84,9 @@ namespace Application.Commands.Course
                 try
                 {
                     var course = await _courseRepo.GetByIdAsync(request.CourseId, ct);
-                    if (course == null) return false;
+                    if (course == null || course.InstructorId != request.InstructorId) return false;
 
-                    var section = course.Sections.FirstOrDefault(s => s.Id == request.SectionId);
+                    var section = course.Sections?.FirstOrDefault(s => s.Id == request.SectionId);
                     if (section == null) return false;
 
                     section.Title = request.Dto.Title;
@@ -113,7 +112,6 @@ namespace Application.Commands.Course
             public string CourseId { get; set; } = string.Empty;
             public string SectionId { get; set; } = string.Empty;
             public string InstructorId { get; set; } = string.Empty;
-
         }
 
         public class DeleteSectionHandler : IRequestHandler<DeleteSectionCommand, bool>
@@ -134,9 +132,9 @@ namespace Application.Commands.Course
                 try
                 {
                     var course = await _courseRepo.GetByIdAsync(request.CourseId, ct);
-                    if (course == null) return false;
+                    if (course == null || course.InstructorId != request.InstructorId) return false;
 
-                    var section = course.Sections.FirstOrDefault(s => s.Id == request.SectionId);
+                    var section = course.Sections?.FirstOrDefault(s => s.Id == request.SectionId);
                     if (section == null) return false;
 
                     course.Sections.Remove(section);
@@ -170,35 +168,4 @@ namespace Application.Commands.Course
         public string? Description { get; set; }
         public int Order { get; set; }
     }
-
-    public class SectionManagementDto
-    {
-        public string Id { get; set; } = string.Empty;
-        public string Title { get; set; } = string.Empty;
-        public string? Description { get; set; }
-        public int Order { get; set; }
-        public int TotalLessons { get; set; }
-        public List<LessonManagementDto> Lessons { get; set; } = new();
-    }
-    public class LessonManagementDto
-    {
-        public string Id { get; set; } = string.Empty;
-        public string Title { get; set; } = string.Empty;
-        public string? Description { get; set; }
-        public int Duration { get; set; }
-        public int Order { get; set; }
-        public string? VideoUrl { get; set; }
-        public bool IsFree { get; set; }
-        public List<MaterialDto> Materials { get; set; } = new();
-    }
-    public class MaterialDto
-    {
-        public string Id { get; set; } = string.Empty;
-        public string Title { get; set; } = string.Empty;
-        public string Type { get; set; } = string.Empty; // PDF, Code, Document
-        public string Url { get; set; } = string.Empty;
-        public long FileSize { get; set; } // Bytes
-    }
-
-
 }

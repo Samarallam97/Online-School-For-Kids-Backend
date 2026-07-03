@@ -1,4 +1,4 @@
-﻿namespace Domain.Entities.Content.Quiz
+﻿namespace Domain.Entities.Content.Quizes
 {
     public class QuizOption
     {

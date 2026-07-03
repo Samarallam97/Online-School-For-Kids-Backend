@@ -1,5 +1,5 @@
 ﻿using Domain.Entities.Content.Progress;
-using Domain.Entities.Content.Quiz;
+using Domain.Entities.Content.Quizes;
 using Domain.Interfaces.Repositories.Content;
 using MediatR;
 using Microsoft.Extensions.Logging;

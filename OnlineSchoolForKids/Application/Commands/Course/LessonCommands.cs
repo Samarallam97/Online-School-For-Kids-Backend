@@ -6,13 +6,20 @@ using MongoDB.Bson;
 
 namespace Application.Commands.Course
 {
-    public class CreateLessonCommand : IRequest<bool>
+    public class CreateLessonCommand : IRequest<CreateLessonResponse>
     {
         public string InstructorId { get; set; } = string.Empty;
         public CreateLessonDto Dto { get; set; } = new();
     }
 
-    public class CreateLessonHandler : IRequestHandler<CreateLessonCommand, bool>
+    public class CreateLessonResponse
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public string? LessonId { get; set; }
+    }
+
+    public class CreateLessonHandler : IRequestHandler<CreateLessonCommand, CreateLessonResponse>
     {
         private readonly ICourseRepository _courseRepo;
         private readonly ILogger<CreateLessonHandler> _logger;
@@ -25,46 +32,49 @@ namespace Application.Commands.Course
             _logger = logger;
         }
 
-        public async Task<bool> Handle(CreateLessonCommand request, CancellationToken ct)
+        public async Task<CreateLessonResponse> Handle(CreateLessonCommand request, CancellationToken ct)
         {
             try
             {
                 var course = await _courseRepo.GetByIdAsync(request.Dto.CourseId, ct);
-                if (course == null) return false;
+                if (course == null || course.InstructorId != request.InstructorId)
+                    return Fail("Course not found");
 
-                var section = course.Sections.FirstOrDefault(s => s.Id == request.Dto.SectionId);
-                if (section == null) return false;
+                var section = course.Sections?.FirstOrDefault(s => s.Id == request.Dto.SectionId);
+                if (section == null) return Fail("Section not found");
 
                 var lesson = new Lesson
                 {
                     Id = ObjectId.GenerateNewId().ToString(),
-
                     CourseId = request.Dto.CourseId,
                     SectionId = request.Dto.SectionId,
-
                     Title = request.Dto.Title,
                     Description = request.Dto.Description,
                     Duration = request.Dto.Duration,
                     Order = request.Dto.Order,
-                    VideoUrl = request.Dto.VideoUrl,
+                    VideoUrl = request.Dto.VideoUrl ?? string.Empty,
                     IsFree = request.Dto.IsFree,
+                    IsPublished = false, // shell lesson — not published until content/quiz is saved
                     Materials = new List<Material>()
                 };
 
+                section.Lessons ??= new List<Lesson>();
                 section.Lessons.Add(lesson);
                 course.UpdatedAt = DateTime.UtcNow;
 
                 await _courseRepo.UpdateAsync(course.Id, course, ct);
 
                 _logger.LogInformation("Lesson created: {LessonId} in Section {SectionId}", lesson.Id, section.Id);
-                return true;
+                return new CreateLessonResponse { Success = true, Message = "Lesson created", LessonId = lesson.Id };
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating lesson");
-                return false;
+                return Fail("An error occurred while creating the lesson");
             }
         }
+
+        private static CreateLessonResponse Fail(string msg) => new() { Success = false, Message = msg };
     }
 
     public class UpdateLessonCommand : IRequest<bool>
@@ -94,19 +104,19 @@ namespace Application.Commands.Course
             try
             {
                 var course = await _courseRepo.GetByIdAsync(request.CourseId, ct);
-                if (course == null) return false;
+                if (course == null || course.InstructorId != request.InstructorId) return false;
 
-                var section = course.Sections.FirstOrDefault(s => s.Id == request.SectionId);
+                var section = course.Sections?.FirstOrDefault(s => s.Id == request.SectionId);
                 if (section == null) return false;
 
-                var lesson = section.Lessons.FirstOrDefault(l => l.Id == request.LessonId);
+                var lesson = section.Lessons?.FirstOrDefault(l => l.Id == request.LessonId);
                 if (lesson == null) return false;
 
                 lesson.Title = request.Dto.Title;
                 lesson.Description = request.Dto.Description;
                 lesson.Duration = request.Dto.Duration;
                 lesson.Order = request.Dto.Order;
-                lesson.VideoUrl = request.Dto.VideoUrl;
+                lesson.VideoUrl = request.Dto.VideoUrl ?? lesson.VideoUrl;
                 lesson.IsFree = request.Dto.IsFree;
                 course.UpdatedAt = DateTime.UtcNow;
 
@@ -149,15 +159,15 @@ namespace Application.Commands.Course
             try
             {
                 var course = await _courseRepo.GetByIdAsync(request.CourseId, ct);
-                if (course == null) return false;
+                if (course == null || course.InstructorId != request.InstructorId) return false;
 
-                var section = course.Sections.FirstOrDefault(s => s.Id == request.SectionId);
+                var section = course.Sections?.FirstOrDefault(s => s.Id == request.SectionId);
                 if (section == null) return false;
 
-                var lesson = section.Lessons.FirstOrDefault(l => l.Id == request.LessonId);
+                var lesson = section.Lessons?.FirstOrDefault(l => l.Id == request.LessonId);
                 if (lesson == null) return false;
 
-                section.Lessons.Remove(lesson);
+                section.Lessons!.Remove(lesson);
                 course.UpdatedAt = DateTime.UtcNow;
 
                 await _courseRepo.UpdateAsync(course.Id, course, ct);
@@ -172,6 +182,7 @@ namespace Application.Commands.Course
             }
         }
     }
+
     public class CreateLessonDto
     {
         public string CourseId { get; set; } = string.Empty;

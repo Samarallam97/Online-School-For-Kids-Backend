@@ -1,6 +1,6 @@
 ﻿using Domain.Entities.Users;
 using Domain.Enums.Content;
-namespace Domain.Entities.Content.Quiz
+namespace Domain.Entities.Content.Quizes
 {
     public class QuizAttempt : BaseEntity
     {

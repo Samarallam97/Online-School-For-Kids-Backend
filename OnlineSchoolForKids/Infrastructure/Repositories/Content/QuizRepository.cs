@@ -1,4 +1,4 @@
-﻿using Domain.Entities.Content.Quiz;
+﻿using Domain.Entities.Content.Quizes;
 using Domain.Interfaces.Repositories.Content;
 using Infrastructure.Data;
 

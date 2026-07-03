@@ -40,9 +40,15 @@ namespace Application.Commands
                     CategoryId = dto.CategoryId,
                     AgeGroup = Enum.Parse<AgeGroup>(dto.AgeGroup, true),
                     Price = dto.Price,
+                    DiscountPrice = dto.DiscountPrice,
                     ThumbnailUrl = dto.ThumbnailUrl ?? "",
+                    PreviewVideoUrl = dto.PreviewVideoUrl,
+                    Language = string.IsNullOrWhiteSpace(dto.Language) ? "English" : dto.Language,
+                    Subtitle = dto.Subtitle,
+                    WhatYoullLearn = dto.WhatYoullLearn ?? new List<string>(),
+                    Requirements = dto.Requirements ?? new List<string>(),
                     IsPublished = false,
-                    InstructorId = request.InstructorId, // ← ADD THIS LINE
+                    InstructorId = request.InstructorId,
                     Sections = new List<Section>()
                 };
 
@@ -55,8 +61,14 @@ namespace Application.Commands
                     Id = course.Id,
                     Title = course.Title,
                     Description = course.Description,
+                    Subtitle = course.Subtitle,
                     ThumbnailUrl = course.ThumbnailUrl,
+                    PreviewVideoUrl = course.PreviewVideoUrl,
+                    Language = course.Language,
                     Price = course.Price,
+                    DiscountPrice = course.DiscountPrice,
+                    WhatYoullLearn = course.WhatYoullLearn,
+                    Requirements = course.Requirements,
                     IsPublished = course.IsPublished,
                     TotalSections = 0,
                     TotalLessons = 0,
@@ -72,6 +84,7 @@ namespace Application.Commands
             }
         }
     }
+
     public class UpdateCourseCommand : IRequest<bool>
     {
         public string CourseId { get; set; } = string.Empty;
@@ -97,7 +110,7 @@ namespace Application.Commands
             try
             {
                 var course = await _courseRepo.GetByIdAsync(request.CourseId, ct);
-                if (course == null) return false;
+                if (course == null || course.InstructorId != request.InstructorId) return false;
 
                 var dto = request.Dto;
 
@@ -106,7 +119,13 @@ namespace Application.Commands
                 course.CategoryId = dto.CategoryId;
                 course.AgeGroup = dto.AgeGroup;
                 course.Price = dto.Price;
+                course.DiscountPrice = dto.DiscountPrice;
                 course.ThumbnailUrl = dto.ThumbnailUrl ?? course.ThumbnailUrl;
+                course.PreviewVideoUrl = dto.PreviewVideoUrl ?? course.PreviewVideoUrl;
+                course.Language = string.IsNullOrWhiteSpace(dto.Language) ? course.Language : dto.Language;
+                course.Subtitle = dto.Subtitle;
+                course.WhatYoullLearn = dto.WhatYoullLearn ?? course.WhatYoullLearn;
+                course.Requirements = dto.Requirements ?? course.Requirements;
                 course.IsPublished = dto.IsPublished;
                 course.UpdatedAt = DateTime.UtcNow;
 
@@ -121,91 +140,94 @@ namespace Application.Commands
                 return false;
             }
         }
-        public class DeleteCourseCommand : IRequest<bool>
+    }
+
+    public class DeleteCourseCommand : IRequest<bool>
+    {
+        public string CourseId { get; set; } = string.Empty;
+        public string InstructorId { get; set; } = string.Empty;
+    }
+
+    public class DeleteCourseHandler : IRequestHandler<DeleteCourseCommand, bool>
+    {
+        private readonly ICourseRepository _courseRepo;
+        private readonly ILogger<DeleteCourseHandler> _logger;
+
+        public DeleteCourseHandler(
+            ICourseRepository courseRepo,
+            ILogger<DeleteCourseHandler> logger)
         {
-            public string CourseId { get; set; } = string.Empty;
-            public string InstructorId { get; set; } = string.Empty;
+            _courseRepo = courseRepo;
+            _logger = logger;
         }
 
-        public class DeleteCourseHandler : IRequestHandler<DeleteCourseCommand, bool>
+        public async Task<bool> Handle(DeleteCourseCommand request, CancellationToken ct)
         {
-            private readonly ICourseRepository _courseRepo;
-            private readonly ILogger<DeleteCourseHandler> _logger;
-
-            public DeleteCourseHandler(
-                ICourseRepository courseRepo,
-                ILogger<DeleteCourseHandler> logger)
+            try
             {
-                _courseRepo = courseRepo;
-                _logger = logger;
+                var course = await _courseRepo.GetByIdAsync(request.CourseId, ct);
+                if (course == null || course.InstructorId != request.InstructorId) return false;
+
+                await _courseRepo.DeleteAsync(course.Id, ct);
+
+                _logger.LogInformation("Course deleted: {CourseId}", course.Id);
+                return true;
             }
-
-            public async Task<bool> Handle(DeleteCourseCommand request, CancellationToken ct)
+            catch (Exception ex)
             {
-                try
-                {
-                    var course = await _courseRepo.GetByIdAsync(request.CourseId, ct);
-                    if (course == null) return false;
-
-                    await _courseRepo.DeleteAsync(course.Id, ct);
-
-                    _logger.LogInformation("Course deleted: {CourseId}", course.Id);
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error deleting course {CourseId}", request.CourseId);
-                    return false;
-                }
-            }
-        }
-        public class PublishCourseCommand : IRequest<bool>
-        {
-            public string CourseId { get; set; } = string.Empty;
-            public string InstructorId { get; set; } = string.Empty;
-            public bool Publish { get; set; } = true;
-        }
-
-        public class PublishCourseHandler : IRequestHandler<PublishCourseCommand, bool>
-        {
-            private readonly ICourseRepository _courseRepo;
-            private readonly ILogger<PublishCourseHandler> _logger;
-
-            public PublishCourseHandler(
-                ICourseRepository courseRepo,
-                ILogger<PublishCourseHandler> logger)
-            {
-                _courseRepo = courseRepo;
-                _logger = logger;
-            }
-
-            public async Task<bool> Handle(PublishCourseCommand request, CancellationToken ct)
-            {
-                try
-                {
-                    var course = await _courseRepo.GetByIdAsync(request.CourseId, ct);
-                    if (course == null) return false;
-
-                    course.IsPublished = request.Publish;
-                    course.UpdatedAt = DateTime.UtcNow;
-
-                    await _courseRepo.UpdateAsync(course.Id, course, ct);
-
-                    _logger.LogInformation(
-                        "Course {Action}: {CourseId}",
-                        request.Publish ? "published" : "unpublished",
-                        course.Id);
-
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error publishing course {CourseId}", request.CourseId);
-                    return false;
-                }
+                _logger.LogError(ex, "Error deleting course {CourseId}", request.CourseId);
+                return false;
             }
         }
     }
+
+    public class PublishCourseCommand : IRequest<bool>
+    {
+        public string CourseId { get; set; } = string.Empty;
+        public string InstructorId { get; set; } = string.Empty;
+        public bool Publish { get; set; } = true;
+    }
+
+    public class PublishCourseHandler : IRequestHandler<PublishCourseCommand, bool>
+    {
+        private readonly ICourseRepository _courseRepo;
+        private readonly ILogger<PublishCourseHandler> _logger;
+
+        public PublishCourseHandler(
+            ICourseRepository courseRepo,
+            ILogger<PublishCourseHandler> logger)
+        {
+            _courseRepo = courseRepo;
+            _logger = logger;
+        }
+
+        public async Task<bool> Handle(PublishCourseCommand request, CancellationToken ct)
+        {
+            try
+            {
+                var course = await _courseRepo.GetByIdAsync(request.CourseId, ct);
+                if (course == null || course.InstructorId != request.InstructorId) return false;
+
+                course.IsPublished = request.Publish;
+                course.UpdatedAt = DateTime.UtcNow;
+
+                await _courseRepo.UpdateAsync(course.Id, course, ct);
+
+                _logger.LogInformation(
+                    "Course {Action}: {CourseId}",
+                    request.Publish ? "published" : "unpublished",
+                    course.Id);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error publishing course {CourseId}", request.CourseId);
+                return false;
+            }
+        }
+    }
+
     public class PublishCourseRequest
     {
         public bool Publish { get; set; }
@@ -215,11 +237,16 @@ namespace Application.Commands
     {
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-       
-        public string CategoryId { get; set; } = string.Empty;   
-        public string AgeGroup { get; set; }
+        public string CategoryId { get; set; } = string.Empty;
+        public string AgeGroup { get; set; } = string.Empty;
         public decimal Price { get; set; }
+        public decimal? DiscountPrice { get; set; }
         public string? ThumbnailUrl { get; set; }
+        public string? PreviewVideoUrl { get; set; }
+        public string Language { get; set; } = "English";
+        public string? Subtitle { get; set; }
+        public List<string> WhatYoullLearn { get; set; } = new();
+        public List<string> Requirements { get; set; } = new();
     }
 }
 
@@ -246,31 +273,39 @@ public class CourseDto : BaseEntity
 }
 
 public class CourseCreatorDto
-    {
-        public string Id { get; set; } = string.Empty;
-        public string Title { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public string ThumbnailUrl { get; set; } = string.Empty;
-        public decimal Price { get; set; }
-        public bool IsPublished { get; set; }
-        public int TotalSections { get; set; }
-        public int TotalLessons { get; set; }
-        public int TotalStudents { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-    }
+{
+    public string Id { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public string? Subtitle { get; set; }
+    public string ThumbnailUrl { get; set; } = string.Empty;
+    public string? PreviewVideoUrl { get; set; }
+    public string Language { get; set; } = string.Empty;
+    public decimal Price { get; set; }
+    public decimal? DiscountPrice { get; set; }
+    public List<string> WhatYoullLearn { get; set; } = new();
+    public List<string> Requirements { get; set; } = new();
+    public bool IsPublished { get; set; }
+    public int TotalSections { get; set; }
+    public int TotalLessons { get; set; }
+    public int TotalStudents { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+}
+
 public class UpdateCourseDto
 {
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string CategoryId { get; set; } = string.Empty;
-    public AgeGroup AgeGroup { get; set; } 
+    public AgeGroup AgeGroup { get; set; }
     public decimal Price { get; set; }
+    public decimal? DiscountPrice { get; set; }
     public string? ThumbnailUrl { get; set; }
     public string? PreviewVideoUrl { get; set; }
+    public string Language { get; set; } = string.Empty;
+    public string? Subtitle { get; set; }
+    public List<string> WhatYoullLearn { get; set; } = new();
+    public List<string> Requirements { get; set; } = new();
     public bool IsPublished { get; set; }
 }
-
-
-
-
