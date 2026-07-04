@@ -1,14 +1,12 @@
-﻿using Domain.Entities;
-using Domain.Entities.Users;
+﻿using Domain.Entities.Users;
 using Domain.Enums.Users;
 using Domain.Interfaces.Repositories.Users;
-using Domain.Interfaces.Services;
 using Domain.Interfaces.Services.Shared;
+using Localization;
 using MediatR;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.Extensions.Localization;
+
 
 namespace Application.Commands.Profile.Parents;
 
@@ -29,18 +27,19 @@ public class CreateAndLinkChildCommandHandler : IRequestHandler<CreateAndLinkChi
     private readonly IPasswordHasher _passwordHasher;
     private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
-
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public CreateAndLinkChildCommandHandler(
         IUserRepository userRepository,
         IPasswordHasher passwordHasher,
-        IEmailService emailService, IConfiguration configuration)
+        IEmailService emailService, IConfiguration configuration,
+        IStringLocalizer<SharedResource> localizer)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
         _emailService = emailService;
         _configuration = configuration;
-
+        _localizer = localizer;
     }
 
     public async Task<ChildDto> Handle(CreateAndLinkChildCommand request, CancellationToken cancellationToken)
@@ -48,27 +47,27 @@ public class CreateAndLinkChildCommandHandler : IRequestHandler<CreateAndLinkChi
         // Verify parent
         var parent = await _userRepository.GetByIdAsync(request.ParentUserId);
         if (parent == null)
-            throw new KeyNotFoundException("Parent not found");
+            throw new KeyNotFoundException(_localizer["ParentNotFound"]);
 
         if (parent.Role != UserRole.Parent)
-            throw new UnauthorizedAccessException("User is not a parent");
+            throw new UnauthorizedAccessException(_localizer["UserIsNotParent"]);
 
         // Validate passwords match
         if (request.Password != request.ConfirmPassword)
-            throw new ArgumentException("Passwords do not match");
+            throw new ArgumentException(_localizer["PasswordsDoNotMatch"]);
 
         if (request.Password.Length < 6)
-            throw new ArgumentException("Password must be at least 6 characters");
+            throw new ArgumentException(_localizer["PasswordMin"]);
 
         // Check if email already exists
         var existingUser = await _userRepository.GetByEmailAsync(request.Email);
         if (existingUser != null)
-            throw new InvalidOperationException("An account with this email already exists");
+            throw new InvalidOperationException(_localizer["EmailAlreadyExists"]);
 
         // Validate age (must be under 18)
         var age = CalculateAge(request.DateOfBirth);
         if (age >= 18)
-            throw new ArgumentException("Child must be under 18 years old");
+            throw new ArgumentException(_localizer["ChildAgeRange"]);
 
         var verificationToken = Guid.NewGuid().ToString();
 
@@ -82,7 +81,7 @@ public class CreateAndLinkChildCommandHandler : IRequestHandler<CreateAndLinkChi
             Country = request.Country,
             ParentId = request.ParentUserId,
             Status = UserStatus.Active,
-            EmailVerified = false, 
+            EmailVerified = false,
             EmailVerificationTokenExpiry = DateTime.UtcNow.AddHours(24),
             EmailVerificationToken = verificationToken,
             IsFirstLogin = true,

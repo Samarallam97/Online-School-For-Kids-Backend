@@ -1,10 +1,11 @@
-﻿using AutoMapper;
-using Domain.Enums.Content;
+﻿using Domain.Enums.Content;
 using Domain.Enums.Users;
 using Domain.Interfaces.Repositories.Content;
 using Domain.Interfaces.Repositories.Users;
 using FluentValidation;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
 namespace Application.Queries.Content;
 
@@ -190,11 +191,11 @@ public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, Cou
 
 public class GetCourseByIdQueryValidator : AbstractValidator<GetCourseByIdQuery>
 {
-    public GetCourseByIdQueryValidator()
+    public GetCourseByIdQueryValidator(IStringLocalizer<SharedResource> localizer)
     {
         RuleFor(x => x.CourseId)
             .NotEmpty()
-            .WithMessage("Course ID is required");
+            .WithMessage(localizer["CourseIDIsRequired"]);
     }
 }
 

@@ -1,10 +1,9 @@
 ﻿using Application.Queries.Profile.Specialists;
 using Domain.Entities.Users;
 using Domain.Interfaces.Repositories.Users;
+using Localization;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.Extensions.Localization;
 
 namespace Application.Commands.Profile.Specialists;
 
@@ -19,16 +18,18 @@ public record AddAvailabilitySlotCommand(
 public class AddAvailabilitySlotCommandHandler : IRequestHandler<AddAvailabilitySlotCommand, AvailabilitySlotDto>
 {
     private readonly IUserRepository _userRepository;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public AddAvailabilitySlotCommandHandler(IUserRepository userRepository)
+    public AddAvailabilitySlotCommandHandler(IUserRepository userRepository, IStringLocalizer<SharedResource> localizer)
     {
         _userRepository = userRepository;
+        _localizer = localizer;
     }
 
     public async Task<AvailabilitySlotDto> Handle(AddAvailabilitySlotCommand request, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken)
-            ?? throw new KeyNotFoundException("User not found.");
+            ?? throw new KeyNotFoundException(_localizer["UserNotFound"]);
 
         var slot = new AvailabilitySlot
         {

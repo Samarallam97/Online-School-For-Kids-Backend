@@ -180,9 +180,6 @@
   <data name="TokenRevokeFailed" xml:space="preserve">
     <value>فشل إلغاء الرمز</value>
   </data>
-  <data name="LogoutSuccessful" xml:space="preserve">
-    <value>تم تسجيل الخروج بنجاح</value>
-  </data>
   <data name="LogoutFailed" xml:space="preserve">
     <value>فشل تسجيل الخروج</value>
   </data>
@@ -590,5 +587,383 @@
   </data>
   <data name="InvalidReason" xml:space="preserve">
     <value>سبب الإبلاغ غير صالح. يجب أن يكون: رسائل مزعجة، أو مضايقة، أو محتوى غير لائق، أو انتهاك حقوق النشر، أو معلومات مضللة، أو سبب آخر</value>
+  </data>
+  <data name="OrderNotFound" xml:space="preserve">
+    <value>الطلب غير موجود</value>
+  </data>
+  <data name="Unauthorized" xml:space="preserve">
+    <value>غير مصرح لك بتنفيذ هذا الإجراء</value>
+  </data>
+  <data name="OrderCancelledSuccessfully" xml:space="preserve">
+    <value>تم إلغاء الطلب بنجاح</value>
+  </data>
+  <data name="CannotCancelOrder" xml:space="preserve">
+    <value>لا يمكن إلغاء هذا الطلب</value>
+  </data>
+  <data name="PaymentMethodNotFound" xml:space="preserve">
+    <value>طريقة الدفع غير موجودة</value>
+  </data>
+  <data name="CartIsEmpty" xml:space="preserve">
+    <value>السلة فارغه</value>
+  </data>
+  <data name="NoValidItems" xml:space="preserve">
+    <value>لا توجد عناصر صالحة. قد تكون مسجلًا بالفعل في جميع الدورات</value>
+  </data>
+  <data name="InvalidOrExpiredCoupon" xml:space="preserve">
+    <value>قسيمة الخصم غير صالحة أو منتهية الصلاحية</value>
+  </data>
+  <data name="OrderPlacedSuccessfully" xml:space="preserve">
+    <value>تم تقديم الطلب بنجاح</value>
+  </data>
+  <data name="PaymentFailed" xml:space="preserve">
+    <value>فشلت عملية الدفع. يرجى المحاولة مرة أخرى</value>
+  </data>
+  <data name="NotificationNotFound" xml:space="preserve">
+    <value>الاشعار غير موجود</value>
+  </data>
+  <data name="AccessDenied" xml:space="preserve">
+    <value>تم رفض الوصول</value>
+  </data>
+  <data name="NotificationMarkedAsRead" xml:space="preserve">
+    <value>تم تعليم الإشعار كمقروء</value>
+  </data>
+  <data name="AllNotificationsMarkedAsRead" xml:space="preserve">
+    <value>تم تعليم جميع الإشعارات كمقروءة</value>
+  </data>
+  <data name="LessonNotFound" xml:space="preserve">
+    <value>هذا الدرس غير موجود</value>
+  </data>
+  <data name="OnlyInstructorCanScheduleLiveSession" xml:space="preserve">
+    <value>تم رفض الوصول. يمكن لمدرس الدورة فقط جدولة جلسة مباشرة</value>
+  </data>
+  <data name="LessonAlreadyHasActiveOrScheduledSession" xml:space="preserve">
+    <value>يحتوي هذا الدرس بالفعل على جلسة مباشرة نشطة أو مجدولة</value>
+  </data>
+  <data name="SessionNotFound" xml:space="preserve">
+    <value>الجلسة غير موجودة</value>
+  </data>
+  <data name="SessionAlreadyLive" xml:space="preserve">
+    <value>الجلسة المباشرة قيد البث بالفعل</value>
+  </data>
+  <data name="SessionAlreadyEnded" xml:space="preserve">
+    <value>انتهت الجلسة المباشرة بالفعل</value>
+  </data>
+  <data name="CourseSessionGoingLive" xml:space="preserve">
+    <value>بدأت الجلسة المباشرة لدورتك الآن. اضغط للانضمام</value>
+  </data>
+  <data name="SectionNotFound" xml:space="preserve">
+    <value>القسم غير موجود</value>
+  </data>
+  <data name="JobNotFound" xml:space="preserve">
+    <value>المهمة غير موجودة</value>
+  </data>
+  <data name="ChunkNotFound" xml:space="preserve">
+    <value>الجزء غير موجود</value>
+  </data>
+  <data name="LessonCreatedFromChunk" xml:space="preserve">
+    <value>تم إنشاء الدرس من الجزء بنجاح</value>
+  </data>
+  <data name="InvalidOrExpiredSession" xml:space="preserve">
+    <value>لجلسة غير صالحة أو منتهية الصلاحية. يرجى تسجيل الدخول مرة أخرى</value>
+  </data>
+  <data name="ExpertiseIsRequired" xml:space="preserve">
+    <value>يجب إدخال مجال التخصص</value>
+  </data>
+  <data name="CvLinkIsRequired" xml:space="preserve">
+    <value>يجب إدخال رابط السيرة الذاتية</value>
+  </data>
+  <data name="AccountPendingApproval" xml:space="preserve">
+    <value>حسابك قيد مراجعة المسؤول. سيتم إشعارك عبر البريد الإلكتروني عند الموافقة</value>
+  </data>
+  <data name="AccountDeactivatedOrNotApproved" xml:space="preserve">
+    <value>الحساب معطل أو لم تتم الموافقة عليه. يرجى التواصل مع الدعم الفني</value>
+  </data>
+  <data name="InvalidVerificationCode" xml:space="preserve">
+    <value>رمز التحقق غير صحيح. يرجى المحاولة مرة أخرى</value>
+  </data>
+  <data name="TwoFactorEnabledSuccessfully" xml:space="preserve">
+    <value>تم تفعيل المصادقة الثنائية بنجاح</value>
+  </data>
+  <data name="InvalidCodeCannotDisableTwoFactor" xml:space="preserve">
+    <value>رمز التحقق غير صحيح. تعذر إيقاف المصادقة الثنائية</value>
+  </data>
+  <data name="TwoFactorDisabledSuccessfully" xml:space="preserve">
+    <value>تم إيقاف المصادقة الثنائية بنجاح</value>
+  </data>
+  <data name="TwoFactorAlreadyConfigured" xml:space="preserve">
+    <value>تم إعداد المصادقة الثنائية لهذا الحساب بالفعل</value>
+  </data>
+  <data name="InvalidOrExpiredResetToken" xml:space="preserve">
+    <value>رمز إعادة تعيين كلمة المرور غير صالح أو منتهي الصلاحية</value>
+  </data>
+  <data name="VerificationEmailSent" xml:space="preserve">
+    <value>تم إرسال رسالة التحقق إلى بريدك الإلكتروني</value>
+  </data>
+  <data name="VerificationLinkSentIfEmailExists" xml:space="preserve">
+    <value>إذا كان البريد الإلكتروني مسجلًا، فقد تم إرسال رابط التحقق إليه</value>
+  </data>
+  <data name="DOBIsRequired" xml:space="preserve">
+    <value>يجب إدخال تاريخ الميلاد</value>
+  </data>
+  <data name="PortfolioUrlMustBeValid" xml:space="preserve">
+    <value>يجب أن يكون رابط معرض الأعمال رابطًا صالحًا</value>
+  </data>
+  <data name="CvLinkMustBeValidUrl" xml:space="preserve">
+    <value>يجب أن يكون رابط السيرة الذاتية رابطًا صالحًا</value>
+  </data>
+  <data name="CvLinkRequiredForCreatorsAndSpecialists" xml:space="preserve">
+    <value>يجب إدخال رابط السيرة الذاتية لمنشئي المحتوى والأخصائيين</value>
+  </data>
+  <data name="ExpertiseRequiredForCreatorsAndSpecialists" xml:space="preserve">
+    <value>يجب إدخال مجال التخصص لمنشئي المحتوى والأخصائيين</value>
+  </data>
+  <data name="ExpertiseMinLength" xml:space="preserve">
+    <value>يجب أن يتكون مجال التخصص من حرفين على الأقل</value>
+  </data>
+  <data name="ExpertiseMaxLength" xml:space="preserve">
+    <value>لا يمكن أن يتجاوز مجال التخصص 200 حرف</value>
+  </data>
+  <data name="LoggedOutSuccessfully" xml:space="preserve">
+    <value>تم تسجيل الخروج بنجاح</value>
+  </data>
+  <data name="InvalidEmailOrPassword" xml:space="preserve">
+    <value>البريد الإلكتروني أو كلمة المرور غير صحيحة</value>
+  </data>
+  <data name="VerifyEmailFirst" xml:space="preserve">
+    <value>يرجى التحقق من بريدك الإلكتروني أولًا</value>
+  </data>
+  <data name="ResetLinkSentIfEmailExists" xml:space="preserve">
+    <value>إذا كان البريد الإلكتروني مسجلًا، فقد تم إرسال رابط إعادة تعيين كلمة المرور إليه</value>
+  </data>
+  <data name="CurrentPasswordIncorrect" xml:space="preserve">
+    <value>الرقم السري الحالي غير صحيح</value>
+  </data>
+  <data name="OnlySuperAdminsCanCreateAdminAccounts" xml:space="preserve">
+    <value>يمكن للمشرفين العامين فقط إنشاء حسابات المسؤولين</value>
+  </data>
+  <data name="ValueIsRequired" xml:space="preserve">
+    <value>يجب ادخال القيمة</value>
+  </data>
+  <data name="NoSocialLinksFound" xml:space="preserve">
+    <value>لم يتم العثور على أي روابط لوسائل التواصل الاجتماعي</value>
+  </data>
+  <data name="WorkExperienceNotFound" xml:space="preserve">
+    <value>الخبرة العملية غير موجودة</value>
+  </data>
+  <data name="CourseOwnershipRequired" xml:space="preserve">
+    <value>ليس لديك صلاحية الوصول إلى هذه الدورة</value>
+  </data>
+  <data name="ParentNotFound" xml:space="preserve">
+    <value>ولي الأمر غير موجود</value>
+  </data>
+  <data name="UserIsNotParent" xml:space="preserve">
+    <value>المستخدم ليس ولي أمر</value>
+  </data>
+  <data name="ChildNameIsRequired" xml:space="preserve">
+    <value>يجب إدخال اسم الطفل</value>
+  </data>
+  <data name="ChildAgeRange" xml:space="preserve">
+    <value>يجب أن يكون عمر الطفل بين سنة و18 سنة</value>
+  </data>
+  <data name="ChildAlreadyLinkedToAnotherParent" xml:space="preserve">
+    <value>هذا الطفل مرتبط بالفعل بولي أمر آخر</value>
+  </data>
+  <data name="InvalidEmailAddress" xml:space="preserve">
+    <value>عنوان البريد الإلكتروني غير صالح</value>
+  </data>
+  <data name="ChildNameMaxLength" xml:space="preserve">
+    <value>لا يمكن أن يتجاوز اسم الطفل 100 حرف</value>
+  </data>
+  <data name="PasswordMin" xml:space="preserve">
+    <value>يجب أن تتكون كلمة المرور من 6 أحرف على الأقل</value>
+  </data>
+  <data name="ChildNotFound" xml:space="preserve">
+    <value>الطفل غير موجود</value>
+  </data>
+  <data name="ChildDoesNotBelongToParent" xml:space="preserve">
+    <value>هذا الطفل لا يتبع ولي الأمر الحالي</value>
+  </data>
+  <data name="UserIsNotStudent" xml:space="preserve">
+    <value>المستخدم ليس طالب</value>
+  </data>
+  <data name="ChildNotLinkedToAccount" xml:space="preserve">
+    <value>هذا الطفل غير مرتبط بحسابك</value>
+  </data>
+  <data name="AvailabilitySlotNotFound" xml:space="preserve">
+    <value>الفترة الزمنية المتاحة غير موجودة</value>
+  </data>
+  <data name="InvalidOrExpiredInvitationToken" xml:space="preserve">
+    <value>رمز الدعوة غير صالح أو منتهي الصلاحية</value>
+  </data>
+  <data name="AccountLinkedToParentSuccessfully" xml:space="preserve">
+    <value>تم ربط الحساب بولي الأمر بنجاح</value>
+  </data>
+  <data name="StudentNotFound" xml:space="preserve">
+    <value>الطالب غير موجود</value>
+  </data>
+  <data name="NoParentLinkedToAccount" xml:space="preserve">
+    <value>لا يوجد ولي أمر مرتبط بهذا الحساب حاليًا</value>
+  </data>
+  <data name="InvalidYearFormat" xml:space="preserve">
+    <value>صيغة السنة غير صالحة</value>
+  </data>
+  <data name="SpecialistNotFound" xml:space="preserve">
+    <value>الأخصائي غير موجود</value>
+  </data>
+  <data name="TimeSlotAlreadyBooked" xml:space="preserve">
+    <value>هذه الفترة الزمنية محجوزة بالفعل</value>
+  </data>
+  <data name="TimeOutsideAvailability" xml:space="preserve">
+    <value>الوقت المطلوب خارج ساعات عمل الأخصائي المتاحة</value>
+  </data>
+  <data name="AppointmentNotFound" xml:space="preserve">
+    <value>الموعد غير موجود</value>
+  </data>
+  <data name="OnlyOwnAppointmentsCanBeConfirmed" xml:space="preserve">
+    <value>يمكنك تأكيد مواعيدك فقط</value>
+  </data>
+  <data name="AppointmentHoldExpired" xml:space="preserve">
+    <value>انتهت صلاحية حجزك المؤقت لمدة 30 دقيقة. يرجى حجز موعد جديد</value>
+  </data>
+  <data name="AppointmentHoldExpiredReason" xml:space="preserve">
+    <value>انتهت صلاحية الحجز المؤقت لعدم تأكيده خلال 30 دقيقة</value>
+  </data>
+  <data name="ProcessingCompleted" xml:space="preserve">
+    <value>اكتملت المعالجة بنجاح</value>
+  </data>
+  <data name="ProcessingError" xml:space="preserve">
+    <value>حدث خطأ أثناء المعالجة</value>
+  </data>
+  <data name="AppointmentAccessDenied" xml:space="preserve">
+    <value>ليس لديك صلاحية الوصول إلى هذا الموعد</value>
+  </data>
+  <data name="OnlySpecialistCanConfirmAppointments" xml:space="preserve">
+    <value>يمكن للأخصائي فقط تأكيد المواعيد</value>
+  </data>
+  <data name="CancellationDeadlineExceeded" xml:space="preserve">
+    <value>يجب إلغاء الموعد قبل موعد الجلسة بـ 30 دقيقة على الأقل</value>
+  </data>
+  <data name="NoFileProvided" xml:space="preserve">
+    <value>لم يتم إرفاق أي ملف</value>
+  </data>
+  <data name="FileSizeExceeded" xml:space="preserve">
+    <value>حجم الملف يتجاوز الحد الأقصى المسموح به وهو 5 ميجابايت</value>
+  </data>
+  <data name="OnlyImageFilesAllowed" xml:space="preserve">
+    <value>يُسمح فقط بملفات الصور (JPG، JPEG، PNG، GIF، WEBP)</value>
+  </data>
+  <data name="CertificationNotFound" xml:space="preserve">
+    <value>الشهادة غير موجودة</value>
+  </data>
+  <data name="CardNumberRequired" xml:space="preserve">
+    <value>يجب إدخال رقم البطاقة عند اختيار الدفع بالبطاقة</value>
+  </data>
+  <data name="CardExpiryDateRequired" xml:space="preserve">
+    <value>يجب إدخال تاريخ انتهاء صلاحية البطاقة عند اختيار الدفع بالبطاقة</value>
+  </data>
+  <data name="InvalidExpiryMonth" xml:space="preserve">
+    <value>شهر انتهاء الصلاحية غير صالح</value>
+  </data>
+  <data name="CardExpired" xml:space="preserve">
+    <value>انتهت صلاحية البطاقة</value>
+  </data>
+  <data name="VodafoneCashPhoneRequired" xml:space="preserve">
+    <value>يجب إدخال رقم الهاتف عند اختيار فودافون كاش</value>
+  </data>
+  <data name="InvalidEgyptianPhoneNumber" xml:space="preserve">
+    <value>صيغة رقم الهاتف المصري غير صحيحة</value>
+  </data>
+  <data name="InstapayIdRequired" xml:space="preserve">
+    <value>يجب إدخال معرف إنستاباي</value>
+  </data>
+  <data name="FawryReferenceNumberRequired" xml:space="preserve">
+    <value>يجب إدخال الرقم المرجعي لفوري</value>
+  </data>
+  <data name="AccountHolderNameRequired" xml:space="preserve">
+    <value>يجب إدخال اسم صاحب الحساب البنكي</value>
+  </data>
+  <data name="BankNameRequired" xml:space="preserve">
+    <value>يجب إدخال اسم البنك</value>
+  </data>
+  <data name="AccountNumberRequired" xml:space="preserve">
+    <value>يجب إدخال رقم الحساب البنكي</value>
+  </data>
+  <data name="PaymentTypeRequired" xml:space="preserve">
+    <value>يجب اختيار طريقة الدفع</value>
+  </data>
+  <data name="InvalidPaymentType" xml:space="preserve">
+    <value>طريقة الدفع غير صالحة</value>
+  </data>
+  <data name="CardNumberDigitsOnly" xml:space="preserve">
+    <value>يجب أن يحتوي رقم البطاقة على أرقام فقط</value>
+  </data>
+  <data name="CardNumberLength" xml:space="preserve">
+    <value>يجب أن يتكون رقم البطاقة من 13 إلى 19 رقمًا</value>
+  </data>
+  <data name="ExpiryMonthRequired" xml:space="preserve">
+    <value>يجب إدخال شهر انتهاء الصلاحية</value>
+  </data>
+  <data name="ExpiryMonthRange" xml:space="preserve">
+    <value>يجب أن يكون شهر انتهاء الصلاحية بين 1 و12</value>
+  </data>
+  <data name="ExpiryYearRequired" xml:space="preserve">
+    <value>يجب إدخال سنة انتهاء الصلاحية</value>
+  </data>
+  <data name="CvcRequired" xml:space="preserve">
+    <value>يجب إدخال رمز التحقق (CVC)</value>
+  </data>
+  <data name="CvcLength" xml:space="preserve">
+    <value>يجب أن يتكون رمز التحقق (CVC) من 3 أو 4 أرقام</value>
+  </data>
+  <data name="CardholderNameRequired" xml:space="preserve">
+    <value>يجب إدخال اسم حامل البطاقة</value>
+  </data>
+  <data name="CardholderNameMaxLength" xml:space="preserve">
+    <value>لا يمكن أن يتجاوز اسم حامل البطاقة 100 حرف</value>
+  </data>
+  <data name="PhoneNumberRequired" xml:space="preserve">
+    <value>يجب إدخال رقم الهاتف</value>
+  </data>
+  <data name="InstapayIdMaxLength" xml:space="preserve">
+    <value>لا يمكن أن يتجاوز معرف إنستاباي 100 حرف</value>
+  </data>
+  <data name="ReferenceNumberMaxLength" xml:space="preserve">
+    <value>لا يمكن أن يتجاوز الرقم المرجعي 50 حرفًا</value>
+  </data>
+  <data name="AccountHolderNameMaxLength" xml:space="preserve">
+    <value>لا يمكن أن يتجاوز اسم صاحب الحساب 100 حرف</value>
+  </data>
+  <data name="BankNameMaxLength" xml:space="preserve">
+    <value>لا يمكن أن يتجاوز اسم البنك 100 حرف</value>
+  </data>
+  <data name="AccountNumberMaxLength" xml:space="preserve">
+    <value>لا يمكن أن يتجاوز رقم الحساب 50 حرفًا</value>
+  </data>
+  <data name="IbanMaxLength" xml:space="preserve">
+    <value>لا يمكن أن يتجاوز رقم الآيبان (IBAN) 34 حرفًا</value>
+  </data>
+  <data name="FullNameMinLength" xml:space="preserve">
+    <value>يجب أن يتكون الاسم الكامل من حرفين على الأقل</value>
+  </data>
+  <data name="FullNameMaxLength" xml:space="preserve">
+    <value>لا يمكن أن يتجاوز الاسم الكامل 100 حرف</value>
+  </data>
+  <data name="CountryMinLength" xml:space="preserve">
+    <value>يجب أن يتكون اسم الدولة من حرفين على الأقل</value>
+  </data>
+  <data name="CountryMaxLength" xml:space="preserve">
+    <value>لا يمكن أن يتجاوز اسم الدولة 100 حرف</value>
+  </data>
+  <data name="BioMaxLength" xml:space="preserve">
+    <value>لا يمكن أن يتجاوز النبذة الشخصية 500 حرف</value>
+  </data>
+  <data name="LearningGoalsMaxLength" xml:space="preserve">
+    <value>لا يمكن أن تتجاوز أهداف التعلم 1000 حرف</value>
+  </data>
+  <data name="YearsOfExperienceNonNegative" xml:space="preserve">
+    <value>يجب أن تكون سنوات الخبرة صفرًا أو أكثر</value>
+  </data>
+  <data name="YearsOfExperienceUnrealistic" xml:space="preserve">
+    <value>عدد سنوات الخبرة غير واقعي</value>
   </data>
 </root>

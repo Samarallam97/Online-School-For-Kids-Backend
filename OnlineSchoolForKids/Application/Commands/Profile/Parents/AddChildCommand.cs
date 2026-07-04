@@ -2,7 +2,9 @@
 using Domain.Enums.Users;
 using Domain.Interfaces.Repositories.Users;
 using FluentValidation;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
 
 namespace Application.Commands.Profile.Parents;
@@ -18,27 +20,29 @@ public class AddChildCommand : IRequest<ChildDto>
 public class AddChildCommandHandler : IRequestHandler<AddChildCommand, ChildDto>
 {
     private readonly IUserRepository _userRepository;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public AddChildCommandHandler(IUserRepository userRepository)
+    public AddChildCommandHandler(IUserRepository userRepository, IStringLocalizer<SharedResource> localizer)
     {
         _userRepository = userRepository;
+        _localizer = localizer;
     }
 
     public async Task<ChildDto> Handle(AddChildCommand request, CancellationToken cancellationToken)
     {
         var parent = await _userRepository.GetByIdAsync(request.UserId);
         if (parent == null)
-            throw new KeyNotFoundException("Parent not found");
+            throw new KeyNotFoundException(_localizer["ParentNotFound"]);
 
         if (parent.Role != UserRole.Parent)
-            throw new UnauthorizedAccessException("User is not a parent");
+            throw new UnauthorizedAccessException(_localizer["UserIsNotParent"]);
 
         // Validate input
         if (string.IsNullOrWhiteSpace(request.Name))
-            throw new ArgumentException("Child name is required");
+            throw new ArgumentException(_localizer["ChildNameIsRequired"]);
 
         if (request.Age < 1 || request.Age > 18)
-            throw new ArgumentException("Age must be between 1 and 18");
+            throw new ArgumentException(_localizer["ChildAgeRange"]);
 
         // Check if child already exists by email
         User? child = null;
@@ -49,7 +53,7 @@ public class AddChildCommandHandler : IRequestHandler<AddChildCommand, ChildDto>
             if (child != null)
             {
                 if (child.ParentId != null && child.ParentId != request.UserId)
-                    throw new InvalidOperationException("This child is already linked to another parent");
+                    throw new InvalidOperationException(_localizer["ChildAlreadyLinkedToAnotherParent"]);
 
                 child.ParentId = request.UserId;
                 await _userRepository.UpdateAsync(child.Id, child);
@@ -111,26 +115,26 @@ public class AddChildCommandHandler : IRequestHandler<AddChildCommand, ChildDto>
 
 public class AddChildCommandValidator : AbstractValidator<AddChildCommand>
 {
-    public AddChildCommandValidator()
+    public AddChildCommandValidator(IStringLocalizer<SharedResource> localizer)
     {
         RuleFor(x => x.UserId)
             .NotEmpty()
-            .WithMessage("User ID is required");
+            .WithMessage(localizer["UserIdIsRequired"]);
 
         RuleFor(x => x.Name)
             .NotEmpty()
-            .WithMessage("Child name is required")
+            .WithMessage(localizer["ChildNameIsRequired"])
             .MaximumLength(100)
-            .WithMessage("Child name must not exceed 100 characters");
+            .WithMessage(localizer["ChildNameMaxLength"]);
 
         RuleFor(x => x.Age)
             .InclusiveBetween(1, 18)
-            .WithMessage("Age must be between 1 and 18");
+            .WithMessage(localizer["ChildAgeRange"]);
 
         RuleFor(x => x.Email)
             .EmailAddress()
             .When(x => !string.IsNullOrWhiteSpace(x.Email))
-            .WithMessage("Invalid email address");
+            .WithMessage(localizer["InvalidEmailAddress"]);
     }
 }
 

@@ -2,11 +2,6 @@
 using Domain.Enums.Users;
 using Domain.Interfaces.Repositories.Users;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Commands.Admin;
 
@@ -36,11 +31,11 @@ public class SuspendUserCommandHandler : IRequestHandler<SuspendUserCommand, Adm
 
         return new AdminUserDto
         {
-            Id         = user.Id,
-            Name       = user.FullName,
-            Email      = user.Email,
-            Role       = user.Role.ToString(),
-            Status     = user.Status.ToString().ToLower(),
+            Id = user.Id,
+            Name = user.FullName,
+            Email = user.Email,
+            Role = user.Role.ToString(),
+            Status = user.Status.ToString().ToLower(),
             JoinedDate = user.CreatedAt,
         };
     }

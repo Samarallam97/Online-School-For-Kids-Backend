@@ -1,7 +1,9 @@
 ﻿using Domain.Entities;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Repositories.Users;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
 namespace Application.Commands;
 
@@ -19,13 +21,17 @@ public class BookSessionCommandHandler : IRequestHandler<BookSessionCommand, Boo
 {
     private readonly IAppointmentRepository _appointmentRepo;
     private readonly IUserRepository _userRepo;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public BookSessionCommandHandler(
         IAppointmentRepository appointmentRepo,
-        IUserRepository userRepo)
+        IUserRepository userRepo,
+        IStringLocalizer<SharedResource> localizer)
     {
         _appointmentRepo = appointmentRepo;
         _userRepo = userRepo;
+        _localizer = localizer;
+
     }
 
     public async Task<BookSessionResult> Handle(
@@ -33,7 +39,7 @@ public class BookSessionCommandHandler : IRequestHandler<BookSessionCommand, Boo
     {
         // 1. Validate specialist exists
         var specialist = await _userRepo.GetByIdAsync(request.SpecialistId, cancellationToken)
-            ?? throw new KeyNotFoundException("Specialist not found.");
+            ?? throw new KeyNotFoundException(_localizer["SpecialistNotFound"]);
 
         // 2. Validate the requested time falls inside the specialist's availability
         var dayName = DateTime.Parse(request.AppointmentDate).DayOfWeek.ToString(); // "Monday" etc.
@@ -44,7 +50,7 @@ public class BookSessionCommandHandler : IRequestHandler<BookSessionCommand, Boo
 
         if (!hasAvailability)
             throw new InvalidOperationException(
-                "The requested time is outside the specialist's available hours.");
+                _localizer["TimeOutsideAvailability"]);
 
         // 3. Check for slot conflicts (Pending or Confirmed only — Cancelled slots are free)
         var hasConflict = await _appointmentRepo.HasConflictAsync(
@@ -55,7 +61,7 @@ public class BookSessionCommandHandler : IRequestHandler<BookSessionCommand, Boo
             cancellationToken);
 
         if (hasConflict)
-            throw new InvalidOperationException("This time slot is already booked.");
+            throw new InvalidOperationException(_localizer["TimeSlotAlreadyBooked"]);
 
         // 4. Create the appointment in Pending state with a 30-min hold
         var appointment = new Appointment

@@ -1,11 +1,6 @@
 ﻿using Domain.Interfaces.Repositories.Content;
 using Domain.Interfaces.Repositories.Users;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Queries.Content;
 
@@ -30,8 +25,8 @@ public class GetUserEnrollmentsQueryHandler
         ICourseRepository courseRepo, IUserRepository userRepository)
     {
         _enrollmentRepo = enrollmentRepo;
-        _courseRepo     = courseRepo;
-        _userRepository=userRepository;
+        _courseRepo = courseRepo;
+        _userRepository = userRepository;
     }
 
     public async Task<IEnumerable<EnrolledCourseDto>> Handle(
@@ -71,20 +66,20 @@ public class GetUserEnrollmentsQueryHandler
 
                 return new EnrolledCourseDto
                 {
-                    EnrollmentId      = e.Id,
-                    CourseId          = course.Id,
-                    Title             = course.Title,
-                    Instructor        = course.Instructor?.FullName ?? string.Empty,
-                    Thumbnail         = course.ThumbnailUrl,
-                    Progress          = (int)Math.Round(e.Progress),
-                    LastAccessedAt    = e.LastAccessedAt,
-                    TotalLessons      = totalLessons,
-                    CompletedLessons  = completed,
-                    Duration          = FormatDuration(course.DurationHours),
-                    Status            = status,
-                    EnrolledAt        = e.EnrollmentDate,
-                    IsCompleted       = e.IsCompleted,
-                    CompletedAt       = e.CompletedAt,
+                    EnrollmentId = e.Id,
+                    CourseId = course.Id,
+                    Title = course.Title,
+                    Instructor = course.Instructor?.FullName ?? string.Empty,
+                    Thumbnail = course.ThumbnailUrl,
+                    Progress = (int)Math.Round(e.Progress),
+                    LastAccessedAt = e.LastAccessedAt,
+                    TotalLessons = totalLessons,
+                    CompletedLessons = completed,
+                    Duration = FormatDuration(course.DurationHours),
+                    Status = status,
+                    EnrolledAt = e.EnrollmentDate,
+                    IsCompleted = e.IsCompleted,
+                    CompletedAt = e.CompletedAt,
                 };
             })
             .OrderByDescending(e => e.LastAccessedAt ?? e.EnrolledAt)

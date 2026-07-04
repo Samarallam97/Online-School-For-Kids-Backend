@@ -1,9 +1,9 @@
 ﻿using Domain.Enums.Users;
 using Domain.Interfaces.Repositories.Users;
+using Localization;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.Extensions.Localization;
+
 
 namespace Application.Commands.Profile.Parents;
 
@@ -16,27 +16,29 @@ public class RemoveChildCommand : IRequest<Unit>
 public class RemoveChildCommandHandler : IRequestHandler<RemoveChildCommand, Unit>
 {
     private readonly IUserRepository _userRepository;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public RemoveChildCommandHandler(IUserRepository userRepository)
+    public RemoveChildCommandHandler(IUserRepository userRepository, IStringLocalizer<SharedResource> localizer)
     {
         _userRepository = userRepository;
+        _localizer = localizer;
     }
 
     public async Task<Unit> Handle(RemoveChildCommand request, CancellationToken cancellationToken)
     {
         var parent = await _userRepository.GetByIdAsync(request.UserId);
         if (parent == null)
-            throw new KeyNotFoundException("Parent not found");
+            throw new KeyNotFoundException(_localizer["ParentNotFound"]);
 
         if (parent.Role != UserRole.Parent)
-            throw new UnauthorizedAccessException("User is not a parent");
+            throw new UnauthorizedAccessException(_localizer["UserIsNotParent"]);
 
         var child = await _userRepository.GetByIdAsync(request.ChildId);
         if (child == null)
-            throw new KeyNotFoundException("Child not found");
+            throw new KeyNotFoundException(_localizer["ChildNotFound"]);
 
         if (child.ParentId != request.UserId)
-            throw new UnauthorizedAccessException("This child does not belong to this parent");
+            throw new UnauthorizedAccessException(_localizer["ChildDoesNotBelongToParent"]);
 
         // Remove child from parent's list
         if (parent.ChildrenIds != null && parent.ChildrenIds.Contains(request.ChildId))

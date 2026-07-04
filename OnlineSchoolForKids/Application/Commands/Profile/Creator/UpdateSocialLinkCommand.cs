@@ -1,10 +1,8 @@
 ﻿using Domain.Entities.Users;
 using Domain.Interfaces.Repositories.Users;
+using Localization;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
+using Microsoft.Extensions.Localization;
 namespace Application.Commands.Profile.Creator;
 
 public class UpdateSocialLinkCommand : IRequest<SocialLinkDto>
@@ -20,24 +18,26 @@ public class UpdateSocialLinkCommand : IRequest<SocialLinkDto>
 public class UpdateSocialLinkCommandHandler : IRequestHandler<UpdateSocialLinkCommand, SocialLinkDto>
 {
     private readonly IUserRepository _userRepository;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public UpdateSocialLinkCommandHandler(IUserRepository userRepository)
+    public UpdateSocialLinkCommandHandler(IUserRepository userRepository, IStringLocalizer<SharedResource> localizer)
     {
         _userRepository = userRepository;
+        _localizer = localizer;
     }
 
     public async Task<SocialLinkDto> Handle(UpdateSocialLinkCommand request, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByIdAsync(request.UserId);
         if (user == null)
-            throw new KeyNotFoundException("user not found");
+            throw new KeyNotFoundException(_localizer["UserNotFound"]);
 
         if (user.SocialLinks == null || !user.SocialLinks.Any())
-            throw new KeyNotFoundException("No social links found");
+            throw new KeyNotFoundException(_localizer["NoSocialLinksFound"]);
 
         var socialLink = user.SocialLinks.FirstOrDefault(pm => pm.Id == request.LinkId);
         if (socialLink == null)
-            throw new KeyNotFoundException("social link not found");
+            throw new KeyNotFoundException(_localizer["NoSocialLinksFound"]);
 
         socialLink.Name = request.Name;
         socialLink.Value = request.Value;
@@ -54,7 +54,7 @@ public class UpdateSocialLinkCommandHandler : IRequestHandler<UpdateSocialLinkCo
         var dto = new SocialLinkDto
         {
             Id = socialLink.Id,
-            Name =socialLink.Name,
+            Name = socialLink.Name,
             Value = socialLink.Value
         };
 

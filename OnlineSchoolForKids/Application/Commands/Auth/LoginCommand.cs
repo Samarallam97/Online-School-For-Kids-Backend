@@ -2,9 +2,10 @@
 using Domain.Entities.Users;
 using Domain.Enums.Users;
 using Domain.Interfaces.Repositories.Users;
-using Domain.Interfaces.Services;
 using Domain.Interfaces.Services.Shared;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
 namespace Application.Commands.Auth;
 
@@ -27,15 +28,18 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResp
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtTokenService _jwtTokenService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public LoginCommandHandler(
         IUserRepository userRepository,
         IPasswordHasher passwordHasher,
-        IJwtTokenService jwtTokenService)
+        IJwtTokenService jwtTokenService,
+        IStringLocalizer<SharedResource> localizer)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
         _jwtTokenService = jwtTokenService;
+        _localizer = localizer;
     }
 
     public async Task<Result<AuthResponse>> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -45,31 +49,31 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResp
 
         if (user == null || user.PasswordHash == null)
         {
-            return Result<AuthResponse>.Failure("Invalid email or password.");
+            return Result<AuthResponse>.Failure(_localizer["InvalidEmailOrPassword"]);
         }
 
         // Verify password
         if (!_passwordHasher.VerifyPassword(request.Password, user.PasswordHash))
         {
-            return Result<AuthResponse>.Failure("Invalid email or password.");
+            return Result<AuthResponse>.Failure(_localizer["InvalidEmailOrPassword"]);
         }
 
         // Check if account is active
         if (user.Status != UserStatus.Active)
         {
-            return Result<AuthResponse>.Failure("Account is deactivated or not approved. Please contact support.");
+            return Result<AuthResponse>.Failure(_localizer["AccountDeactivatedOrNotApproved"]);
         }
 
         if (!user.EmailVerified)
         {
-            return Result<AuthResponse>.Failure("Verify Email first");
+            return Result<AuthResponse>.Failure(_localizer["VerifyEmailFirst"]);
         }
 
         UserDto userDto = new();
 
         if (user.IsFirstLogin)
         {
-            userDto = MapToUserDto(user, true); 
+            userDto = MapToUserDto(user, true);
             user.IsFirstLogin = false;
         }
         else
@@ -117,7 +121,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResp
         });
     }
 
-    private static UserDto MapToUserDto(User user , bool IsFirstLogin = false) => new()
+    private static UserDto MapToUserDto(User user, bool IsFirstLogin = false) => new()
     {
         Id = user.Id,
         FullName = user.FullName,

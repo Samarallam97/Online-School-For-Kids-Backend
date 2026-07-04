@@ -1,9 +1,7 @@
 ﻿using Domain.Interfaces.Repositories.Content;
+using Localization;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
+using Microsoft.Extensions.Localization;
 namespace Application.Commands.Profile.Creator;
 
 public record ToggleCourseVisibilityCommand(
@@ -15,19 +13,21 @@ public record ToggleCourseVisibilityCommand(
 public class ToggleCourseVisibilityCommandHandler : IRequestHandler<ToggleCourseVisibilityCommand>
 {
     private readonly ICourseRepository _courseRepository;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public ToggleCourseVisibilityCommandHandler(ICourseRepository courseRepository)
+    public ToggleCourseVisibilityCommandHandler(ICourseRepository courseRepository, IStringLocalizer<SharedResource> localizer)
     {
         _courseRepository = courseRepository;
+        _localizer = localizer;
     }
 
     public async Task Handle(ToggleCourseVisibilityCommand request, CancellationToken cancellationToken)
     {
         var course = await _courseRepository.GetByIdAsync(request.CourseId, cancellationToken)
-            ?? throw new KeyNotFoundException("Course not found.");
+            ?? throw new KeyNotFoundException(_localizer["CourseIsNotFound"]);
 
         if (course.InstructorId != request.UserId)
-            throw new UnauthorizedAccessException("You do not own this course.");
+            throw new UnauthorizedAccessException(_localizer["CourseOwnershipRequired"]);
 
         course.IsVisible = request.IsPublishedOnProfile;
 

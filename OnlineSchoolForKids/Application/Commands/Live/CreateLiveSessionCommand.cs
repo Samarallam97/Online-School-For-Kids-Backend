@@ -2,8 +2,10 @@
 using Domain.Entities.Live;
 using Domain.Interfaces.Repositories.Content;
 using Domain.Interfaces.Services.Shared;
+using Localization;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.Live
@@ -23,17 +25,20 @@ namespace Application.Commands.Live
         private readonly ICourseRepository _courseRepo;
         private readonly ILiveSessionRepository _liveRepo;
         private readonly ILogger<ScheduleLiveSessionHandler> _logger;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
         public ScheduleLiveSessionHandler(
             ILessonRepository lessonRepo,
             ICourseRepository courseRepo,
             ILiveSessionRepository liveRepo,
-            ILogger<ScheduleLiveSessionHandler> logger)
+            ILogger<ScheduleLiveSessionHandler> logger,
+            IStringLocalizer<SharedResource> localizer)
         {
             _lessonRepo = lessonRepo;
             _courseRepo = courseRepo;
             _liveRepo = liveRepo;
             _logger = logger;
+            _localizer = localizer;
         }
 
         public async Task<Result<LiveSessionDto>> Handle(
@@ -41,19 +46,19 @@ namespace Application.Commands.Live
         {
             var lesson = await _lessonRepo.GetByIdAsync(request.LessonId, ct);
             if (lesson is null)
-                return Result<LiveSessionDto>.Failure("Lesson not found.");
+                return Result<LiveSessionDto>.Failure(_localizer["LessonNotFound"]);
 
             var course = await _courseRepo.GetByIdAsync(lesson.CourseId, ct);
             if (course is null)
-                return Result<LiveSessionDto>.Failure("Course not found.");
+                return Result<LiveSessionDto>.Failure(_localizer["CourseIsNotFound"]);
 
             if (course.InstructorId != request.InstructorId)
-                return Result<LiveSessionDto>.Failure("Access denied. Only the course instructor can schedule a live session.");
+                return Result<LiveSessionDto>.Failure(_localizer["OnlyInstructorCanScheduleLiveSession"]);
 
             // Prevent scheduling a second session on the same lesson
             var existing = await _liveRepo.GetByLessonIdAsync(request.LessonId, ct);
             if (existing is not null && existing.Status != "ended")
-                return Result<LiveSessionDto>.Failure("This lesson already has an active or scheduled live session.");
+                return Result<LiveSessionDto>.Failure(_localizer["LessonAlreadyHasActiveOrScheduledSession"]);
 
             var channelName = $"live_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_{Guid.NewGuid():N}";
 
@@ -107,35 +112,38 @@ namespace Application.Commands.Live
         private readonly IEnrollmentRepository _enrollmentRepo;
         private readonly INotificationService _notificationService;
         private readonly ILogger<StartLiveSessionHandler> _logger;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
         public StartLiveSessionHandler(
             ILiveSessionRepository liveRepo,
             ILessonRepository lessonRepo,
             IEnrollmentRepository enrollmentRepo,
             INotificationService notificationService,
-            ILogger<StartLiveSessionHandler> logger)
+            ILogger<StartLiveSessionHandler> logger,
+            IStringLocalizer<SharedResource> localizer)
         {
             _liveRepo = liveRepo;
             _lessonRepo = lessonRepo;
             _enrollmentRepo = enrollmentRepo;
             _notificationService = notificationService;
             _logger = logger;
+            _localizer = localizer;
         }
 
         public async Task<Result<LiveSessionDto>> Handle(StartLiveSessionCommand request, CancellationToken ct)
         {
             var session = await _liveRepo.GetByIdAsync(request.SessionId, ct);
             if (session is null)
-                return Result<LiveSessionDto>.Failure("Session not found.");
+                return Result<LiveSessionDto>.Failure(_localizer["SessionNotFound"]);
 
             if (session.HostId != request.InstructorId)
-                return Result<LiveSessionDto>.Failure("Access denied.");
+                return Result<LiveSessionDto>.Failure(_localizer["AccessDenied"]);
 
             if (session.Status == "live")
-                return Result<LiveSessionDto>.Failure("Session is already live.");
+                return Result<LiveSessionDto>.Failure(_localizer["SessionAlreadyLive"]);
 
             if (session.Status == "ended")
-                return Result<LiveSessionDto>.Failure("Session has already ended.");
+                return Result<LiveSessionDto>.Failure(_localizer["SessionAlreadyEnded"]);
 
             session.Status = "live";
             session.StartedAt = DateTime.UtcNow;
@@ -164,7 +172,7 @@ namespace Application.Commands.Live
                 var tasks = enrollments.Select(e => _notificationService.SendAsync(
                     userId: e.UserId,
                     title: $"🔴 Live session starting: {session.Title}",
-                    message: "Your course session is going live now. Click to join.",
+                    message: _localizer["CourseSessionGoingLive"],
                     type: Domain.Enums.Content.NotificationType.LiveSessionStarting,
                     actionUrl: $"/live/{session.Id}",
                     ct: ct));
@@ -205,30 +213,33 @@ namespace Application.Commands.Live
         private readonly IFileStorageService _fileStorage;
         private readonly ILiveNotifier _liveNotifier;
         private readonly ILogger<EndLiveSessionHandler> _logger;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
         public EndLiveSessionHandler(
             ILiveSessionRepository liveRepo,
             IFileStorageService fileStorage,
             ILiveNotifier liveNotifier,
-            ILogger<EndLiveSessionHandler> logger)
+            ILogger<EndLiveSessionHandler> logger,
+            IStringLocalizer<SharedResource> localizer)
         {
             _liveRepo = liveRepo;
             _fileStorage = fileStorage;
             _liveNotifier = liveNotifier;
             _logger = logger;
+            _localizer = localizer;
         }
 
         public async Task<Result<string>> Handle(EndLiveSessionCommand request, CancellationToken ct)
         {
             var session = await _liveRepo.GetByIdAsync(request.SessionId, ct);
             if (session is null)
-                return Result<string>.Failure("Session not found.");
+                return Result<string>.Failure(_localizer["SessionNotFound"]);
 
             if (session.HostId != request.InstructorId)
-                return Result<string>.Failure("Access denied.");
+                return Result<string>.Failure(_localizer["AccessDenied"]);
 
             if (session.Status == "ended")
-                return Result<string>.Failure("Session already ended.");
+                return Result<string>.Failure(_localizer["SessionAlreadyEnded"]);
 
             string? whiteboardUrl = null;
             if (request.WhiteboardImage is not null && request.WhiteboardImage.Length > 0)
@@ -243,7 +254,7 @@ namespace Application.Commands.Live
 
             _logger.LogInformation("Live session ended: {Id}", request.SessionId);
 
-            return Result<string>.Success(whiteboardUrl ?? "Session ended.");
+            return Result<string>.Success(whiteboardUrl ?? _localizer["SessionAlreadyEnded"]);
         }
     }
 

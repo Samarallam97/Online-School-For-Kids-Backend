@@ -1,7 +1,9 @@
 ﻿using Application.DTOs;
 using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services.Shared;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
 namespace Application.Commands.Auth;
 
@@ -13,13 +15,15 @@ public class VerifyEmailCommandHandler : IRequestHandler<VerifyEmailCommand, Res
 {
     private readonly IUserRepository _userRepository;
     private readonly IEmailService _emailService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public VerifyEmailCommandHandler(
         IUserRepository userRepository,
-        IEmailService emailService)
+        IEmailService emailService, IStringLocalizer<SharedResource> localizer)
     {
         _userRepository = userRepository;
         _emailService = emailService;
+        _localizer = localizer;
     }
 
     public async Task<Result<string>> Handle(VerifyEmailCommand request, CancellationToken cancellationToken)
@@ -28,12 +32,12 @@ public class VerifyEmailCommandHandler : IRequestHandler<VerifyEmailCommand, Res
 
         if (user == null || user.EmailVerificationTokenExpiry == null || user.EmailVerificationTokenExpiry < DateTime.UtcNow)
         {
-            return Result<string>.Failure("Invalid or expired verification token.");
+            return Result<string>.Failure(_localizer["InvalidOrExpiredToken"]);
         }
 
         if (user.EmailVerified)
         {
-            return Result<string>.Success("Email is already verified.");
+            return Result<string>.Success(_localizer["EmailAlreadyVerified"]);
         }
 
         // Verify email
@@ -57,7 +61,7 @@ public class VerifyEmailCommandHandler : IRequestHandler<VerifyEmailCommand, Res
             }
         }, cancellationToken);
 
-        return Result<string>.Success("Email verified successfully!");
+        return Result<string>.Success(_localizer["EmailVerifiedSuccessfully"]);
     }
 }
 

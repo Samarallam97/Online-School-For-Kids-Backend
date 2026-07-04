@@ -1,12 +1,6 @@
 ﻿using Domain.Entities.Users;
-using Domain.Enums.Users;
 using Domain.Interfaces.Repositories.Users;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Queries.Admin;
 
@@ -45,20 +39,20 @@ public class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, GetUsersRespo
 
         return new GetUsersResponse
         {
-            Users      = users,
-            Total      = totalCount,
-            Page       = page,
+            Users = users,
+            Total = totalCount,
+            Page = page,
             TotalPages = (int)Math.Ceiling(totalCount / (double)limit),
         };
     }
 
     private static AdminUserDto MapToDto(User u) => new()
     {
-        Id         = u.Id,
-        Name       = u.FullName,
-        Email      = u.Email,
-        Role       = u.Role.ToString(),
-        Status     = u.Status.ToString().ToLower(),
+        Id = u.Id,
+        Name = u.FullName,
+        Email = u.Email,
+        Role = u.Role.ToString(),
+        Status = u.Status.ToString().ToLower(),
         JoinedDate = u.CreatedAt,
     };
 }
@@ -87,7 +81,7 @@ public class AdminUserDto
     public DateTime JoinedDate { get; set; }
 }
 
-    public class GetUsersResponse
+public class GetUsersResponse
 {
     public List<AdminUserDto> Users { get; set; } = new();
     public long Total { get; set; }

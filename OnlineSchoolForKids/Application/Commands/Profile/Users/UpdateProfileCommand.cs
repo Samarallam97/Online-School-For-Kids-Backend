@@ -2,7 +2,9 @@
 using Domain.Enums.Users;
 using Domain.Interfaces.Repositories.Users;
 using FluentValidation;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
 namespace Application.Commands.Profile.Users;
 
@@ -49,10 +51,12 @@ public class UpdateProfileCommand : IRequest<BaseProfileDto>
 public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand, BaseProfileDto>
 {
     private readonly IUserRepository _userRepository;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public UpdateProfileCommandHandler(IUserRepository userRepository)
+    public UpdateProfileCommandHandler(IUserRepository userRepository, IStringLocalizer<SharedResource> localizer)
     {
         _userRepository = userRepository;
+        _localizer = localizer;
     }
 
     public async Task<BaseProfileDto> Handle(UpdateProfileCommand request, CancellationToken cancellationToken)
@@ -60,14 +64,14 @@ public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand,
         var user = await _userRepository.GetByIdAsync(request.UserId);
 
         if (user == null)
-            throw new KeyNotFoundException("User not found");
+            throw new KeyNotFoundException(_localizer["UserNotFound"]);
 
         UpdateCommonFields(user, request);
 
         UpdateRoleSpecificFields(user, request);
 
         user.UpdatedAt = DateTime.UtcNow;
-        await _userRepository.UpdateAsync(user.Id , user);
+        await _userRepository.UpdateAsync(user.Id, user);
 
         return Helper.MapToProfileDto(user);
     }
@@ -138,48 +142,48 @@ public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand,
 
 public class UpdateProfileCommandValidator : AbstractValidator<UpdateProfileCommand>
 {
-    public UpdateProfileCommandValidator()
+    public UpdateProfileCommandValidator(IStringLocalizer<SharedResource> localizer)
     {
         RuleFor(x => x.UserId)
-            .NotEmpty().WithMessage("User ID is required");
+            .NotEmpty().WithMessage(localizer["UserIdIsRequired"]);
 
         When(x => !string.IsNullOrEmpty(x.FullName), () =>
         {
             RuleFor(x => x.FullName)
-                .MinimumLength(2).WithMessage("Full name must be at least 2 characters")
-                .MaximumLength(100).WithMessage("Full name cannot exceed 100 characters");
+                .MinimumLength(2).WithMessage(localizer["FullNameMinLength"])
+                .MaximumLength(100).WithMessage(localizer["FullNameMaxLength"]);
         });
 
         When(x => !string.IsNullOrEmpty(x.Phone), () =>
         {
             RuleFor(x => x.Phone)
-                .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Invalid phone number format");
+                .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage(localizer["InvalidPhoneNumberFormat"]);
         });
 
         When(x => !string.IsNullOrEmpty(x.Country), () =>
         {
             RuleFor(x => x.Country)
-                .MinimumLength(2).WithMessage("Country must be at least 2 characters")
-                .MaximumLength(100).WithMessage("Country cannot exceed 100 characters");
+                .MinimumLength(2).WithMessage(localizer["CountryMinLength"])
+                .MaximumLength(100).WithMessage(localizer["CountryMaxLength"]);
         });
 
         When(x => !string.IsNullOrEmpty(x.Bio), () =>
         {
             RuleFor(x => x.Bio)
-                .MaximumLength(500).WithMessage("Bio cannot exceed 500 characters");
+                .MaximumLength(500).WithMessage(localizer["BioMaxLength"]);
         });
 
         When(x => !string.IsNullOrEmpty(x.LearningGoals), () =>
         {
             RuleFor(x => x.LearningGoals)
-                .MaximumLength(1000).WithMessage("Learning goals cannot exceed 1000 characters");
+                .MaximumLength(1000).WithMessage(localizer["LearningGoalsMaxLength"]);
         });
 
         When(x => x.YearsOfExperience.HasValue, () =>
         {
             RuleFor(x => x.YearsOfExperience)
-                .GreaterThanOrEqualTo(0).WithMessage("Years of experience must be non-negative")
-                .LessThanOrEqualTo(100).WithMessage("Years of experience seems unrealistic");
+                .GreaterThanOrEqualTo(0).WithMessage(localizer["YearsOfExperienceNonNegative"])
+                .LessThanOrEqualTo(100).WithMessage(localizer["YearsOfExperienceUnrealistic"]);
         });
     }
 }

@@ -1,10 +1,11 @@
 ﻿using Application.DTOs;
 using Domain.Enums.Users;
 using Domain.Interfaces.Repositories.Users;
-using Domain.Interfaces.Services;
 using Domain.Interfaces.Services.Shared;
+using Localization;
 using MediatR;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
 
 namespace Application.Commands.Auth;
 
@@ -17,18 +18,19 @@ public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordComman
     private readonly IUserRepository _userRepository;
     private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
-
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public ForgotPasswordCommandHandler(
         IUserRepository userRepository,
         IEmailService emailService,
-        IConfiguration configuration
+        IConfiguration configuration,
+        IStringLocalizer<SharedResource> localizer
         )
     {
         _userRepository = userRepository;
         _emailService = emailService;
         _configuration = configuration;
-
+        _localizer = localizer;
     }
 
     public async Task<Result<string>> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
@@ -38,7 +40,7 @@ public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordComman
         // For security, always return success even if user doesn't exist
         if (user == null || user.AuthProvider != AuthProvider.Local)
         {
-            return Result<string>.Success("If the email exists, a reset link has been sent.");
+            return Result<string>.Success(_localizer["ResetLinkSentIfEmailExists"]);
         }
 
         // Generate reset token
@@ -54,7 +56,7 @@ public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordComman
             try
             {
                 var resetLink = $"{_configuration["FrontUrl"]}/reset-password?token={resetToken}";
-                await _emailService.SendPasswordResetEmailAsync(user.Email,user.FullName,user.PasswordResetTokenExpiry.Value, resetLink, cancellationToken);
+                await _emailService.SendPasswordResetEmailAsync(user.Email, user.FullName, user.PasswordResetTokenExpiry.Value, resetLink, cancellationToken);
             }
             catch
             {
@@ -62,7 +64,7 @@ public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordComman
             }
         }, cancellationToken);
 
-        return Result<string>.Success("If the email exists, a reset link has been sent.");
+        return Result<string>.Success(_localizer["ResetLinkSentIfEmailExists"]);
     }
 }
 

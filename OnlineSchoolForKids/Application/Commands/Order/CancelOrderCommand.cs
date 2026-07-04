@@ -1,5 +1,7 @@
 ﻿using Domain.Interfaces.Repositories.Content;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
 namespace Application.Commands.Order
 {
@@ -11,10 +13,12 @@ namespace Application.Commands.Order
     public class CancelOrderCommandHandler : IRequestHandler<CancelOrderCommand, CancelOrderResponse>
     {
         private readonly IOrderRepository _orderRepository;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public CancelOrderCommandHandler(IOrderRepository orderRepository)
+        public CancelOrderCommandHandler(IOrderRepository orderRepository, IStringLocalizer<SharedResource> localizer)
         {
             _orderRepository = orderRepository;
+            _localizer = localizer;
         }
 
         public async Task<CancelOrderResponse> Handle(CancelOrderCommand request, CancellationToken cancellationToken)
@@ -22,17 +26,17 @@ namespace Application.Commands.Order
             var order = await _orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
 
             if (order == null)
-                return new CancelOrderResponse { Success = false, Message = "Order not found" };
+                return new CancelOrderResponse { Success = false, Message = _localizer["OrderNotFound"] };
 
             if (order.UserId != request.UserId)
-                return new CancelOrderResponse { Success = false, Message = "Unauthorized" };
+                return new CancelOrderResponse { Success = false, Message = _localizer["Unauthorized"] };
 
             var cancelled = await _orderRepository.CancelOrderAsync(request.OrderId, cancellationToken);
 
             return new CancelOrderResponse
             {
                 Success = cancelled,
-                Message = cancelled ? "Order cancelled successfully" : "Cannot cancel this order"
+                Message = cancelled ? _localizer["OrderCancelledSuccessfully"] : _localizer["CannotCancelOrder"]
             };
         }
     }

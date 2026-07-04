@@ -1,11 +1,6 @@
 ﻿using Domain.Enums.Users;
 using Domain.Interfaces.Repositories.Users;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Commands.Admin;
 
@@ -35,7 +30,7 @@ public class BulkSuspendUsersCommandHandler : IRequestHandler<BulkSuspendUsersCo
         return new BulkActionResponse
         {
             Affected = toUpdate.Count,
-            Message  = $"{toUpdate.Count} user(s) suspended successfully.",
+            Message = $"{toUpdate.Count} user(s) suspended successfully.",
         };
     }
 }

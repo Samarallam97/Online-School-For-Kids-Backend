@@ -1,9 +1,8 @@
 ﻿using Application.DTOs;
 using Domain.Interfaces.Repositories.Users;
+using Localization;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.Extensions.Localization;
 
 namespace Application.Commands.Auth;
 
@@ -14,10 +13,12 @@ public class LogOutCommandHandler
     : IRequestHandler<LogOutCommand, Result<string>>
 {
     private readonly IRefreshTokenRepository _refreshTokenRepository;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public LogOutCommandHandler(IRefreshTokenRepository refreshTokenRepository)
+    public LogOutCommandHandler(IRefreshTokenRepository refreshTokenRepository, IStringLocalizer<SharedResource> localizer)
     {
         _refreshTokenRepository = refreshTokenRepository;
+        _localizer = localizer;
     }
 
     public async Task<Result<string>> Handle(
@@ -28,7 +29,7 @@ public class LogOutCommandHandler
             request.userId,
             cancellationToken);
 
-        return Result<string>.Success("Logged out successfully.");
+        return Result<string>.Success(_localizer["LoggedOutSuccessfully"]);
     }
 }
 

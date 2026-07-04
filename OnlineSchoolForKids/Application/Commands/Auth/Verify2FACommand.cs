@@ -2,7 +2,9 @@
 using Domain.Entities.Users;
 using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services.Shared;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
 
 namespace Application.Commands.Auth;
@@ -21,15 +23,18 @@ public class Verify2FACommandHandler : IRequestHandler<Verify2FACommand, Result<
     private readonly IUserRepository _userRepository;
     private readonly IJwtTokenService _jwtTokenService;
     private readonly ITotpService _totpService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public Verify2FACommandHandler(
         IUserRepository userRepository,
         IJwtTokenService jwtTokenService,
-        ITotpService totpService)
+        ITotpService totpService,
+        IStringLocalizer<SharedResource> localizer)
     {
         _userRepository = userRepository;
         _jwtTokenService = jwtTokenService;
         _totpService = totpService;
+        _localizer = localizer;
     }
 
     public async Task<Result<AuthResponse>> Handle(Verify2FACommand request, CancellationToken cancellationToken)
@@ -37,15 +42,15 @@ public class Verify2FACommandHandler : IRequestHandler<Verify2FACommand, Result<
         // Validate the temp token and extract userId
         var userId = _jwtTokenService.ValidateTempToken(request.TempToken);
         if (userId == null)
-            return Result<AuthResponse>.Failure("Invalid or expired session. Please log in again.");
+            return Result<AuthResponse>.Failure(_localizer["InvalidOrExpiredSession"]);
 
         var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
         if (user == null)
-            return Result<AuthResponse>.Failure("User not found.");
+            return Result<AuthResponse>.Failure(_localizer["UserNotFound"]);
 
         // Verify the TOTP code
         if (!_totpService.ValidateCode(user.TwoFactorSecret, request.Code))
-            return Result<AuthResponse>.Failure("Invalid or expired 2FA code.");
+            return Result<AuthResponse>.Failure(_localizer["InvalidTwoFactorCode"]);
 
         // Update last login
         user.LastLoginAt = DateTime.UtcNow;

@@ -1,10 +1,9 @@
 ﻿using Domain.Interfaces.Repositories.Users;
-using Domain.Interfaces.Services;
 using Domain.Interfaces.Services.Shared;
+using Localization;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.Extensions.Localization;
+
 
 namespace Application.Commands.Profile.Users;
 
@@ -17,13 +16,16 @@ public class DeleteProfilePictureCommandHandler : IRequestHandler<DeleteProfileP
 {
     private readonly IUserRepository _userRepository;
     private readonly IFileStorageService _fileStorageService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public DeleteProfilePictureCommandHandler(
         IUserRepository userRepository,
-        IFileStorageService fileStorageService)
+        IFileStorageService fileStorageService,
+        IStringLocalizer<SharedResource> localizer)
     {
         _userRepository = userRepository;
         _fileStorageService = fileStorageService;
+        _localizer = localizer;
     }
 
     public async Task<Unit> Handle(DeleteProfilePictureCommand request, CancellationToken cancellationToken)
@@ -31,7 +33,7 @@ public class DeleteProfilePictureCommandHandler : IRequestHandler<DeleteProfileP
         // Get user
         var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
         if (user == null)
-            throw new KeyNotFoundException("User not found");
+            throw new KeyNotFoundException(_localizer["UserNotFound"]);
 
         // Delete profile picture if exists
         if (!string.IsNullOrEmpty(user.ProfilePictureUrl))

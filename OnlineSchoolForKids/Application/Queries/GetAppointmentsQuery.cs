@@ -1,11 +1,6 @@
 ﻿using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Repositories.Users;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Queries;
 
@@ -21,7 +16,7 @@ public class GetMyAppointmentsQueryHandler : IRequestHandler<GetMyAppointmentsQu
         IUserRepository userRepo)
     {
         _appointmentRepo = appointmentRepo;
-        _userRepo        = userRepo;
+        _userRepo = userRepo;
     }
 
     public async Task<List<AppointmentDto>> Handle(
@@ -40,31 +35,31 @@ public class GetMyAppointmentsQueryHandler : IRequestHandler<GetMyAppointmentsQu
             if (u is not null)
             {
                 specialistNames[id] = u.FullName;
-                specialistPics[id]  = u.ProfilePictureUrl;
+                specialistPics[id] = u.ProfilePictureUrl;
                 specialistRates[id] = u.HourlyRate;
             }
         }
 
         return appointments.Select(a => new AppointmentDto
         {
-            Id                          = a.Id,
-            SpecialistId                = a.SpecialistId,
-            SpecialistName              = specialistNames.GetValueOrDefault(a.SpecialistId, ""),
+            Id = a.Id,
+            SpecialistId = a.SpecialistId,
+            SpecialistName = specialistNames.GetValueOrDefault(a.SpecialistId, ""),
             SpecialistProfilePictureUrl = specialistPics.GetValueOrDefault(a.SpecialistId),
-            StudentId                   = a.StudentId,
-            StudentName                 = "",
-            Title                       = a.Title,
-            Description                 = a.Description,
-            AppointmentDate             = a.AppointmentDate,
-            StartTime                   = a.StartTime,
-            EndTime                     = a.EndTime,
-            Status                      = a.Status.ToString(),
-            GoogleMeetLink              = a.GoogleMeetLink,
-            CanCancel                   = a.CanCancel(),
-            AmountPaid                  = a.AmountPaid,
-            CancellationReason          = a.CancellationReason,
+            StudentId = a.StudentId,
+            StudentName = "",
+            Title = a.Title,
+            Description = a.Description,
+            AppointmentDate = a.AppointmentDate,
+            StartTime = a.StartTime,
+            EndTime = a.EndTime,
+            Status = a.Status.ToString(),
+            GoogleMeetLink = a.GoogleMeetLink,
+            CanCancel = a.CanCancel(),
+            AmountPaid = a.AmountPaid,
+            CancellationReason = a.CancellationReason,
             HoldExpiresAtUtc = a.HoldExpiresAtUtc.ToString("o"),
-            HourlyRate       = specialistRates.GetValueOrDefault(a.SpecialistId),
+            HourlyRate = specialistRates.GetValueOrDefault(a.SpecialistId),
         }).ToList();
     }
 }

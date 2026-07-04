@@ -1,9 +1,8 @@
 ﻿using Domain.Enums.Users;
 using Domain.Interfaces.Repositories.Users;
+using Localization;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.Extensions.Localization;
 
 namespace Application.Commands.Profile.Students;
 
@@ -15,10 +14,12 @@ public class UnlinkParentCommand : IRequest<Unit>
 public class UnlinkParentCommandHandler : IRequestHandler<UnlinkParentCommand, Unit>
 {
     private readonly IUserRepository _userRepository;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public UnlinkParentCommandHandler(IUserRepository userRepository)
+    public UnlinkParentCommandHandler(IUserRepository userRepository, IStringLocalizer<SharedResource> localizer)
     {
         _userRepository = userRepository;
+        _localizer = localizer;
     }
 
     public async Task<Unit> Handle(UnlinkParentCommand request, CancellationToken cancellationToken)
@@ -27,18 +28,18 @@ public class UnlinkParentCommandHandler : IRequestHandler<UnlinkParentCommand, U
         var student = await _userRepository.GetByIdAsync(request.StudentUserId, cancellationToken);
 
         if (student == null)
-            throw new KeyNotFoundException("Student not found");
+            throw new KeyNotFoundException(_localizer["StudentNotFound"]);
 
         if (student.Role != UserRole.Student)
-            throw new InvalidOperationException("User is not a student");
+            throw new InvalidOperationException(_localizer["UserIsNotStudent"]);
 
         if (string.IsNullOrEmpty(student.ParentId))
-            throw new InvalidOperationException("No parent is currently linked to this account");
+            throw new InvalidOperationException(_localizer["NoParentLinkedToAccount"]);
 
         var parent = await _userRepository.GetByIdAsync(student.ParentId, cancellationToken);
-        
+
         if (parent == null)
-            throw new InvalidOperationException("Parent not found");
+            throw new InvalidOperationException(_localizer["ParentNotFound"]);
 
         // Unlink parent
         student.ParentId = null;

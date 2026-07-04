@@ -1,10 +1,8 @@
 ﻿using Application.DTOs;
-using Domain.Interfaces.Services;
 using Domain.Interfaces.Services.Shared;
+using Localization;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.Extensions.Localization;
 
 namespace Application.Commands.Auth;
 
@@ -18,10 +16,12 @@ public record RefreshTokenCommand(
 public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, Result<AuthResponse>>
 {
     private readonly IJwtTokenService _jwtTokenService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public RefreshTokenCommandHandler(IJwtTokenService jwtTokenService)
+    public RefreshTokenCommandHandler(IJwtTokenService jwtTokenService, IStringLocalizer<SharedResource> localizer)
     {
         _jwtTokenService = jwtTokenService;
+        _localizer = localizer;
     }
 
     public async Task<Result<AuthResponse>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
@@ -30,7 +30,7 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, R
 
         if (result == null)
         {
-            return Result<AuthResponse>.Failure("Invalid or expired refresh token.");
+            return Result<AuthResponse>.Failure(_localizer["InvalidRefreshToken"]);
         }
 
         // Note: Full user info would be fetched in the JWT service implementation

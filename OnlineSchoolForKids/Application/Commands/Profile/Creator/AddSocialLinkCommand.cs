@@ -1,18 +1,17 @@
-﻿using Application.DTOs;
-using Domain.Entities.Users;
+﻿using Domain.Entities.Users;
 using Domain.Interfaces.Repositories.Users;
 using FluentValidation;
+using Localization;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.Extensions.Localization;
+
 
 namespace Application.Commands.Profile.Creator;
 
 public class AddSocialLinkCommand : IRequest<SocialLinkDto>
 {
-    public string UserId { get; set; } 
-    public string Name { get; set; } 
+    public string UserId { get; set; }
+    public string Name { get; set; }
 
     public string Value { get; set; }
 }
@@ -20,24 +19,26 @@ public class AddSocialLinkCommand : IRequest<SocialLinkDto>
 public class AddSocialLinkCommandHandler : IRequestHandler<AddSocialLinkCommand, SocialLinkDto>
 {
     private readonly IUserRepository _userRepository;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public AddSocialLinkCommandHandler(IUserRepository userRepository)
+    public AddSocialLinkCommandHandler(IUserRepository userRepository, IStringLocalizer<SharedResource> localizer)
     {
         _userRepository = userRepository;
+        _localizer = localizer;
     }
 
     public async Task<SocialLinkDto> Handle(AddSocialLinkCommand request, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByIdAsync(request.UserId);
         if (user == null)
-            throw new KeyNotFoundException("user not found");
+            throw new KeyNotFoundException(_localizer["UserNotFound"]);
 
 
         var socialLink = new SocialLink
         {
             Id = Guid.NewGuid().ToString(),
-              Name = request.Name,
-              Value = request.Value,
+            Name = request.Name,
+            Value = request.Value,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -58,31 +59,31 @@ public class AddSocialLinkCommandHandler : IRequestHandler<AddSocialLinkCommand,
         var dto = new SocialLinkDto
         {
             Id = socialLink.Id,
-            Name =socialLink.Name,
+            Name = socialLink.Name,
             Value = socialLink.Value
         };
 
         return dto;
     }
 
-   
 
-    
-    
+
+
+
 }
 
 public class AddSocialLinkCommandValidator : AbstractValidator<AddSocialLinkCommand>
 {
-    public AddSocialLinkCommandValidator()
+    public AddSocialLinkCommandValidator(IStringLocalizer<SharedResource> localizer)
     {
         RuleFor(x => x.Name)
             .NotEmpty()
-            .WithMessage("Nameis required");
+            .WithMessage(localizer["NameIsRequired"]);
 
         RuleFor(x => x.Value)
             .NotEmpty()
-            .WithMessage("Value is required")
-            .Must(BeAValidUrl).WithMessage("CV link must be a valid URL.");
+            .WithMessage(localizer["ValueIsRequired"])
+            .Must(BeAValidUrl).WithMessage(localizer["CvLinkMustBeValidUrl"]);
 
 
     }

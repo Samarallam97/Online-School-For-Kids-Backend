@@ -3,7 +3,9 @@ using Domain.Entities.Users;
 using Domain.Enums.Users;
 using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services.Shared;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
 namespace Application.Commands.Auth;
 
@@ -38,15 +40,18 @@ public class CompleteGoogleRegistrationCommandHandler
     private readonly IUserRepository _userRepository;
     private readonly IJwtTokenService _jwtTokenService;
     private readonly ITempTokenService _tempTokenService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public CompleteGoogleRegistrationCommandHandler(
         IUserRepository userRepository,
         IJwtTokenService jwtTokenService,
-        ITempTokenService tempTokenService)
+        ITempTokenService tempTokenService,
+        IStringLocalizer<SharedResource> localizer)
     {
         _userRepository = userRepository;
         _jwtTokenService = jwtTokenService;
         _tempTokenService = tempTokenService;
+        _localizer = localizer;
     }
 
     public async Task<Result<AuthResponse>> Handle(
@@ -57,16 +62,16 @@ public class CompleteGoogleRegistrationCommandHandler
         var pendingUser = await _tempTokenService.GetPendingGoogleUserAsync(request.TempToken);
         if (pendingUser == null)
             return Result<AuthResponse>.Failure(
-                "Invalid or expired session. Please try signing in again.");
+               _localizer["InvalidOrExpiredSession"]);
 
         // ── 2. Validate role-specific required fields ─────────────────────────
         if (request.Role == UserRole.ContentCreator || request.Role == UserRole.Specialist)
         {
             if (string.IsNullOrWhiteSpace(request.Expertise))
-                return Result<AuthResponse>.Failure("Area of expertise is required.");
+                return Result<AuthResponse>.Failure(_localizer["ExpertiseIsRequired"]);
 
             if (string.IsNullOrWhiteSpace(request.CvLink))
-                return Result<AuthResponse>.Failure("CV link is required.");
+                return Result<AuthResponse>.Failure(_localizer["CvLinkIsRequired"]);
         }
 
         // ── 3. Guard against double-submit ────────────────────────────────────
@@ -117,12 +122,12 @@ public class CompleteGoogleRegistrationCommandHandler
         // ── 5. ContentCreator / Specialist must wait for approval ─────────────
         if (user.Status == UserStatus.Pending)
             return Result<AuthResponse>.Failure(
-                "Your account is pending admin approval. You will be notified by email.");
+                _localizer["AccountPendingApproval"]);
 
         // ── 6. Check account status — mirrors LoginCommandHandler ─────────────
         if (user.Status != UserStatus.Active)
             return Result<AuthResponse>.Failure(
-                "Account is deactivated or not approved. Please contact support.");
+               _localizer["AccountDeactivatedOrNotApproved"]);
 
         // ── 7. Handle IsFirstLogin — mirrors LoginCommandHandler ──────────────
         var userDto = Helper.MapToUserDto(user);

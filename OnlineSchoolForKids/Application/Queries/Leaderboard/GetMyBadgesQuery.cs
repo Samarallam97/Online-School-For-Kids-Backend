@@ -1,5 +1,4 @@
-﻿using Domain.Entities.Content.Leaderboard;
-using Domain.Interfaces.Repositories.Content;
+﻿using Domain.Interfaces.Repositories.Content;
 using MediatR;
 
 namespace Application.Queries.Leaderboard

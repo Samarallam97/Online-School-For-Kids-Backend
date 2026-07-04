@@ -1,11 +1,6 @@
 ﻿using Domain.Interfaces.Repositories.Content;
 using Domain.Interfaces.Repositories.Users;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Queries.Content;
 
@@ -67,9 +62,9 @@ public class GetUserWishlistQueryHandler
         IUserRepository userRepo,
         ICategoryRepository categoryRepo)
     {
-        _wishRepo     = wishRepo;
-        _courseRepo   = courseRepo;
-        _userRepo     = userRepo;
+        _wishRepo = wishRepo;
+        _courseRepo = courseRepo;
+        _userRepo = userRepo;
         _categoryRepo = categoryRepo;
     }
 
@@ -97,13 +92,13 @@ public class GetUserWishlistQueryHandler
         if (paged.Count == 0)
             return new GetUserWishlistResponse
             {
-                Success    = true,
-                Message    = "Wishlist retrieved successfully",
-                Items      = [],
+                Success = true,
+                Message = "Wishlist retrieved successfully",
+                Items = [],
                 TotalCount = totalCount,
                 TotalPages = totalPages,
-                Page       = request.Page,
-                PageSize   = request.PageSize,
+                Page = request.Page,
+                PageSize = request.PageSize,
             };
 
         // 2. Fetch courses in parallel (MongoDB has no auto-join)
@@ -146,28 +141,28 @@ public class GetUserWishlistQueryHandler
 
                 return new WishlistCourseDto
                 {
-                    Id                  = course.Id,
-                    Title               = course.Title,
-                    Description         = course.Description,
-                    InstructorId        = course.InstructorId,
-                    InstructorName      = instructor?.FullName          ?? string.Empty,
+                    Id = course.Id,
+                    Title = course.Title,
+                    Description = course.Description,
+                    InstructorId = course.InstructorId,
+                    InstructorName = instructor?.FullName ?? string.Empty,
                     InstructorAvatarUrl = instructor?.ProfilePictureUrl,
-                    CategoryId          = course.CategoryId,
-                    CategoryName        = category?.Name                ?? string.Empty,
-                    AgeGroup            = (int)course.AgeGroup,
-                    Price               = course.Price,
-                    DiscountPrice       = course.DiscountPrice,
-                    Rating              = (double)course.Rating,
-                    TotalStudents       = course.TotalStudents,
-                    DurationHours       = course.DurationHours,
-                    ThumbnailUrl        = course.ThumbnailUrl,
-                    Language            = course.Language,
-                    LastUpdated         = course.UpdatedAt.HasValue
+                    CategoryId = course.CategoryId,
+                    CategoryName = category?.Name ?? string.Empty,
+                    AgeGroup = (int)course.AgeGroup,
+                    Price = course.Price,
+                    DiscountPrice = course.DiscountPrice,
+                    Rating = (double)course.Rating,
+                    TotalStudents = course.TotalStudents,
+                    DurationHours = course.DurationHours,
+                    ThumbnailUrl = course.ThumbnailUrl,
+                    Language = course.Language,
+                    LastUpdated = course.UpdatedAt.HasValue
                                             ? course.UpdatedAt.Value.ToString("MMM yyyy")
                                             : null,
-                    WishlistId          = w.Id,
-                    AddedAt             = w.CreatedAt,
-                    IsInCart            = false,
+                    WishlistId = w.Id,
+                    AddedAt = w.CreatedAt,
+                    IsInCart = false,
                 };
             })
             .Where(d => d != null)
@@ -175,13 +170,13 @@ public class GetUserWishlistQueryHandler
 
         return new GetUserWishlistResponse
         {
-            Success    = true,
-            Message    = "Wishlist retrieved successfully",
-            Items      = dtos!,
+            Success = true,
+            Message = "Wishlist retrieved successfully",
+            Items = dtos!,
             TotalCount = totalCount,
             TotalPages = totalPages,
-            Page       = request.Page,
-            PageSize   = request.PageSize,
+            Page = request.Page,
+            PageSize = request.PageSize,
         };
     }
 }

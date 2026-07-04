@@ -1,7 +1,9 @@
 ﻿using Domain.Entities.Content;
 using Domain.Interfaces.Repositories.Content;
+using Localization;
 using MediatR;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
 
@@ -39,6 +41,7 @@ public class StartVideoProcessingHandler
     private readonly ICourseRepository _courseRepo;
     private readonly IConfiguration _config;
     private readonly ILogger<StartVideoProcessingHandler> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     private string PipelineBaseUrl => _config["VideoPipeline:BaseUrl"]
         ?? "https://web-production-12d4d.up.railway.app";
@@ -47,12 +50,14 @@ public class StartVideoProcessingHandler
         IVideoProcessingJobRepository jobRepo,
         ICourseRepository courseRepo,
         IConfiguration config,
-        ILogger<StartVideoProcessingHandler> logger)
+        ILogger<StartVideoProcessingHandler> logger,
+        IStringLocalizer<SharedResource> localizer)
     {
         _jobRepo = jobRepo;
         _courseRepo = courseRepo;
         _config = config;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task<StartVideoProcessingResponse> Handle(
@@ -64,10 +69,10 @@ public class StartVideoProcessingHandler
             // 1. Validate course exists and belongs to instructor
             var course = await _courseRepo.GetByIdAsync(request.CourseId, ct);
             if (course == null)
-                return Fail("Course not found");
+                return Fail(_localizer["CourseIsNotFound"]);
 
             if (course.InstructorId != request.InstructorId)
-                return Fail("Unauthorized");
+                return Fail(_localizer["Unauthorized"]);
 
             // 2. Create job record
             var job = new VideoProcessingJob
@@ -126,14 +131,14 @@ public class StartVideoProcessingHandler
             return new StartVideoProcessingResponse
             {
                 Success = true,
-                Message = "Processing complete",
+                Message = _localizer["ProcessingCompleted"],
                 JobId = job.Id
             };
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing video");
-            return Fail("An error occurred during processing");
+            return Fail(_localizer["ProcessingError"]);
         }
     }
 

@@ -67,8 +67,8 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 
         // Required for all users
         RuleFor(x => x.DateOfBirth)
-            .NotEmpty().WithMessage("Date of birth is required.")
-            .Must(BeAtLeast3YearsOld).WithMessage("You must be at least 3 years old to register.");
+            .NotEmpty().WithMessage(localizer["DOBIsRequired"])
+            .Must(BeAtLeast3YearsOld).WithMessage(localizer["MinimumAgeForRegistration"]);
 
         RuleFor(x => x.Country)
             .NotEmpty().WithMessage(localizer["CountryIsRequired"])
@@ -79,17 +79,17 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
         When(x => x.Role == UserRole.ContentCreator || x.Role == UserRole.Specialist, () =>
         {
             RuleFor(x => x.Expertise)
-                .NotEmpty().WithMessage("Area of expertise is required for content creators and specialists.")
-                .MinimumLength(2).WithMessage("Expertise must be at least 2 characters.")
-                .MaximumLength(200).WithMessage("Expertise must not exceed 200 characters.");
+                .NotEmpty().WithMessage(localizer["ExpertiseRequiredForCreatorsAndSpecialists"])
+                .MinimumLength(2).WithMessage(localizer["ExpertiseMinLength"])
+                .MaximumLength(200).WithMessage(localizer["ExpertiseMaxLength"]);
 
             RuleFor(x => x.CvLink)
-                .NotEmpty().WithMessage("CV link is required for content creators and specialists.")
-                .Must(BeAValidUrl).WithMessage("CV link must be a valid URL.");
+                .NotEmpty().WithMessage(localizer["CvLinkRequiredForCreatorsAndSpecialists"])
+                .Must(BeAValidUrl).WithMessage(localizer["CvLinkMustBeValidUrl"]);
 
             RuleFor(x => x.PortfolioUrl)
                 .Must(BeAValidUrl).When(x => !string.IsNullOrEmpty(x.PortfolioUrl))
-                .WithMessage("Portfolio URL must be a valid URL.");
+                .WithMessage(localizer["PortfolioUrlMustBeValid"]);
         });
     }
 

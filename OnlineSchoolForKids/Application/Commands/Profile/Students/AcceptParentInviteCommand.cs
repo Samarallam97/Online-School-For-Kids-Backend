@@ -1,12 +1,11 @@
 ﻿using Domain.Enums.Users;
 using Domain.Interfaces.Repositories.Users;
-using Domain.Interfaces.Services;
 using Domain.Interfaces.Services.Shared;
+using Localization;
 using MediatR;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.Extensions.Localization;
+
 
 namespace Application.Commands.Profile.Students;
 
@@ -26,15 +25,18 @@ public class AcceptParentInviteCommandHandler : IRequestHandler<AcceptParentInvi
     private readonly IUserRepository _userRepository;
     private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public AcceptParentInviteCommandHandler(
         IUserRepository userRepository,
         IEmailService emailService,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IStringLocalizer<SharedResource> localizer)
     {
         _userRepository = userRepository;
         _emailService = emailService;
         _configuration = configuration;
+        _localizer = localizer;
     }
 
     public async Task<AcceptParentInviteDto> Handle(AcceptParentInviteCommand request, CancellationToken cancellationToken)
@@ -43,20 +45,20 @@ public class AcceptParentInviteCommandHandler : IRequestHandler<AcceptParentInvi
         var parent = await _userRepository.GetByChildInviteTokenAsync(request.Token, cancellationToken);
 
         if (parent == null)
-            throw new KeyNotFoundException("Invalid or expired invitation token");
+            throw new KeyNotFoundException(_localizer["InvalidOrExpiredInvitationToken"]);
 
         // Verify child
         var child = await _userRepository.GetByIdAsync(request.ChildUserId, cancellationToken);
 
         if (child == null)
-            throw new KeyNotFoundException("Child not found");
+            throw new KeyNotFoundException(_localizer["ChildNotFound"]);
 
         if (child.Role != UserRole.Student)
-            throw new InvalidOperationException("User is not a student");
+            throw new InvalidOperationException(_localizer["UserIsNotStudent"]);
 
         // Check if already linked to another parent
         if (!string.IsNullOrEmpty(child.ParentId) && child.ParentId != parent.Id)
-            throw new InvalidOperationException("This child is already linked to another parent");
+            throw new InvalidOperationException(_localizer["ChildAlreadyLinkedToAnotherParent"]);
 
         // Link child to parent
         child.ParentId = parent.Id;
@@ -64,7 +66,7 @@ public class AcceptParentInviteCommandHandler : IRequestHandler<AcceptParentInvi
 
         // Remove the used token
         parent.ChildInvitaions?.Remove(request.Token);
-        
+
         if (parent.ChildrenIds is null)
             parent.ChildrenIds = new() { child.Id };
         else
@@ -81,7 +83,7 @@ public class AcceptParentInviteCommandHandler : IRequestHandler<AcceptParentInvi
 
         return new AcceptParentInviteDto
         {
-            Message = "Account successfully linked to parent",
+            Message = _localizer["AccountLinkedToParentSuccessfully"],
             ParentName = parent.FullName
         };
     }

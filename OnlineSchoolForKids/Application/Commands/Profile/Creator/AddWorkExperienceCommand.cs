@@ -1,10 +1,8 @@
-﻿using Application.DTOs;
-using Domain.Entities.Users;
+﻿using Domain.Entities.Users;
 using Domain.Interfaces.Repositories.Users;
+using Localization;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.Extensions.Localization;
 
 namespace Application.Commands.Profile.Creator;
 
@@ -21,17 +19,19 @@ public class AddWorkExperienceCommand : IRequest<WorkExperienceDto>
 public class AddWorkExperienceCommandHandler : IRequestHandler<AddWorkExperienceCommand, WorkExperienceDto>
 {
     private readonly IUserRepository _userRepository;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public AddWorkExperienceCommandHandler(IUserRepository userRepository)
+    public AddWorkExperienceCommandHandler(IUserRepository userRepository, IStringLocalizer<SharedResource> localizer)
     {
         _userRepository = userRepository;
+        _localizer = localizer;
     }
 
     public async Task<WorkExperienceDto> Handle(AddWorkExperienceCommand request, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByIdAsync(request.UserId);
         if (user == null)
-            throw new KeyNotFoundException("User not found");
+            throw new KeyNotFoundException(_localizer["UserNotFound"]);
 
         var workExperience = new WorkExperience
         {
@@ -47,7 +47,7 @@ public class AddWorkExperienceCommandHandler : IRequestHandler<AddWorkExperience
             user.WorkExperiences = new List<WorkExperience>();
 
         user.WorkExperiences.Add(workExperience);
-        await _userRepository.UpdateAsync(user.Id,user);
+        await _userRepository.UpdateAsync(user.Id, user);
 
         return new WorkExperienceDto
         {

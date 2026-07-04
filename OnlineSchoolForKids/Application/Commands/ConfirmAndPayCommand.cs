@@ -1,7 +1,9 @@
 ﻿using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services.Shared;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
 namespace Application.Commands;
 public record ConfirmAndPayCommand(
@@ -24,19 +26,22 @@ public class ConfirmAndPayCommandHandler : IRequestHandler<ConfirmAndPayCommand,
     private readonly IPaymentProcessorFactory _paymentFactory;
     private readonly IGoogleMeetService _googleMeet;
     private readonly IEmailService _email;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public ConfirmAndPayCommandHandler(
         IAppointmentRepository appointmentRepo,
         IUserRepository userRepo,
         IPaymentProcessorFactory paymentFactory,
         IGoogleMeetService googleMeet,
-        IEmailService email)
+        IEmailService email,
+        IStringLocalizer<SharedResource> localizer)
     {
         _appointmentRepo = appointmentRepo;
         _userRepo = userRepo;
         _paymentFactory = paymentFactory;
         _googleMeet = googleMeet;
         _email = email;
+        _localizer = localizer;
     }
 
     public async Task<ConfirmAndPayResult> Handle(
@@ -44,10 +49,10 @@ public class ConfirmAndPayCommandHandler : IRequestHandler<ConfirmAndPayCommand,
     {
         // 1. Load appointment
         var appt = await _appointmentRepo.GetByIdAsync(request.AppointmentId, cancellationToken)
-            ?? throw new KeyNotFoundException("Appointment not found.");
+            ?? throw new KeyNotFoundException(_localizer["AppointmentNotFound"]);
 
         if (appt.StudentId != request.StudentId)
-            throw new UnauthorizedAccessException("You can only confirm your own appointments.");
+            throw new UnauthorizedAccessException(_localizer["OnlyOwnAppointmentsCanBeConfirmed"]);
 
         if (appt.Status != Domain.Enums.AppointmentStatus.Pending)
             throw new InvalidOperationException(
@@ -55,18 +60,18 @@ public class ConfirmAndPayCommandHandler : IRequestHandler<ConfirmAndPayCommand,
 
         if (DateTime.UtcNow > appt.HoldExpiresAtUtc)
             throw new InvalidOperationException(
-                "Your 30-minute hold has expired. Please book a new slot.");
+                _localizer["AppointmentHoldExpired"]);
 
         // 2. Load student and specialist (we need emails + hourly rate)
         var student = await _userRepo.GetByIdAsync(request.StudentId, cancellationToken)
-            ?? throw new KeyNotFoundException("Student not found.");
+            ?? throw new KeyNotFoundException(_localizer["StudentNotFound"]);
         var specialist = await _userRepo.GetByIdAsync(appt.SpecialistId, cancellationToken)
-            ?? throw new KeyNotFoundException("Specialist not found.");
+            ?? throw new KeyNotFoundException(_localizer["SpecialistNotFound"]);
 
         // 3. Load the chosen payment method from the student's saved methods
         var paymentMethod = student.PaymentMethods?
             .FirstOrDefault(m => m.Id == request.PaymentMethodId)
-            ?? throw new KeyNotFoundException("Payment method not found.");
+            ?? throw new KeyNotFoundException(_localizer["PaymentMethodNotFound"]);
 
         // 4. Charge via the matching processor
         var processor = _paymentFactory.Resolve(paymentMethod.Type);

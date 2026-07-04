@@ -1,13 +1,12 @@
 ﻿using Application.Queries.Profile.Users;
-using Domain.Entities;
 using Domain.Entities.Users;
 using Domain.Enums.Users;
 using Domain.Interfaces.Repositories.Users;
 using FluentValidation;
+using Localization;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.Extensions.Localization;
+
 
 namespace Application.Commands.Profile.Users;
 
@@ -42,17 +41,19 @@ public class AddPaymentMethodCommand : IRequest<PaymentMethodDto>
 public class AddPaymentMethodCommandHandler : IRequestHandler<AddPaymentMethodCommand, PaymentMethodDto>
 {
     private readonly IUserRepository _userRepository;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public AddPaymentMethodCommandHandler(IUserRepository userRepository)
+    public AddPaymentMethodCommandHandler(IUserRepository userRepository, IStringLocalizer<SharedResource> localizer)
     {
         _userRepository = userRepository;
+        _localizer = localizer;
     }
 
     public async Task<PaymentMethodDto> Handle(AddPaymentMethodCommand request, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByIdAsync(request.UserId);
         if (user == null)
-            throw new KeyNotFoundException("user not found");
+            throw new KeyNotFoundException(_localizer["userNotFound"]);
 
 
         var paymentMethod = new PaymentMethod
@@ -107,16 +108,16 @@ public class AddPaymentMethodCommandHandler : IRequestHandler<AddPaymentMethodCo
     private void ProcessCardPayment(PaymentMethod paymentMethod, AddPaymentMethodCommand request)
     {
         if (string.IsNullOrWhiteSpace(request.CardNumber))
-            throw new ArgumentException("Card number is required for card payment type");
+            throw new ArgumentException(_localizer["CardNumberRequired"]);
 
         if (!request.ExpiryMonth.HasValue || !request.ExpiryYear.HasValue)
-            throw new ArgumentException("Expiry date is required for card payment type");
+            throw new ArgumentException(_localizer["CardExpiryDateRequired"]);
 
         if (request.ExpiryMonth.Value < 1 || request.ExpiryMonth.Value > 12)
-            throw new ArgumentException("Invalid expiry month");
+            throw new ArgumentException(_localizer["InvalidExpiryMonth"]);
 
         if (request.ExpiryYear.Value < DateTime.UtcNow.Year)
-            throw new ArgumentException("Card has expired");
+            throw new ArgumentException(_localizer["CardExpired"]);
 
         var last4 = request.CardNumber.Length >= 4
             ? request.CardNumber.Substring(request.CardNumber.Length - 4)
@@ -133,12 +134,12 @@ public class AddPaymentMethodCommandHandler : IRequestHandler<AddPaymentMethodCo
     private void ProcessVodafoneCash(PaymentMethod paymentMethod, AddPaymentMethodCommand request)
     {
         if (string.IsNullOrWhiteSpace(request.PhoneNumber))
-            throw new ArgumentException("Phone number is required for Vodafone Cash");
+            throw new ArgumentException(_localizer["VodafoneCashPhoneRequired"]);
 
         // Validate Egyptian phone number format (01XXXXXXXXX)
         var cleanNumber = new string(request.PhoneNumber.Where(char.IsDigit).ToArray());
         if (!cleanNumber.StartsWith("01") || cleanNumber.Length != 11)
-            throw new ArgumentException("Invalid Egyptian phone number format");
+            throw new ArgumentException(_localizer["InvalidEgyptianPhoneNumber"]);
 
         paymentMethod.VodafoneNumber = cleanNumber;
     }
@@ -146,7 +147,7 @@ public class AddPaymentMethodCommandHandler : IRequestHandler<AddPaymentMethodCo
     private void ProcessInstapay(PaymentMethod paymentMethod, AddPaymentMethodCommand request)
     {
         if (string.IsNullOrWhiteSpace(request.InstapayId))
-            throw new ArgumentException("Instapay ID is required");
+            throw new ArgumentException(_localizer["InstapayIdRequired"]);
 
         paymentMethod.InstapayId = request.InstapayId.Trim();
     }
@@ -154,7 +155,7 @@ public class AddPaymentMethodCommandHandler : IRequestHandler<AddPaymentMethodCo
     private void ProcessFawry(PaymentMethod paymentMethod, AddPaymentMethodCommand request)
     {
         if (string.IsNullOrWhiteSpace(request.ReferenceNumber))
-            throw new ArgumentException("Fawry reference number is required");
+            throw new ArgumentException(_localizer["FawryReferenceNumberRequired"]);
 
         paymentMethod.FawryReferenceNumber = request.ReferenceNumber.Trim();
     }
@@ -162,13 +163,13 @@ public class AddPaymentMethodCommandHandler : IRequestHandler<AddPaymentMethodCo
     private void ProcessBankAccount(PaymentMethod paymentMethod, AddPaymentMethodCommand request)
     {
         if (string.IsNullOrWhiteSpace(request.AccountHolderName))
-            throw new ArgumentException("Account holder name is required for bank account");
+            throw new ArgumentException(_localizer["AccountHolderNameRequired"]);
 
         if (string.IsNullOrWhiteSpace(request.BankName))
-            throw new ArgumentException("Bank name is required for bank account");
+            throw new ArgumentException(_localizer["BankNameRequired"]);
 
         if (string.IsNullOrWhiteSpace(request.AccountNumber))
-            throw new ArgumentException("Account number is required for bank account");
+            throw new ArgumentException(_localizer["AccountNumberRequired"]);
 
         paymentMethod.AccountHolderName = request.AccountHolderName.Trim();
         paymentMethod.BankName = request.BankName.Trim();
@@ -270,52 +271,52 @@ public class AddPaymentMethodCommandHandler : IRequestHandler<AddPaymentMethodCo
 
 public class AddPaymentMethodCommandValidator : AbstractValidator<AddPaymentMethodCommand>
 {
-    public AddPaymentMethodCommandValidator()
+    public AddPaymentMethodCommandValidator(IStringLocalizer<SharedResource> localizer)
     {
         RuleFor(x => x.UserId)
             .NotEmpty()
-            .WithMessage("User ID is required");
+            .WithMessage(localizer["UserIdIsRequired"]);
 
         RuleFor(x => x.Type)
             .NotEmpty()
-            .WithMessage("Payment type is required")
+            .WithMessage(localizer["PaymentTypeRequired"])
             .Must(type => new[] { "card", "vodafone_cash", "instapay", "fawry", "bank_account" }.Contains(type.ToLower()))
-            .WithMessage("Invalid payment type");
+            .WithMessage(localizer["InvalidPaymentType"]);
 
         // Card validation
         When(x => x.Type.ToLower() == "card", () =>
         {
             RuleFor(x => x.CardNumber)
                 .NotEmpty()
-                .WithMessage("Card number is required")
+                .WithMessage(localizer["CardNumberRequired"])
                 .Matches(@"^\d+$")
-                .WithMessage("Card number must contain only digits")
+                .WithMessage(localizer["CardNumberDigitsOnly"])
                 .Length(13, 19)
-                .WithMessage("Card number must be between 13 and 19 digits");
+                .WithMessage(localizer["CardNumberLength"]);
 
             RuleFor(x => x.ExpiryMonth)
                 .NotNull()
-                .WithMessage("Expiry month is required")
+                .WithMessage(localizer["ExpiryMonthRequired"])
                 .InclusiveBetween(1, 12)
-                .WithMessage("Expiry month must be between 1 and 12");
+                .WithMessage(localizer["ExpiryMonthRange"]);
 
             RuleFor(x => x.ExpiryYear)
                 .NotNull()
-                .WithMessage("Expiry year is required")
+                .WithMessage(localizer["ExpiryYearRequired"])
                 .GreaterThanOrEqualTo(DateTime.UtcNow.Year)
-                .WithMessage("Card has expired");
+                .WithMessage(localizer["CardExpired"]);
 
             RuleFor(x => x.Cvv)
                 .NotEmpty()
-                .WithMessage("CVC is required")
+                .WithMessage(localizer["CvcRequired"])
                 .Matches(@"^\d{3,4}$")
-                .WithMessage("CVC must be 3 or 4 digits");
+                .WithMessage(localizer["CvcLength"]);
 
             RuleFor(x => x.CardholderName)
                 .NotEmpty()
-                .WithMessage("Cardholder name is required")
+                .WithMessage(localizer["CardholderNameRequired"])
                 .MaximumLength(100)
-                .WithMessage("Cardholder name must not exceed 100 characters");
+                .WithMessage(localizer["CardholderNameMaxLength"]);
         });
 
         // Vodafone Cash validation
@@ -323,9 +324,9 @@ public class AddPaymentMethodCommandValidator : AbstractValidator<AddPaymentMeth
         {
             RuleFor(x => x.PhoneNumber)
                 .NotEmpty()
-                .WithMessage("Phone number is required")
+                .WithMessage(localizer["PhoneNumberRequired"])
                 .Matches(@"^01[0-9]{9}$")
-                .WithMessage("Invalid Egyptian phone number format (must be 01XXXXXXXXX)");
+                .WithMessage(localizer["InvalidEgyptianPhoneNumber"]);
         });
 
         // Instapay validation
@@ -333,9 +334,9 @@ public class AddPaymentMethodCommandValidator : AbstractValidator<AddPaymentMeth
         {
             RuleFor(x => x.InstapayId)
                 .NotEmpty()
-                .WithMessage("Instapay ID is required")
+                .WithMessage(localizer["InstapayIdRequired"])
                 .MaximumLength(100)
-                .WithMessage("Instapay ID must not exceed 100 characters");
+                .WithMessage(localizer["InstapayIdMaxLength"]);
         });
 
         // Fawry validation
@@ -343,9 +344,9 @@ public class AddPaymentMethodCommandValidator : AbstractValidator<AddPaymentMeth
         {
             RuleFor(x => x.ReferenceNumber)
                 .NotEmpty()
-                .WithMessage("Fawry reference number is required")
+                .WithMessage(localizer["FawryReferenceNumberRequired"])
                 .MaximumLength(50)
-                .WithMessage("Reference number must not exceed 50 characters");
+                .WithMessage(localizer["ReferenceNumberMaxLength"]);
         });
 
         // Bank Account validation
@@ -353,25 +354,25 @@ public class AddPaymentMethodCommandValidator : AbstractValidator<AddPaymentMeth
         {
             RuleFor(x => x.AccountHolderName)
                 .NotEmpty()
-                .WithMessage("Account holder name is required")
+                .WithMessage(localizer["AccountHolderNameRequired"])
                 .MaximumLength(100)
-                .WithMessage("Account holder name must not exceed 100 characters");
+                .WithMessage(localizer["AccountHolderNameMaxLength"]);
 
             RuleFor(x => x.BankName)
                 .NotEmpty()
-                .WithMessage("Bank name is required")
+                .WithMessage(localizer["BankNameRequired"])
                 .MaximumLength(100)
-                .WithMessage("Bank name must not exceed 100 characters");
+                .WithMessage(localizer["BankNameMaxLength"]);
 
             RuleFor(x => x.AccountNumber)
                 .NotEmpty()
-                .WithMessage("Account number is required")
+                .WithMessage(localizer["AccountNumberRequired"])
                 .MaximumLength(50)
-                .WithMessage("Account number must not exceed 50 characters");
+                .WithMessage(localizer["AccountNumberMaxLength"]);
 
             RuleFor(x => x.IBAN)
                 .MaximumLength(34)
-                .WithMessage("IBAN must not exceed 34 characters")
+                .WithMessage(localizer["IbanMaxLength"])
                 .When(x => !string.IsNullOrWhiteSpace(x.IBAN));
         });
     }

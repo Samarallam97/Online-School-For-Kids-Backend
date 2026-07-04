@@ -1,9 +1,10 @@
 ﻿using Application.DTOs;
 using Domain.Interfaces.Repositories.Users;
-using Domain.Interfaces.Services;
 using Domain.Interfaces.Services.Shared;
+using Localization;
 using MediatR;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
 
 namespace Application.Commands.Auth;
 
@@ -16,15 +17,17 @@ public class ResendVerificationEmailCommandHandler : IRequestHandler<ResendVerif
     private readonly IUserRepository _userRepository;
     private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public ResendVerificationEmailCommandHandler(
         IUserRepository userRepository,
-        IEmailService emailService, IConfiguration configuration)
+        IEmailService emailService, IConfiguration configuration
+        , IStringLocalizer<SharedResource> localizer)
     {
         _userRepository = userRepository;
         _emailService = emailService;
         _configuration = configuration;
-
+        _localizer = localizer;
     }
 
     public async Task<Result<string>> Handle(ResendVerificationEmailCommand request, CancellationToken cancellationToken)
@@ -33,12 +36,12 @@ public class ResendVerificationEmailCommandHandler : IRequestHandler<ResendVerif
 
         if (user == null)
         {
-            return Result<string>.Success("If the email exists, a verification link has been sent.");
+            return Result<string>.Success(_localizer["VerificationLinkSentIfEmailExists"]);
         }
 
         if (user.EmailVerified)
         {
-            return Result<string>.Failure("Email is already verified.");
+            return Result<string>.Failure(_localizer["EmailAlreadyVerified"]);
         }
 
         // Generate new token
@@ -62,6 +65,6 @@ public class ResendVerificationEmailCommandHandler : IRequestHandler<ResendVerif
             }
         }, cancellationToken);
 
-        return Result<string>.Success("Verification email sent.");
+        return Result<string>.Success(_localizer["VerificationEmailSent"]);
     }
 }

@@ -1,10 +1,10 @@
 ﻿using Domain.Entities.Users;
 using Domain.Enums.Users;
 using Domain.Interfaces.Repositories.Users;
+using Localization;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.Extensions.Localization;
+
 
 namespace Application.Commands.Profile.Parents;
 
@@ -19,10 +19,12 @@ public class UpdateChildNotificationPreferencesCommandHandler
     : IRequestHandler<UpdateChildNotificationPreferencesCommand, NotificationPreferences>
 {
     private readonly IUserRepository _userRepository;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public UpdateChildNotificationPreferencesCommandHandler(IUserRepository userRepository)
+    public UpdateChildNotificationPreferencesCommandHandler(IUserRepository userRepository, IStringLocalizer<SharedResource> localizer)
     {
         _userRepository = userRepository;
+        _localizer = localizer;
     }
 
     public async Task<NotificationPreferences> Handle(
@@ -32,22 +34,22 @@ public class UpdateChildNotificationPreferencesCommandHandler
         // Verify parent
         var parent = await _userRepository.GetByIdAsync(request.ParentUserId, cancellationToken);
         if (parent == null)
-            throw new KeyNotFoundException("Parent not found");
+            throw new KeyNotFoundException(_localizer["ParentNotFound"]);
 
         if (parent.Role != UserRole.Parent)
-            throw new UnauthorizedAccessException("User is not a parent");
+            throw new UnauthorizedAccessException(_localizer["UserIsNotParent"]);
 
         // Verify child
         var child = await _userRepository.GetByIdAsync(request.ChildId, cancellationToken);
         if (child == null)
-            throw new KeyNotFoundException("Child not found");
+            throw new KeyNotFoundException(_localizer["ChildNotFound"]);
 
         if (child.Role != UserRole.Student)
-            throw new InvalidOperationException("User is not a student");
+            throw new InvalidOperationException(_localizer["UserIsNotStudent"]);
 
         // Verify child is linked to this parent
         if (child.ParentId != request.ParentUserId)
-            throw new UnauthorizedAccessException("This child is not linked to your account");
+            throw new UnauthorizedAccessException(_localizer["ChildNotLinkedToAccount"]);
 
         // Initialize ChildNotificationPreferences dictionary if it doesn't exist
         if (parent.ChildNotificationPreferences == null)

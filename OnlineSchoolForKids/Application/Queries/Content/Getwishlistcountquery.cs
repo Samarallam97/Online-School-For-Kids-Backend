@@ -1,10 +1,5 @@
 ﻿using Domain.Interfaces.Repositories.Content;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Queries.Content;
 
@@ -39,7 +34,7 @@ public class GetWishlistCountQueryHandler
 
         return new GetWishlistCountResponse
         {
-            Count   = (int)count,
+            Count = (int)count,
             Success = true,
         };
     }

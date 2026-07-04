@@ -1,7 +1,9 @@
 ﻿using Application.DTOs;
 using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services.Shared;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
 
 namespace Application.Commands.Auth;
@@ -18,21 +20,23 @@ public class Setup2FACommandHandler : IRequestHandler<Setup2FACommand, Result<Se
 {
     private readonly IUserRepository _userRepository;
     private readonly ITotpService _totpService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public Setup2FACommandHandler(IUserRepository userRepository, ITotpService totpService)
+    public Setup2FACommandHandler(IUserRepository userRepository, ITotpService totpService, IStringLocalizer<SharedResource> localizer)
     {
         _userRepository = userRepository;
         _totpService = totpService;
+        _localizer = localizer;
     }
 
     public async Task<Result<Setup2FAResponse>> Handle(Setup2FACommand request, CancellationToken ct)
     {
         var user = await _userRepository.GetByIdAsync(request.UserId, ct);
         if (user == null)
-            return Result<Setup2FAResponse>.Failure("User not found.");
+            return Result<Setup2FAResponse>.Failure(_localizer["UserNotFound"]);
 
         if (user.TwoFactorEnabled == true && user.TwoFactorSecret != null)
-            return Result<Setup2FAResponse>.Failure("2FA is already configured.");
+            return Result<Setup2FAResponse>.Failure(_localizer["TwoFactorAlreadyConfigured"]);
 
         var secret = _totpService.GenerateSecret();
         var qrUri = _totpService.GetQrCodeUri(user.Email, secret);

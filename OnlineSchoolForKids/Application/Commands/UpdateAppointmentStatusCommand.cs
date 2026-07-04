@@ -2,7 +2,9 @@
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services.Shared;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
 namespace Application.Commands;
 public record UpdateAppointmentStatusCommand(
@@ -18,30 +20,33 @@ public class UpdateAppointmentStatusCommandHandler : IRequestHandler<UpdateAppoi
     private readonly IUserRepository _userRepo;
     private readonly IPaymentProcessorFactory _paymentFactory;
     private readonly IEmailService _email;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public UpdateAppointmentStatusCommandHandler(
         IAppointmentRepository appointmentRepo,
         IUserRepository userRepo,
         IPaymentProcessorFactory paymentFactory,
-        IEmailService email)
+        IEmailService email,
+        IStringLocalizer<SharedResource> localizer)
     {
         _appointmentRepo = appointmentRepo;
         _userRepo = userRepo;
         _paymentFactory = paymentFactory;
         _email = email;
+        _localizer = localizer;
     }
 
     public async Task Handle(
         UpdateAppointmentStatusCommand request, CancellationToken cancellationToken)
     {
         var appt = await _appointmentRepo.GetByIdAsync(request.AppointmentId, cancellationToken)
-            ?? throw new KeyNotFoundException("Appointment not found.");
+            ?? throw new KeyNotFoundException(_localizer["AppointmentNotFound"]);
 
         var isSpecialist = appt.SpecialistId == request.RequesterId;
         var isStudent = appt.StudentId == request.RequesterId;
 
         if (!isSpecialist && !isStudent)
-            throw new UnauthorizedAccessException("You don't have access to this appointment.");
+            throw new UnauthorizedAccessException(_localizer["AppointmentAccessDenied"]);
 
         switch (request.NewStatus)
         {
@@ -50,7 +55,7 @@ public class UpdateAppointmentStatusCommandHandler : IRequestHandler<UpdateAppoi
             // This path is kept for specialist-side manual confirmation if needed.
             case AppointmentStatus.Confirmed:
                 if (!isSpecialist)
-                    throw new UnauthorizedAccessException("Only the specialist can confirm appointments.");
+                    throw new UnauthorizedAccessException(_localizer["OnlySpecialistCanConfirmAppointments"]);
                 appt.Status = AppointmentStatus.Confirmed;
                 appt.ConfirmedAtUtc = DateTime.UtcNow;
                 break;
@@ -59,7 +64,7 @@ public class UpdateAppointmentStatusCommandHandler : IRequestHandler<UpdateAppoi
             case AppointmentStatus.Cancelled:
                 if (!appt.CanCancel())
                     throw new InvalidOperationException(
-                        "Cancellations must be made at least 30 minutes before the session.");
+                        _localizer["CancellationDeadlineExceeded"]);
 
                 appt.Status = AppointmentStatus.Cancelled;
                 appt.CancellationReason = request.CancellationReason;

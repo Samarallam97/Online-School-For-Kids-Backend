@@ -1,12 +1,11 @@
 ﻿using Domain.Entities.Users;
 using Domain.Interfaces.Repositories.Users;
-using Domain.Interfaces.Services;
 using Domain.Interfaces.Services.Shared;
+using Localization;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.Extensions.Localization;
+
 
 namespace Application.Commands.Profile.Users;
 
@@ -30,20 +29,22 @@ public class AddCertificationCommandHandler : IRequestHandler<AddCertificationCo
 {
     private readonly IUserRepository _userRepository;
     private readonly IFileStorageService _fileStorageService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public AddCertificationCommandHandler(IUserRepository userRepository, IFileStorageService fileStorageService)
+    public AddCertificationCommandHandler(IUserRepository userRepository, IFileStorageService fileStorageService, IStringLocalizer<SharedResource> localizer)
     {
         _userRepository = userRepository;
         _fileStorageService = fileStorageService;
+        _localizer = localizer;
     }
 
     public async Task<CertificationDto> Handle(AddCertificationCommand request, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken)
-            ?? throw new KeyNotFoundException("User not found.");
+            ?? throw new KeyNotFoundException(_localizer["UserNotFound"]);
 
         if (!int.TryParse(request.Year, out var year))
-            throw new ArgumentException("Invalid year format.");
+            throw new ArgumentException(_localizer["InvalidYearFormat"]);
 
         string? fileUrl = null;
         string? fileName = null;

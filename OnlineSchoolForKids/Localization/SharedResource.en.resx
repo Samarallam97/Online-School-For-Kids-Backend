@@ -180,9 +180,6 @@
   <data name="TokenRevokeFailed" xml:space="preserve">
     <value>Failed to revoke token</value>
   </data>
-  <data name="LogoutSuccessful" xml:space="preserve">
-    <value>Logout successful</value>
-  </data>
   <data name="LogoutFailed" xml:space="preserve">
     <value>Logout failed</value>
   </data>
@@ -590,5 +587,383 @@
   </data>
   <data name="InvalidReason" xml:space="preserve">
     <value>Invalid reason. must be spam,Harassment, InappropriateContent, Copyright, Misinformation, or Other</value>
+  </data>
+  <data name="OrderNotFound" xml:space="preserve">
+    <value>Order not found</value>
+  </data>
+  <data name="Unauthorized" xml:space="preserve">
+    <value>Unauthorized</value>
+  </data>
+  <data name="OrderCancelledSuccessfully" xml:space="preserve">
+    <value>Order cancelled successfully</value>
+  </data>
+  <data name="CannotCancelOrder" xml:space="preserve">
+    <value>Cannot cancel this order</value>
+  </data>
+  <data name="PaymentMethodNotFound" xml:space="preserve">
+    <value>Payment method not found</value>
+  </data>
+  <data name="CartIsEmpty" xml:space="preserve">
+    <value>Cart is empty</value>
+  </data>
+  <data name="NoValidItems" xml:space="preserve">
+    <value>No valid items. You may already be enrolled in all courses</value>
+  </data>
+  <data name="InvalidOrExpiredCoupon" xml:space="preserve">
+    <value>Invalid or expired coupon</value>
+  </data>
+  <data name="OrderPlacedSuccessfully" xml:space="preserve">
+    <value>Order placed successfully</value>
+  </data>
+  <data name="PaymentFailed" xml:space="preserve">
+    <value>Payment failed. Please try again</value>
+  </data>
+  <data name="NotificationNotFound" xml:space="preserve">
+    <value>Notification not found</value>
+  </data>
+  <data name="AccessDenied" xml:space="preserve">
+    <value>Access denied</value>
+  </data>
+  <data name="NotificationMarkedAsRead" xml:space="preserve">
+    <value>Notification marked as read</value>
+  </data>
+  <data name="AllNotificationsMarkedAsRead" xml:space="preserve">
+    <value>All notifications marked as read</value>
+  </data>
+  <data name="LessonNotFound" xml:space="preserve">
+    <value>Lesson not found</value>
+  </data>
+  <data name="OnlyInstructorCanScheduleLiveSession" xml:space="preserve">
+    <value>Access denied. Only the course instructor can schedule a live session</value>
+  </data>
+  <data name="LessonAlreadyHasActiveOrScheduledSession" xml:space="preserve">
+    <value>This lesson already has an active or scheduled live session</value>
+  </data>
+  <data name="SessionNotFound" xml:space="preserve">
+    <value>Session not found</value>
+  </data>
+  <data name="SessionAlreadyLive" xml:space="preserve">
+    <value>Session is already live</value>
+  </data>
+  <data name="SessionAlreadyEnded" xml:space="preserve">
+    <value>Session has already ended</value>
+  </data>
+  <data name="CourseSessionGoingLive" xml:space="preserve">
+    <value>Your course session is going live now , click to join</value>
+  </data>
+  <data name="SectionNotFound" xml:space="preserve">
+    <value>Section is not found</value>
+  </data>
+  <data name="JobNotFound" xml:space="preserve">
+    <value>Job not found</value>
+  </data>
+  <data name="ChunkNotFound" xml:space="preserve">
+    <value>Chunk not found</value>
+  </data>
+  <data name="LessonCreatedFromChunk" xml:space="preserve">
+    <value>Lesson created from chunk successfully</value>
+  </data>
+  <data name="InvalidOrExpiredSession" xml:space="preserve">
+    <value>Invalid or expired session. Please try signing in again</value>
+  </data>
+  <data name="ExpertiseIsRequired" xml:space="preserve">
+    <value>Area of expertise is required</value>
+  </data>
+  <data name="CvLinkIsRequired" xml:space="preserve">
+    <value>CV link is required</value>
+  </data>
+  <data name="AccountPendingApproval" xml:space="preserve">
+    <value>Your account is pending admin approval. You will be notified by email</value>
+  </data>
+  <data name="AccountDeactivatedOrNotApproved" xml:space="preserve">
+    <value>Account is deactivated or not approved. Please contact support</value>
+  </data>
+  <data name="InvalidVerificationCode" xml:space="preserve">
+    <value>Invalid code. Please try again</value>
+  </data>
+  <data name="TwoFactorEnabledSuccessfully" xml:space="preserve">
+    <value>2FA has been enabled successfully</value>
+  </data>
+  <data name="InvalidCodeCannotDisableTwoFactor" xml:space="preserve">
+    <value>Invalid code. Cannot disable 2FA</value>
+  </data>
+  <data name="TwoFactorDisabledSuccessfully" xml:space="preserve">
+    <value>2FA has been disabled successfully</value>
+  </data>
+  <data name="TwoFactorAlreadyConfigured" xml:space="preserve">
+    <value>2FA is already configured</value>
+  </data>
+  <data name="InvalidOrExpiredResetToken" xml:space="preserve">
+    <value>Invalid or expired reset token</value>
+  </data>
+  <data name="VerificationEmailSent" xml:space="preserve">
+    <value>Verification email sent</value>
+  </data>
+  <data name="VerificationLinkSentIfEmailExists" xml:space="preserve">
+    <value>If the email exists, a verification link has been sent</value>
+  </data>
+  <data name="DOBIsRequired" xml:space="preserve">
+    <value>Date of birth is required</value>
+  </data>
+  <data name="PortfolioUrlMustBeValid" xml:space="preserve">
+    <value>Portfolio URL must be a valid URL</value>
+  </data>
+  <data name="CvLinkMustBeValidUrl" xml:space="preserve">
+    <value>CV link must be a valid URL</value>
+  </data>
+  <data name="CvLinkRequiredForCreatorsAndSpecialists" xml:space="preserve">
+    <value>CV link is required for content creators and specialists</value>
+  </data>
+  <data name="ExpertiseRequiredForCreatorsAndSpecialists" xml:space="preserve">
+    <value>Area of expertise is required for content creators and specialists</value>
+  </data>
+  <data name="ExpertiseMinLength" xml:space="preserve">
+    <value>Expertise must be at least 2 characters</value>
+  </data>
+  <data name="ExpertiseMaxLength" xml:space="preserve">
+    <value>Expertise must not exceed 200 characters</value>
+  </data>
+  <data name="LoggedOutSuccessfully" xml:space="preserve">
+    <value>Logged out successfully</value>
+  </data>
+  <data name="InvalidEmailOrPassword" xml:space="preserve">
+    <value>Invalid email or password</value>
+  </data>
+  <data name="VerifyEmailFirst" xml:space="preserve">
+    <value>Please verify your email first</value>
+  </data>
+  <data name="ResetLinkSentIfEmailExists" xml:space="preserve">
+    <value>If the email exists, a reset link has been sent</value>
+  </data>
+  <data name="CurrentPasswordIncorrect" xml:space="preserve">
+    <value>Current password is incorrect</value>
+  </data>
+  <data name="OnlySuperAdminsCanCreateAdminAccounts" xml:space="preserve">
+    <value>Only Super Admins can create admin accounts</value>
+  </data>
+  <data name="ValueIsRequired" xml:space="preserve">
+    <value>Value is required</value>
+  </data>
+  <data name="NoSocialLinksFound" xml:space="preserve">
+    <value>No social links found</value>
+  </data>
+  <data name="WorkExperienceNotFound" xml:space="preserve">
+    <value>Work experience not found</value>
+  </data>
+  <data name="CourseOwnershipRequired" xml:space="preserve">
+    <value>You do not own this course</value>
+  </data>
+  <data name="ParentNotFound" xml:space="preserve">
+    <value>Parent not found</value>
+  </data>
+  <data name="UserIsNotParent" xml:space="preserve">
+    <value>User is not a parent</value>
+  </data>
+  <data name="ChildNameIsRequired" xml:space="preserve">
+    <value>Child name is required</value>
+  </data>
+  <data name="ChildAgeRange" xml:space="preserve">
+    <value>Age must be between 1 and 18</value>
+  </data>
+  <data name="ChildAlreadyLinkedToAnotherParent" xml:space="preserve">
+    <value>This child is already linked to another parent</value>
+  </data>
+  <data name="InvalidEmailAddress" xml:space="preserve">
+    <value>Invalid email address</value>
+  </data>
+  <data name="ChildNameMaxLength" xml:space="preserve">
+    <value>Child name must not exceed 100 characters</value>
+  </data>
+  <data name="PasswordMin" xml:space="preserve">
+    <value>Password must be at least 6 characters</value>
+  </data>
+  <data name="ChildNotFound" xml:space="preserve">
+    <value>Child not found</value>
+  </data>
+  <data name="ChildDoesNotBelongToParent" xml:space="preserve">
+    <value>This child does not belong to this parent</value>
+  </data>
+  <data name="UserIsNotStudent" xml:space="preserve">
+    <value>User is not a student</value>
+  </data>
+  <data name="ChildNotLinkedToAccount" xml:space="preserve">
+    <value>This child is not linked to your account</value>
+  </data>
+  <data name="AvailabilitySlotNotFound" xml:space="preserve">
+    <value>Availability slot not found</value>
+  </data>
+  <data name="InvalidOrExpiredInvitationToken" xml:space="preserve">
+    <value>Invalid or expired invitation token</value>
+  </data>
+  <data name="AccountLinkedToParentSuccessfully" xml:space="preserve">
+    <value>Account successfully linked to parent</value>
+  </data>
+  <data name="StudentNotFound" xml:space="preserve">
+    <value>Student not found</value>
+  </data>
+  <data name="NoParentLinkedToAccount" xml:space="preserve">
+    <value>No parent is currently linked to this account</value>
+  </data>
+  <data name="InvalidYearFormat" xml:space="preserve">
+    <value>Invalid year format</value>
+  </data>
+  <data name="SpecialistNotFound" xml:space="preserve">
+    <value>Specialist not found</value>
+  </data>
+  <data name="TimeSlotAlreadyBooked" xml:space="preserve">
+    <value>This time slot is already booked</value>
+  </data>
+  <data name="TimeOutsideAvailability" xml:space="preserve">
+    <value>The requested time is outside the specialist's available hours</value>
+  </data>
+  <data name="AppointmentNotFound" xml:space="preserve">
+    <value>Appointment not found</value>
+  </data>
+  <data name="OnlyOwnAppointmentsCanBeConfirmed" xml:space="preserve">
+    <value>You can only confirm your own appointments</value>
+  </data>
+  <data name="AppointmentHoldExpired" xml:space="preserve">
+    <value>Your 30-minute hold has expired,Please book a new slot</value>
+  </data>
+  <data name="AppointmentHoldExpiredReason" xml:space="preserve">
+    <value>Hold expired — not confirmed within 30 minutes</value>
+  </data>
+  <data name="ProcessingCompleted" xml:space="preserve">
+    <value>Processing completed</value>
+  </data>
+  <data name="ProcessingError" xml:space="preserve">
+    <value>An error occurred during processing</value>
+  </data>
+  <data name="AppointmentAccessDenied" xml:space="preserve">
+    <value>You don't have access to this appointment</value>
+  </data>
+  <data name="OnlySpecialistCanConfirmAppointments" xml:space="preserve">
+    <value>Only the specialist can confirm appointments</value>
+  </data>
+  <data name="CancellationDeadlineExceeded" xml:space="preserve">
+    <value>Cancellations must be made at least 30 minutes before the session</value>
+  </data>
+  <data name="NoFileProvided" xml:space="preserve">
+    <value>No file provided</value>
+  </data>
+  <data name="FileSizeExceeded" xml:space="preserve">
+    <value>File size exceeds the maximum allowed size of 5 MB</value>
+  </data>
+  <data name="OnlyImageFilesAllowed" xml:space="preserve">
+    <value>Only image files are allowed (JPG,JPEG, PNG, GIF, WEBP)</value>
+  </data>
+  <data name="CertificationNotFound" xml:space="preserve">
+    <value>Certification not found</value>
+  </data>
+  <data name="CardNumberRequired" xml:space="preserve">
+    <value>Card number is required for card payment type</value>
+  </data>
+  <data name="CardExpiryDateRequired" xml:space="preserve">
+    <value>Expiry date is required for card payment type</value>
+  </data>
+  <data name="InvalidExpiryMonth" xml:space="preserve">
+    <value>Invalid expiry month</value>
+  </data>
+  <data name="CardExpired" xml:space="preserve">
+    <value>Card has expired</value>
+  </data>
+  <data name="VodafoneCashPhoneRequired" xml:space="preserve">
+    <value>Phone number is required for vodafone cash</value>
+  </data>
+  <data name="InvalidEgyptianPhoneNumber" xml:space="preserve">
+    <value>Invalid Egyptian phone number format</value>
+  </data>
+  <data name="InstapayIdRequired" xml:space="preserve">
+    <value>Instapay ID is required</value>
+  </data>
+  <data name="FawryReferenceNumberRequired" xml:space="preserve">
+    <value>Fawry reference number is required</value>
+  </data>
+  <data name="AccountHolderNameRequired" xml:space="preserve">
+    <value>Account holder name is required for bank account</value>
+  </data>
+  <data name="BankNameRequired" xml:space="preserve">
+    <value>Bank name is required for bank account</value>
+  </data>
+  <data name="AccountNumberRequired" xml:space="preserve">
+    <value>Account number is required for bank account</value>
+  </data>
+  <data name="PaymentTypeRequired" xml:space="preserve">
+    <value>Payment type is required</value>
+  </data>
+  <data name="InvalidPaymentType" xml:space="preserve">
+    <value>Invalid payment type</value>
+  </data>
+  <data name="CardNumberDigitsOnly" xml:space="preserve">
+    <value>Card number must contain only digits</value>
+  </data>
+  <data name="CardNumberLength" xml:space="preserve">
+    <value>Card number must be between 13 and 19 digits</value>
+  </data>
+  <data name="ExpiryMonthRequired" xml:space="preserve">
+    <value>Expiry month is required</value>
+  </data>
+  <data name="ExpiryMonthRange" xml:space="preserve">
+    <value>Expiry month must be between 1 and 12</value>
+  </data>
+  <data name="ExpiryYearRequired" xml:space="preserve">
+    <value>Expiry year is required</value>
+  </data>
+  <data name="CvcRequired" xml:space="preserve">
+    <value>CVC is required</value>
+  </data>
+  <data name="CvcLength" xml:space="preserve">
+    <value>CVC must be 3 or 4 digits</value>
+  </data>
+  <data name="CardholderNameRequired" xml:space="preserve">
+    <value>Cardholder name is required</value>
+  </data>
+  <data name="CardholderNameMaxLength" xml:space="preserve">
+    <value>Cardholder name must not exceed 100 characters</value>
+  </data>
+  <data name="PhoneNumberRequired" xml:space="preserve">
+    <value>Phone number is required</value>
+  </data>
+  <data name="InstapayIdMaxLength" xml:space="preserve">
+    <value>Instapay ID must not exceed 100 characters</value>
+  </data>
+  <data name="ReferenceNumberMaxLength" xml:space="preserve">
+    <value>Reference number must not exceed 50 characters</value>
+  </data>
+  <data name="AccountHolderNameMaxLength" xml:space="preserve">
+    <value>Account holder name must not exceed 100 characters</value>
+  </data>
+  <data name="BankNameMaxLength" xml:space="preserve">
+    <value>Bank name must not exceed 100 characters</value>
+  </data>
+  <data name="AccountNumberMaxLength" xml:space="preserve">
+    <value>Account number must not exceed 50 characters</value>
+  </data>
+  <data name="IbanMaxLength" xml:space="preserve">
+    <value>IBAN must not exceed 34 characters</value>
+  </data>
+  <data name="FullNameMinLength" xml:space="preserve">
+    <value>Full name must be at least 2 characters</value>
+  </data>
+  <data name="FullNameMaxLength" xml:space="preserve">
+    <value>Full name cannot exceed 100 characters</value>
+  </data>
+  <data name="CountryMinLength" xml:space="preserve">
+    <value>Country must be at least 2 characters</value>
+  </data>
+  <data name="CountryMaxLength" xml:space="preserve">
+    <value>Country cannot exceed 100 characters</value>
+  </data>
+  <data name="BioMaxLength" xml:space="preserve">
+    <value>Bio cannot exceed 500 characters</value>
+  </data>
+  <data name="LearningGoalsMaxLength" xml:space="preserve">
+    <value>Learning goals cannot exceed 1000 characters</value>
+  </data>
+  <data name="YearsOfExperienceNonNegative" xml:space="preserve">
+    <value>Years of experience must be non-negative</value>
+  </data>
+  <data name="YearsOfExperienceUnrealistic" xml:space="preserve">
+    <value>Years of experience seems unrealistic</value>
   </data>
 </root>

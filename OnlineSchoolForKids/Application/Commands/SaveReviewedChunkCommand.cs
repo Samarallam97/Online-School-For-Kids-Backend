@@ -1,6 +1,8 @@
 ﻿using Domain.Entities.Content.Progress;
 using Domain.Interfaces.Repositories.Content;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 
@@ -37,15 +39,18 @@ public class SaveReviewedChunkHandler
     private readonly IVideoProcessingJobRepository _jobRepo;
     private readonly ICourseRepository _courseRepo;
     private readonly ILogger<SaveReviewedChunkHandler> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public SaveReviewedChunkHandler(
         IVideoProcessingJobRepository jobRepo,
         ICourseRepository courseRepo,
-        ILogger<SaveReviewedChunkHandler> logger)
+        ILogger<SaveReviewedChunkHandler> logger,
+         IStringLocalizer<SharedResource> localizer)
     {
         _jobRepo = jobRepo;
         _courseRepo = courseRepo;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task<SaveReviewedChunkResponse> Handle(
@@ -56,20 +61,20 @@ public class SaveReviewedChunkHandler
             // 1. Load job and verify ownership
             var job = await _jobRepo.GetByIdAsync(request.JobId, ct);
             if (job == null || job.InstructorId != request.InstructorId)
-                return Fail("Job not found");
+                return Fail(_localizer["JobNotFound"]);
 
             var chunk = job.Chunks.FirstOrDefault(c => c.Id == request.ChunkId);
             if (chunk == null)
-                return Fail("Chunk not found");
+                return Fail(_localizer["ChunkNotFound"]);
 
             // 2. Load course
             var course = await _courseRepo.GetByIdAsync(request.CourseId, ct);
             if (course == null)
-                return Fail("Course not found");
+                return Fail(_localizer["CourseIsNotFound"]);
 
             var section = course.Sections?.FirstOrDefault(s => s.Id == request.SectionId);
             if (section == null)
-                return Fail("Section not found");
+                return Fail(_localizer["SectionNotFound"]);
 
             // 3. Create lesson inside the section
             var lesson = new Lesson
@@ -111,7 +116,7 @@ public class SaveReviewedChunkHandler
             return new SaveReviewedChunkResponse
             {
                 Success = true,
-                Message = "Lesson created from chunk",
+                Message = _localizer["LessonCreatedFromChunk"],
                 LessonId = lesson.Id
             };
         }

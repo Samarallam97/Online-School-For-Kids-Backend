@@ -2,14 +2,16 @@
 using Domain.Interfaces.Repositories.Content;
 using Domain.Interfaces.Repositories.Users;
 using FluentValidation;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
 
 namespace Application.Queries.Content
 {
     public class GetCartQuery : IRequest<CartDto>
     {
-        public string UserId { get; set; }= string.Empty;
+        public string UserId { get; set; } = string.Empty;
     }
     public class GetCartQueryHandler : IRequestHandler<GetCartQuery, CartDto>
     {
@@ -19,7 +21,7 @@ namespace Application.Queries.Content
         private readonly ICourseRepository _courseRepo;
         private readonly IUserRepository _userRepo;
 
-        public GetCartQueryHandler(ICartItemRepository cartItemRepo, ICourseRepository courseRepo,IUserRepository userRepo)
+        public GetCartQueryHandler(ICartItemRepository cartItemRepo, ICourseRepository courseRepo, IUserRepository userRepo)
         {
             _cartItemRepo = cartItemRepo;
             _courseRepo = courseRepo;
@@ -29,7 +31,7 @@ namespace Application.Queries.Content
         public async Task<CartDto> Handle(GetCartQuery request, CancellationToken cancellationToken)
         {
             // Get all cart items for user
-            var cartItems = await _cartItemRepo.GetUserCartItemsAsync(request.UserId );
+            var cartItems = await _cartItemRepo.GetUserCartItemsAsync(request.UserId);
 
             if (!cartItems.Any())
             {
@@ -107,11 +109,11 @@ namespace Application.Queries.Content
 
     public class GetCartQueryValidator : AbstractValidator<GetCartQuery>
     {
-        public GetCartQueryValidator()
+        public GetCartQueryValidator(IStringLocalizer<SharedResource> localizer)
         {
             RuleFor(x => x.UserId)
                 .NotEmpty()
-                .WithMessage("User ID is required");
+                .WithMessage(localizer["UserIdIsRequired"]);
         }
     }
     public class CartDto

@@ -1,12 +1,7 @@
 ﻿using Domain.Interfaces.Repositories.Users;
-using Domain.Interfaces.Services;
 using Domain.Interfaces.Services.Shared;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Application.Commands.Admin;
 
@@ -27,7 +22,7 @@ public class ChangeUserPasswordCommandHandler : IRequestHandler<ChangeUserPasswo
         IPasswordHasher hasher)
     {
         _userRepo = userRepo;
-        _hasher   = hasher;
+        _hasher = hasher;
     }
 
     public async Task Handle(ChangeUserPasswordCommand request, CancellationToken ct)

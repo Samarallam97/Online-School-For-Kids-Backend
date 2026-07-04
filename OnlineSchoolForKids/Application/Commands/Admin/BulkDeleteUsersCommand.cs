@@ -1,10 +1,5 @@
 ﻿using Domain.Interfaces.Repositories.Users;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Commands.Admin;
 
@@ -25,7 +20,7 @@ public class BulkDeleteUsersCommandHandler : IRequestHandler<BulkDeleteUsersComm
         return new BulkActionResponse
         {
             Affected = users.Count,
-            Message  = $"{users.Count} user(s) permanently deleted.",
+            Message = $"{users.Count} user(s) permanently deleted.",
         };
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Application.Commands.Course;
 using Application.Queries.Content;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -127,7 +126,7 @@ namespace API.Controllers
                 var command = new ClearCartCommand { UserId = userId };
                 var result = await _mediator.Send(command);
                 return Ok(result);
-                
+
             }
             catch (Exception ex)
             {
@@ -208,7 +207,7 @@ namespace API.Controllers
         }
         public class AddToCartDto
         {
-            public string CourseId { get; set; }= string.Empty;
+            public string CourseId { get; set; } = string.Empty;
         }
     }
 

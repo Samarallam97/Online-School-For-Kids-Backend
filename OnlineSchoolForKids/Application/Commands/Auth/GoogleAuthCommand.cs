@@ -3,7 +3,9 @@ using Domain.Entities.Users;
 using Domain.Enums.Users;
 using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services.Shared;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
 
 namespace Application.Commands.Auth;
@@ -36,15 +38,17 @@ public class GoogleAuthCommandHandler : IRequestHandler<GoogleAuthCommand, Resul
     private readonly IUserRepository _userRepository;
     private readonly IJwtTokenService _jwtTokenService;
     private readonly ITempTokenService _tempTokenService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public GoogleAuthCommandHandler(
         IUserRepository userRepository,
         IJwtTokenService jwtTokenService,
-        ITempTokenService tempTokenService)
+        ITempTokenService tempTokenService, IStringLocalizer<SharedResource> localizer)
     {
         _userRepository = userRepository;
         _jwtTokenService = jwtTokenService;
         _tempTokenService = tempTokenService;
+        _localizer = localizer;
     }
 
     public async Task<Result<GoogleAuthResponse>> Handle(
@@ -117,7 +121,7 @@ public class GoogleAuthCommandHandler : IRequestHandler<GoogleAuthCommand, Resul
         if (user!.Status != UserStatus.Active)
         {
             return Result<GoogleAuthResponse>.Failure(
-                "Account is deactivated or not approved. Please contact support.");
+                _localizer["AccountDeactivatedOrNotApproved"]);
         }
 
         // Uses the shared Helper.MapToUserDto — same as RegisterCommandHandler
