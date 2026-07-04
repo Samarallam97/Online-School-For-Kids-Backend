@@ -1,6 +1,8 @@
 ﻿using Domain.Entities.Content.Progress;
 using Domain.Interfaces.Repositories.Content;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using static MarkLessonCompleteHandler;
 
@@ -17,17 +19,20 @@ public class MarkLessonCompleteHandler : IRequestHandler<MarkLessonCompleteComma
     private readonly IEnrollmentRepository _enrollmentRepo;
     private readonly ICourseRepository _courseRepo;
     private readonly ILogger<MarkLessonCompleteHandler> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public MarkLessonCompleteHandler(
         ILessonProgressRepository lessonProgressRepo,
         IEnrollmentRepository enrollmentRepo,
         ICourseRepository courseRepo,
-        ILogger<MarkLessonCompleteHandler> logger)
+        ILogger<MarkLessonCompleteHandler> logger,
+        IStringLocalizer<SharedResource> localizer)
     {
         _lessonProgressRepo = lessonProgressRepo;
         _enrollmentRepo = enrollmentRepo;
         _courseRepo = courseRepo;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task<MarkLessonCompleteResponse> Handle(
@@ -73,7 +78,7 @@ public class MarkLessonCompleteHandler : IRequestHandler<MarkLessonCompleteComma
                 return new MarkLessonCompleteResponse
                 {
                     Success = false,
-                    Message = "Course not found"
+                    Message = _localizer["CourseIsNotFound"]
                 };
             }
 
@@ -109,7 +114,7 @@ public class MarkLessonCompleteHandler : IRequestHandler<MarkLessonCompleteComma
             return new MarkLessonCompleteResponse
             {
                 Success = true,
-                Message = courseCompleted ? "Course completed! 🎉" : "Lesson completed!",
+                Message = courseCompleted ? _localizer["CourseCompleted"] : _localizer["LessonCompleted"],
                 CourseCompleted = courseCompleted,
                 CourseProgress = courseProgress
             };
@@ -120,7 +125,7 @@ public class MarkLessonCompleteHandler : IRequestHandler<MarkLessonCompleteComma
             return new MarkLessonCompleteResponse
             {
                 Success = false,
-                Message = "Failed to mark lesson complete"
+                Message = _localizer["FailedToMarkLessonComplete"]
             };
         }
     }

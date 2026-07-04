@@ -3,12 +3,8 @@ using Domain.Interfaces.Repositories.Content;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Application.Commands;
 public class StartVideoProcessingCommand : IRequest<StartVideoProcessingResponse>

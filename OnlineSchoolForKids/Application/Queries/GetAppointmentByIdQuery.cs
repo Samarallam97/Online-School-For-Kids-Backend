@@ -1,18 +1,13 @@
-﻿using Domain.Entities;
-using Domain.Interfaces.Repositories;
+﻿using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Repositories.Users;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Application.Queries;
 
-public record GetAppointmentByIdQuery(string id , string UserId) : IRequest<AppointmentDto>;
+public record GetAppointmentByIdQuery(string id, string UserId) : IRequest<AppointmentDto>;
 
-public class GetAppointmentByIdQueryHandler : IRequestHandler<GetAppointmentByIdQuery,AppointmentDto>
+public class GetAppointmentByIdQueryHandler : IRequestHandler<GetAppointmentByIdQuery, AppointmentDto>
 {
     private readonly IAppointmentRepository _appointmentRepo;
     private readonly IUserRepository _userRepo;
@@ -22,7 +17,7 @@ public class GetAppointmentByIdQueryHandler : IRequestHandler<GetAppointmentById
         IUserRepository userRepo)
     {
         _appointmentRepo = appointmentRepo;
-        _userRepo        = userRepo;
+        _userRepo = userRepo;
     }
 
     public async Task<AppointmentDto> Handle(
@@ -40,24 +35,24 @@ public class GetAppointmentByIdQueryHandler : IRequestHandler<GetAppointmentById
 
         return new AppointmentDto
         {
-            Id                          = appointment.Id,
-            SpecialistId                = appointment.SpecialistId,
-            SpecialistName              = specialist.FullName,
+            Id = appointment.Id,
+            SpecialistId = appointment.SpecialistId,
+            SpecialistName = specialist.FullName,
             SpecialistProfilePictureUrl = specialist.ProfilePictureUrl,
-            StudentId                   = appointment.StudentId,
-            StudentName                 = student.FullName,
-            Title                       = appointment.Title,
-            Description                 = appointment.Description,
-            AppointmentDate             = appointment.AppointmentDate,
-            StartTime                   = appointment.StartTime,
-            EndTime                     = appointment.EndTime,
-            Status                      = appointment.Status.ToString(),
-            GoogleMeetLink              = appointment.GoogleMeetLink,
-            CanCancel                   = appointment.CanCancel(),
-            AmountPaid                  = appointment.AmountPaid,
-            CancellationReason          = appointment.CancellationReason,
+            StudentId = appointment.StudentId,
+            StudentName = student.FullName,
+            Title = appointment.Title,
+            Description = appointment.Description,
+            AppointmentDate = appointment.AppointmentDate,
+            StartTime = appointment.StartTime,
+            EndTime = appointment.EndTime,
+            Status = appointment.Status.ToString(),
+            GoogleMeetLink = appointment.GoogleMeetLink,
+            CanCancel = appointment.CanCancel(),
+            AmountPaid = appointment.AmountPaid,
+            CancellationReason = appointment.CancellationReason,
             HoldExpiresAtUtc = appointment.HoldExpiresAtUtc.ToString("o"),
-            HourlyRate       = specialist.HourlyRate,
+            HourlyRate = specialist.HourlyRate,
         };
     }
 }

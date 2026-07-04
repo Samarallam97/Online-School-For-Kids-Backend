@@ -1,6 +1,8 @@
 ﻿using Domain.Entities.Content.Progress;
 using Domain.Interfaces.Repositories.Content;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using static ToggleBookmarkHandler;
 
@@ -14,13 +16,16 @@ public class ToggleBookmarkHandler : IRequestHandler<ToggleBookmarkCommand, Togg
 {
     private readonly IBookmarkRepository _bookmarkRepo;
     private readonly ILogger<ToggleBookmarkHandler> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public ToggleBookmarkHandler(
         IBookmarkRepository bookmarkRepo,
-        ILogger<ToggleBookmarkHandler> logger)
+        ILogger<ToggleBookmarkHandler> logger,
+        IStringLocalizer<SharedResource> localizer)
     {
         _bookmarkRepo = bookmarkRepo;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task<ToggleBookmarkResponse> Handle(
@@ -43,7 +48,7 @@ public class ToggleBookmarkHandler : IRequestHandler<ToggleBookmarkCommand, Togg
                 {
                     Success = true,
                     IsBookmarked = false,
-                    Message = "Bookmark removed"
+                    Message = _localizer["BookmarkRemoved"]
                 };
             }
             else
@@ -60,7 +65,7 @@ public class ToggleBookmarkHandler : IRequestHandler<ToggleBookmarkCommand, Togg
                 {
                     Success = true,
                     IsBookmarked = true,
-                    Message = "Bookmark added"
+                    Message = _localizer["BookmarkAdded"]
                 };
             }
         }
@@ -71,7 +76,7 @@ public class ToggleBookmarkHandler : IRequestHandler<ToggleBookmarkCommand, Togg
             {
                 Success = false,
                 IsBookmarked = false,
-                Message = "Failed to toggle bookmark"
+                Message = _localizer["FailedToToggleBookmark"]
             };
         }
     }

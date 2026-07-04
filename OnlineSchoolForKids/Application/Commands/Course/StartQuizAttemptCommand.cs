@@ -1,7 +1,9 @@
 ﻿using Domain.Entities.Content.Quiz;
 using Domain.Enums.Content;
 using Domain.Interfaces.Repositories.Content;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.Course
@@ -24,15 +26,18 @@ namespace Application.Commands.Course
         private readonly IQuizRepository _quizRepository;
         private readonly IAttemptRepository _attemptRepository;
         private readonly ILogger<StartQuizAttemptHandler> _logger;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
         public StartQuizAttemptHandler(
             IQuizRepository quizRepository,
             IAttemptRepository attemptRepository,
-            ILogger<StartQuizAttemptHandler> logger)
+            ILogger<StartQuizAttemptHandler> logger,
+            IStringLocalizer<SharedResource> localizer)
         {
             _quizRepository = quizRepository;
             _attemptRepository = attemptRepository;
             _logger = logger;
+            _localizer = localizer;
         }
 
         public async Task<StartQuizAttemptResponse> Handle(
@@ -44,10 +49,10 @@ namespace Application.Commands.Course
                 // Get quiz
                 var quiz = await _quizRepository.GetByIdAsync(request.QuizId, cancellationToken);
                 if (quiz == null)
-                    return new StartQuizAttemptResponse { Success = false, Message = "Quiz not found" };
+                    return new StartQuizAttemptResponse { Success = false, Message = _localizer["QuizNotFound"] };
 
                 if (!quiz.IsPublished)
-                    return new StartQuizAttemptResponse { Success = false, Message = "Quiz not published" };
+                    return new StartQuizAttemptResponse { Success = false, Message = _localizer["QuizNotPublished"] };
 
                 // Check previous attempts
                 var previousAttempts = await _attemptRepository.GetAllAsync(
@@ -87,7 +92,7 @@ namespace Application.Commands.Course
                 return new StartQuizAttemptResponse
                 {
                     Success = true,
-                    Message = "Quiz attempt started",
+                    Message = _localizer["QuizAttemptStarted"],
                     AttemptId = attempt.Id
                 };
             }

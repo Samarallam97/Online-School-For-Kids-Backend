@@ -130,11 +130,21 @@ namespace API.Hubs
         /// the same enrolled-only group.</summary>
         public async Task SendStroke(string sessionId, object stroke)
         {
+            var viewers = _sessions.GetValueOrDefault(sessionId);
+            var sender = viewers?.GetValueOrDefault(Context.ConnectionId);
+
+            if (sender is null || !sender.IsHost)
+                return;
             await Clients.OthersInGroup(sessionId).SendAsync("ReceiveStroke", stroke);
         }
 
         public async Task ClearBoard(string sessionId)
         {
+            var viewers = _sessions.GetValueOrDefault(sessionId);
+            var sender = viewers?.GetValueOrDefault(Context.ConnectionId);
+
+            if (sender is null || !sender.IsHost)
+                return;
             await Clients.OthersInGroup(sessionId).SendAsync("BoardCleared");
         }
 

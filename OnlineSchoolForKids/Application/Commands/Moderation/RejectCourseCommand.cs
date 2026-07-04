@@ -3,7 +3,9 @@ using Domain.Entities.Content.Moderation;
 using Domain.Enums.Content;
 using Domain.Interfaces.Repositories.Content;
 using FluentValidation;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.Moderation
@@ -58,13 +60,13 @@ namespace Application.Commands.Moderation
     }
     public class RejectCourseDtoValidator : AbstractValidator<RejectCourseDto>
     {
-        public RejectCourseDtoValidator()
+        public RejectCourseDtoValidator(IStringLocalizer<SharedResource> localizer)
         {
             RuleFor(x => x.CourseId)
-                .NotEmpty().WithMessage("Course ID is required");
+                .NotEmpty().WithMessage(localizer["CourseIDIsRequired"]);
 
             RuleFor(x => x.Reason)
-                .NotEmpty().WithMessage("Rejection reason is required")
+                .NotEmpty().WithMessage(localizer["RejectionReasonIsRequired"])
                 .MinimumLength(10).WithMessage("Reason must be at least 10 characters")
                 .MaximumLength(500).WithMessage("Reason cannot exceed 500 characters");
         }

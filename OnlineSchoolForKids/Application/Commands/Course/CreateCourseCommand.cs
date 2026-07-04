@@ -2,7 +2,9 @@
 using Domain.Entities.Content.Progress;
 using Domain.Enums.Content;
 using Domain.Interfaces.Repositories.Content;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 
@@ -18,13 +20,15 @@ namespace Application.Commands
     {
         private readonly ICourseRepository _courseRepo;
         private readonly ILogger<CreateCourseHandler> _logger;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
         public CreateCourseHandler(
             ICourseRepository courseRepo,
-            ILogger<CreateCourseHandler> logger)
+            ILogger<CreateCourseHandler> logger, IStringLocalizer<SharedResource> localizer)
         {
             _courseRepo = courseRepo;
             _logger = logger;
+            _localizer = localizer;
         }
 
         public async Task<CourseCreatorDto?> Handle(CreateCourseCommand request, CancellationToken ct)
@@ -67,7 +71,7 @@ namespace Application.Commands
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating course");
+                _logger.LogError(ex, _localizer["ErrorCreatingCourse"]);
                 return null;
             }
         }
@@ -215,8 +219,8 @@ namespace Application.Commands
     {
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-       
-        public string CategoryId { get; set; } = string.Empty;   
+
+        public string CategoryId { get; set; } = string.Empty;
         public string AgeGroup { get; set; }
         public decimal Price { get; set; }
         public string? ThumbnailUrl { get; set; }
@@ -246,25 +250,25 @@ public class CourseDto : BaseEntity
 }
 
 public class CourseCreatorDto
-    {
-        public string Id { get; set; } = string.Empty;
-        public string Title { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public string ThumbnailUrl { get; set; } = string.Empty;
-        public decimal Price { get; set; }
-        public bool IsPublished { get; set; }
-        public int TotalSections { get; set; }
-        public int TotalLessons { get; set; }
-        public int TotalStudents { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-    }
+{
+    public string Id { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public string ThumbnailUrl { get; set; } = string.Empty;
+    public decimal Price { get; set; }
+    public bool IsPublished { get; set; }
+    public int TotalSections { get; set; }
+    public int TotalLessons { get; set; }
+    public int TotalStudents { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+}
 public class UpdateCourseDto
 {
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string CategoryId { get; set; } = string.Empty;
-    public AgeGroup AgeGroup { get; set; } 
+    public AgeGroup AgeGroup { get; set; }
     public decimal Price { get; set; }
     public string? ThumbnailUrl { get; set; }
     public string? PreviewVideoUrl { get; set; }

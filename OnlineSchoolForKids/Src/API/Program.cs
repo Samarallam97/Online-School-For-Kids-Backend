@@ -1,3 +1,4 @@
+using API.Extentions;
 using API.Hubs;
 using API.Middleware;
 using Application;
@@ -49,8 +50,8 @@ builder.Services.AddSwaggerGen(c =>
 #endregion
 
 #region Add Application and Infrastructure DI
-builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddApplication();
 #endregion
 
 // ── Chat ──────────────────────────────────────────────────────────────────────
@@ -95,7 +96,7 @@ builder.Services.AddSignalR(options =>
     options.MaximumReceiveMessageSize = 1024 * 1024; // 1 MB
 });
 #endregion
-
+builder.Services.AddLocalizationServices();
 // Health checks
 builder.Services.AddHealthChecks();
 
@@ -129,6 +130,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseLocalizationServices();
 app.MapControllers();
 app.MapHub<NotificationHub>("/hubs/notifications");
 app.MapHub<LiveSessionHub>("/hubs/live");

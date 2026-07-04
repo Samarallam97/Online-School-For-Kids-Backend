@@ -4,8 +4,10 @@ using Domain.Enums.Users;
 using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services.Shared;
 using FluentValidation;
+using Localization;
 using MediatR;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
 
 namespace Application.Commands.Auth;
 
@@ -38,28 +40,30 @@ public record RegisterCommand(
 
 public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 {
-    public RegisterCommandValidator()
+    public RegisterCommandValidator(IStringLocalizer<SharedResource> localizer)
     {
         RuleFor(x => x.FullName)
-            .NotEmpty().WithMessage("Full name is required.")
-            .MinimumLength(2).WithMessage("Full name must be at least 2 characters.")
-            .MaximumLength(100).WithMessage("Full name must not exceed 100 characters.");
+            .NotEmpty().WithMessage(localizer["NameIsRequired"])
+            .MinimumLength(2).WithMessage(localizer["ValidationNameLength"])
+            .MaximumLength(100).WithMessage(localizer["ValidationNameLength"])
+            .Matches(@"^[\p{L}\s]+$").WithMessage(localizer["ValidationNameAllowedCharacters"]);
 
         RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("Email is required.")
-            .EmailAddress().WithMessage("Invalid email format.");
+           .NotEmpty().WithMessage(localizer["EmailIsRequired"])
+           .EmailAddress().WithMessage(localizer["InvalidEmailFormat"])
+           .MaximumLength(255).WithMessage(localizer["validationEmailMaxLength"]);
 
         RuleFor(x => x.Password)
-            .NotEmpty().WithMessage("Password is required.")
-            .MinimumLength(8).WithMessage("Password must be at least 8 characters.")
-            .Matches(@"[A-Z]").WithMessage("Password must contain at least one uppercase letter.")
-            .Matches(@"[a-z]").WithMessage("Password must contain at least one lowercase letter.")
-            .Matches(@"\d").WithMessage("Password must contain at least one number.")
-            .Matches(@"[@$!%*?&#]").WithMessage("Password must contain at least one special character.");
-
+            .NotEmpty().WithMessage(localizer["PasswordIsRequired"])
+            .MinimumLength(8).WithMessage(localizer["PasswordMinLength"])
+            .MaximumLength(100).WithMessage(localizer["PasswordMaxLength"])
+            .Matches(@"[A-Z]").WithMessage(localizer["ValidationPasswordUppercaseRequired"])
+            .Matches(@"[a-z]").WithMessage(localizer["ValidationPasswordLowercaseRequired"])
+            .Matches(@"\d").WithMessage(localizer["ValidationPasswordNumberRequired"])
+            .Matches(@"[@$!%*?&#]").WithMessage(localizer["ValidationPasswordSpecialCharRequired"]);
 
         RuleFor(x => x.Role)
-            .IsInEnum().WithMessage("Invalid role selected.");
+            .IsInEnum().WithMessage(localizer["InvalidRoleSelected"]);
 
         // Required for all users
         RuleFor(x => x.DateOfBirth)
@@ -67,9 +71,9 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
             .Must(BeAtLeast3YearsOld).WithMessage("You must be at least 3 years old to register.");
 
         RuleFor(x => x.Country)
-            .NotEmpty().WithMessage("Country is required.")
-            .MinimumLength(2).WithMessage("Country must be at least 2 characters.")
-            .MaximumLength(100).WithMessage("Country must not exceed 100 characters.");
+            .NotEmpty().WithMessage(localizer["CountryIsRequired"])
+            .MinimumLength(2).WithMessage(localizer["ValidationCountryLength"])
+            .MaximumLength(100).WithMessage(localizer["ValidationCountryLength"]);
 
         // Required fields for Content Creators and Specialists
         When(x => x.Role == UserRole.ContentCreator || x.Role == UserRole.Specialist, () =>
@@ -115,17 +119,20 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
     private readonly IPasswordHasher _passwordHasher;
     private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public RegisterCommandHandler(
         IUserRepository userRepository,
         IPasswordHasher passwordHasher,
         IEmailService emailService,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IStringLocalizer<SharedResource> localizer)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
         _emailService = emailService;
         _configuration = configuration;
+        _localizer = localizer;
     }
 
     public async Task<Result<AuthResponse>> Handle(RegisterCommand request, CancellationToken cancellationToken)
@@ -133,7 +140,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
 
         if (await _userRepository.EmailExistsAsync(request.Email, cancellationToken))
         {
-            return Result<AuthResponse>.Failure("Email is already registered.");
+            return Result<AuthResponse>.Failure(_localizer["EmailAlreadyExists"]);
         }
 
         var verificationToken = Guid.NewGuid().ToString();

@@ -1,7 +1,9 @@
 ﻿using Domain.Enums.Content;
 using Domain.Interfaces.Repositories.Content;
 using FluentValidation;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.Moderation
@@ -63,15 +65,15 @@ namespace Application.Commands.Moderation
     }
     public class ModerationActionDtoValidator : AbstractValidator<ModerationActionDto>
     {
-        public ModerationActionDtoValidator()
+        public ModerationActionDtoValidator(IStringLocalizer<SharedResource> localizer)
         {
             RuleFor(x => x.ReportId)
-                .NotEmpty().WithMessage("Report ID is required");
+                .NotEmpty().WithMessage(localizer["ReportIdIsRequired"]);
 
             RuleFor(x => x.Action)
-                .NotEmpty().WithMessage("Action is required")
+                .NotEmpty().WithMessage(localizer["ActionIsRequired"])
                 .Must(action => new[] { "Dismissed", "Warned", "ContentRemoved", "UserBanned" }.Contains(action))
-                .WithMessage("Invalid action. Must be Dismissed, Warned, ContentRemoved, or UserBanned");
+                .WithMessage(localizer["InvalidAction"]);
         }
     }
     public class ModerationActionDto

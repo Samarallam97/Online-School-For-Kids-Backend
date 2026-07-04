@@ -1,6 +1,8 @@
 ﻿using Domain.Interfaces.Repositories.Content;
 using FluentValidation;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.Moderation
@@ -45,10 +47,10 @@ namespace Application.Commands.Moderation
     }
     public class ApproveCommentDtoValidator : AbstractValidator<ApproveCommentDto>
     {
-        public ApproveCommentDtoValidator()
+        public ApproveCommentDtoValidator(IStringLocalizer<SharedResource> localizer)
         {
             RuleFor(x => x.CommentId)
-                .NotEmpty().WithMessage("Comment ID is required");
+                .NotEmpty().WithMessage(localizer["CommentIdIsRequired"]);
         }
     }
     public class ApproveCommentDto

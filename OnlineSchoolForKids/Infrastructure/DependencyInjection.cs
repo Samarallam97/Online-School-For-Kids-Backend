@@ -3,6 +3,7 @@ using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Repositories.Content;
 using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services.Shared;
+using Infrastructure.Behaviors;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Infrastructure.Repositories.Content;
@@ -10,6 +11,7 @@ using Infrastructure.Repositories.Users;
 using Infrastructure.Services.Shared;
 using Infrastructure.Services.Shared.Payment;
 using Infrastructure.Settings;
+using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -51,7 +53,10 @@ public static class DependencyInjection
         #endregion
 
         services.AddMemoryCache();
+        services.AddHttpContextAccessor();
 
+        services.AddTransient(typeof(IPipelineBehavior<,>),
+            typeof(LocalizationBehavior<,>));
         #region Repositories
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 

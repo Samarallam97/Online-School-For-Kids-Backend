@@ -2,7 +2,9 @@
 using Domain.Entities.Content.Moderation;
 using Domain.Interfaces.Repositories.Content;
 using FluentValidation;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 
@@ -81,18 +83,18 @@ namespace Application.Commands.Moderation
     }
     public class CreateCommentDtoValidator : AbstractValidator<CreateCommentDto>
     {
-        public CreateCommentDtoValidator()
+        public CreateCommentDtoValidator(IStringLocalizer<SharedResource> localizer)
         {
             RuleFor(x => x.CourseId)
-                .NotEmpty().WithMessage("Course ID is required");
+                .NotEmpty().WithMessage(localizer["CourseIDIsRequired"]);
 
             RuleFor(x => x.Content)
-                .NotEmpty().WithMessage("Comment content is required")
-                .MinimumLength(3).WithMessage("Comment must be at least 3 characters")
-                .MaximumLength(2000).WithMessage("Comment cannot exceed 2000 characters");
+                .NotEmpty().WithMessage(localizer["CommentContentIsRequired"])
+                .MinimumLength(3).WithMessage(localizer["CommentMinLength"])
+                .MaximumLength(2000).WithMessage(localizer["CommentMaxLength"]);
 
             RuleFor(x => x.ParentCommentId)
-                .MaximumLength(50).WithMessage("Parent comment ID cannot exceed 50 characters")
+                .MaximumLength(50).WithMessage(localizer["ParentCommentIdMaxLength"])
                 .When(x => !string.IsNullOrEmpty(x.ParentCommentId));
         }
     }

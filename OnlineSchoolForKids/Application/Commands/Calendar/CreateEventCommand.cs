@@ -2,7 +2,9 @@
 using Domain.Enums.Content;
 using Domain.Interfaces.Repositories.Content;
 using FluentValidation;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using static Application.Commands.Calendar.CreateEventHandler;
@@ -184,13 +186,16 @@ namespace Application.Commands.Calendar
         {
             private readonly IEventRepository _eventRepo;
             private readonly ILogger<JoinEventHandler> _logger;
+            private readonly IStringLocalizer<SharedResource> _localizer;
 
             public JoinEventHandler(
                 IEventRepository eventRepo,
-                ILogger<JoinEventHandler> logger)
+                ILogger<JoinEventHandler> logger,
+                IStringLocalizer<SharedResource> localizer)
             {
                 _eventRepo = eventRepo;
                 _logger = logger;
+                _localizer = localizer;
             }
 
             public async Task<JoinEventResponse> Handle(JoinEventCommand request, CancellationToken ct)
@@ -203,7 +208,7 @@ namespace Application.Commands.Calendar
                         return new JoinEventResponse
                         {
                             Success = false,
-                            Message = "Event not found"
+                            Message = _localizer["EventNotFound"]
                         };
                     }
 
@@ -214,7 +219,7 @@ namespace Application.Commands.Calendar
                         return new JoinEventResponse
                         {
                             Success = true,
-                            Message = "Already registered",
+                            Message = _localizer["AlreadyRegisteredForEvent"],
                             MeetingUrl = eventEntity.MeetingUrl
                         };
                     }
@@ -226,7 +231,7 @@ namespace Application.Commands.Calendar
                         return new JoinEventResponse
                         {
                             Success = false,
-                            Message = "Event is full"
+                            Message = _localizer["EventIsFull"]
                         };
                     }
 
@@ -245,7 +250,7 @@ namespace Application.Commands.Calendar
                     return new JoinEventResponse
                     {
                         Success = true,
-                        Message = "Successfully joined event",
+                        Message = _localizer["SuccessfullyJoinedEvent"],
                         MeetingUrl = eventEntity.MeetingUrl
                     };
                 }
@@ -255,7 +260,7 @@ namespace Application.Commands.Calendar
                     return new JoinEventResponse
                     {
                         Success = false,
-                        Message = "An error occurred"
+                        Message = _localizer["AnErrorOccurred"]
                     };
                 }
             }
@@ -329,10 +334,10 @@ namespace Application.Commands.Calendar
         }
         public class JoinEventDtoValidator : AbstractValidator<JoinEventDto>
         {
-            public JoinEventDtoValidator()
+            public JoinEventDtoValidator(IStringLocalizer<SharedResource> localizer)
             {
                 RuleFor(x => x.EventId)
-                    .NotEmpty().WithMessage("Event ID is required");
+                    .NotEmpty().WithMessage(localizer["EventIdIsRequired"]);
             }
         }
         public class EventDto
@@ -388,4 +393,4 @@ namespace Application.Commands.Calendar
         }
     }
 }
-    
+

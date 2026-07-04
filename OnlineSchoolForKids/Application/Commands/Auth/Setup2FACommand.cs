@@ -2,11 +2,7 @@
 using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services.Shared;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Application.Commands.Auth;
 
@@ -26,7 +22,7 @@ public class Setup2FACommandHandler : IRequestHandler<Setup2FACommand, Result<Se
     public Setup2FACommandHandler(IUserRepository userRepository, ITotpService totpService)
     {
         _userRepository = userRepository;
-        _totpService    = totpService;
+        _totpService = totpService;
     }
 
     public async Task<Result<Setup2FAResponse>> Handle(Setup2FACommand request, CancellationToken ct)
@@ -45,7 +41,7 @@ public class Setup2FACommandHandler : IRequestHandler<Setup2FACommand, Result<Se
         return Result<Setup2FAResponse>.Success(new Setup2FAResponse
         {
             Secret = secret,
-            QrUri  = qrUri,
+            QrUri = qrUri,
         });
     }
 }

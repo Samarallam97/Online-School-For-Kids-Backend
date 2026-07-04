@@ -2,7 +2,9 @@
 using Domain.Enums.Content;
 using Domain.Interfaces.Repositories.Content;
 using FluentValidation;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.Moderation
@@ -64,29 +66,30 @@ namespace Application.Commands.Moderation
     }
     public class ReportContentDtoValidator : AbstractValidator<ReportContentDto>
     {
-        public ReportContentDtoValidator()
+        public ReportContentDtoValidator(IStringLocalizer<SharedResource> localizer)
         {
             RuleFor(x => x.ContentType)
-                .NotEmpty().WithMessage("Content type is required")
+                .NotEmpty().WithMessage(localizer["ContentTypeIsRequired"])
                 .Must(type => new[] { "Comment", "Course", "Review", "Message" }.Contains(type))
-                .WithMessage("Invalid content type. Must be Comment, Course, Review, or Message");
+                .WithMessage(localizer["InvalidContentType"]);
 
             RuleFor(x => x.ContentId)
-                .NotEmpty().WithMessage("Content ID is required");
+                .NotEmpty().WithMessage(localizer["ContentIdIsRequired"]);
 
             RuleFor(x => x.ContentTitle)
-                .NotEmpty().WithMessage("Content title is required")
-                .MaximumLength(200).WithMessage("Content title cannot exceed 200 characters");
+                .NotEmpty().WithMessage(localizer["ContentTitleIsRequired"])
+                .MaximumLength(200).WithMessage(localizer["ContentTitleMaxLength"]);
 
             RuleFor(x => x.Reason)
-                .NotEmpty().WithMessage("Report reason is required")
+                .NotEmpty().WithMessage(localizer["ReportReasonIsRequired"])
+
                 .Must(reason => new[] { "Spam", "Harassment", "InappropriateContent", "Copyright", "Misinformation", "Other" }.Contains(reason))
-                .WithMessage("Invalid reason. Must be Spam, Harassment, InappropriateContent, Copyright, Misinformation, or Other");
+                .WithMessage(localizer["InvalidReason"]);
 
             RuleFor(x => x.Description)
-                .NotEmpty().WithMessage("Description is required")
-                .MinimumLength(10).WithMessage("Description must be at least 10 characters")
-                .MaximumLength(1000).WithMessage("Description cannot exceed 1000 characters");
+                .NotEmpty().WithMessage(localizer["DescriptionIsRequired"])
+                .MinimumLength(10).WithMessage(localizer["DescriptionMinLength"])
+                .MaximumLength(1000).WithMessage(localizer["DescriptionMaxLength1000"]);
         }
     }
     public class ReportedContentDto
@@ -110,5 +113,5 @@ namespace Application.Commands.Moderation
         public string Description { get; set; } = string.Empty;
     }
 
-   
+
 }

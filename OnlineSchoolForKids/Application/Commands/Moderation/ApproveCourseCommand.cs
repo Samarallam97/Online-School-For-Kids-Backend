@@ -3,7 +3,9 @@ using Domain.Entities.Content.Moderation;
 using Domain.Enums.Content;
 using Domain.Interfaces.Repositories.Content;
 using FluentValidation;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.Moderation
@@ -56,10 +58,10 @@ namespace Application.Commands.Moderation
     }
     public class ApproveCourseDtoValidator : AbstractValidator<ApproveCourseDto>
     {
-        public ApproveCourseDtoValidator()
+        public ApproveCourseDtoValidator(IStringLocalizer<SharedResource> localizer)
         {
             RuleFor(x => x.CourseId)
-                .NotEmpty().WithMessage("Course ID is required");
+                .NotEmpty().WithMessage(localizer["CourseIDIsRequired"]);
         }
     }
 }

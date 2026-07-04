@@ -1,6 +1,8 @@
 ﻿using Domain.Interfaces.Repositories.Content;
 using FluentValidation;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 namespace Application.Commands.Course
 {
     public class RemoveFromCartCommand : IRequest<RemoveFromCartResponse>
@@ -28,9 +30,12 @@ namespace Application.Commands.Course
     public class RemoveFromCartCommandHandler : IRequestHandler<RemoveFromCartCommand, RemoveFromCartResponse>
     {
         private readonly ICartItemRepository _cartItemRepo;
-        public RemoveFromCartCommandHandler(ICartItemRepository cartItemRepo)
+        private readonly IStringLocalizer<SharedResource> _localizer;
+
+        public RemoveFromCartCommandHandler(ICartItemRepository cartItemRepo, IStringLocalizer<SharedResource> localizer)
         {
             _cartItemRepo = cartItemRepo;
+            _localizer = localizer;
         }
         public async Task<RemoveFromCartResponse> Handle(RemoveFromCartCommand request, CancellationToken cancellationToken)
         {
@@ -42,7 +47,7 @@ namespace Application.Commands.Course
                 return new RemoveFromCartResponse
                 {
                     Success = false,
-                    Message = "Course not found in cart"
+                    Message = _localizer["CourseNotFoundInCart"]
                 };
             }
             // Remove from cart
@@ -50,16 +55,19 @@ namespace Application.Commands.Course
             return new RemoveFromCartResponse
             {
                 Success = true,
-                Message = "Course removed from cart successfully"
+                Message = _localizer["CourseRemovedFromCartSuccessfully"]
             };
         }
         public class ClearCartCommandHandler : IRequestHandler<ClearCartCommand, ClearCartResponse>
         {
             private readonly ICartItemRepository _cartItemRepo;
+            private readonly IStringLocalizer<SharedResource> _localizer;
+
             public ClearCartCommandHandler(
-                ICartItemRepository cartItemRepo)
+                ICartItemRepository cartItemRepo, IStringLocalizer<SharedResource> localizer)
             {
                 _cartItemRepo = cartItemRepo;
+                _localizer = localizer;
             }
             public async Task<ClearCartResponse> Handle(ClearCartCommand request, CancellationToken cancellationToken)
             {
@@ -71,7 +79,7 @@ namespace Application.Commands.Course
                     return new ClearCartResponse
                     {
                         Success = true,
-                        Message = "Cart is already empty",
+                        Message = _localizer["CartIsAlreadyEmpty"],
                         ItemsRemoved = 0
                     };
                 }
@@ -90,27 +98,27 @@ namespace Application.Commands.Course
                     ItemsRemoved = itemCount
                 };
             }
-               
+
             public class RemoveFromCartCommandValidator : AbstractValidator<RemoveFromCartCommand>
             {
-                public RemoveFromCartCommandValidator()
+                public RemoveFromCartCommandValidator(IStringLocalizer<SharedResource> localizer)
                 {
                     RuleFor(x => x.CourseId)
                         .NotEmpty()
-                        .WithMessage("Course ID is required");
+                        .WithMessage(localizer["CourseIDIsRequired"]);
 
                     RuleFor(x => x.UserId)
                         .NotEmpty()
-                        .WithMessage("User ID is required");
+                        .WithMessage(localizer["UserIdIsRequired"]);
                 }
             }
             public class ClearCartCommandValidator : AbstractValidator<ClearCartCommand>
             {
-                public ClearCartCommandValidator()
+                public ClearCartCommandValidator(IStringLocalizer<SharedResource> localizer)
                 {
                     RuleFor(x => x.UserId)
                         .NotEmpty()
-                        .WithMessage("User ID is required");
+                        .WithMessage(localizer["UserIdIsRequired"]);
                 }
             }
         }

@@ -417,13 +417,178 @@
   <data name="FieldRequired" xml:space="preserve">
     <value> {0}  مطلوب</value>
   </data>
-  <data name="CourseId" xml:space="preserve">
-    <value>id الكورس</value>
+  <data name="CourseIsNotFound" xml:space="preserve">
+    <value>&#x8;هذا الكورس غير موجود</value>
   </data>
-  <data name="CartId" xml:space="preserve">
-    <value>id عربة التسوق</value>
+  <data name="CourseIsNotAvailable" xml:space="preserve">
+    <value>هذا الكورس غير متوفر</value>
   </data>
-  <data name="UserId" xml:space="preserve">
-    <value>id المستخدم</value>
+  <data name="CourseAlreadyInFavourites" xml:space="preserve">
+    <value>الدورة موجودة بالفعل في المفضلة</value>
+  </data>
+  <data name="CourseIDIsRequired" xml:space="preserve">
+    <value>يجب إدخال معرّف الدورة.</value>
+  </data>
+  <data name="UserIdIsRequired" xml:space="preserve">
+    <value>يجب ادخال معرف المستخدم</value>
+  </data>
+  <data name="CourseAddedToFavouritesSuccessfully" xml:space="preserve">
+    <value>تمت إضافة الدورة إلى المفضلة بنجاح.</value>
+  </data>
+  <data name="CourseNotFoundInFavourites" xml:space="preserve">
+    <value>لم يتم ايجاد الكورس في المفضلة</value>
+  </data>
+  <data name="CourseDeletedFromFavouritesSuccessfully" xml:space="preserve">
+    <value>تم حذف الكورس من المفضلة بنجاح</value>
+  </data>
+  <data name="CourseNotFoundOrNotAvailableForPurchase" xml:space="preserve">
+    <value>الدورة غير موجودة أو غير متاحة للشراء.</value>
+  </data>
+  <data name="CourseAlreadyInCart" xml:space="preserve">
+    <value>الدورة موجودة بالفعل في السلة</value>
+  </data>
+  <data name="CourseAddedToCartSuccessfully" xml:space="preserve">
+    <value>تمت اضافة الدورة الي السلة بنجاح</value>
+  </data>
+  <data name="WishlistIsAlreadyEmpty" xml:space="preserve">
+    <value>قائمة المفضلة فارغة بالفعل.</value>
+  </data>
+  <data name="ErrorCreatingCourse" xml:space="preserve">
+    <value>حدث خطأ أثناء إنشاء الدورة.</value>
+  </data>
+  <data name="CourseCompleted" xml:space="preserve">
+    <value>تم اكمال الدورة بنجاح</value>
+  </data>
+  <data name="LessonCompleted" xml:space="preserve">
+    <value>تم اكمال الدرس بنجاح</value>
+  </data>
+  <data name="FailedToMarkLessonComplete" xml:space="preserve">
+    <value>تعذر تسجيل إكمال الدرس</value>
+  </data>
+  <data name="CourseNotFoundInCart" xml:space="preserve">
+    <value>لم يتم ايجاد الكورس في السلة</value>
+  </data>
+  <data name="CourseRemovedFromCartSuccessfully" xml:space="preserve">
+    <value>تم حذف الكورس من السلة بنجاح</value>
+  </data>
+  <data name="CartIsAlreadyEmpty" xml:space="preserve">
+    <value>السلة فارغة بالفعل</value>
+  </data>
+  <data name="QuizNotFound" xml:space="preserve">
+    <value>هذا الاختبار غير موجود</value>
+  </data>
+  <data name="QuizNotPublished" xml:space="preserve">
+    <value>الاختبار غير منشور</value>
+  </data>
+  <data name="QuizAttemptStarted" xml:space="preserve">
+    <value>تم بدء محاولة الاختبار بنجاح</value>
+  </data>
+  <data name="BookmarkRemoved" xml:space="preserve">
+    <value>تمت إزالة العلامة المرجعية بنجاح</value>
+  </data>
+  <data name="BookmarkAdded" xml:space="preserve">
+    <value>تمت إضافة العلامة المرجعية بنجاح.</value>
+  </data>
+  <data name="FailedToToggleBookmark" xml:space="preserve">
+    <value>تعذر تحديث العلامة المرجعية</value>
+  </data>
+  <data name="InvalidCourseOrLesson" xml:space="preserve">
+    <value>الدورة أو الدرس غير صالح</value>
+  </data>
+  <data name="ProgressUpdated" xml:space="preserve">
+    <value>تم تحديث التقدم بنجاح</value>
+  </data>
+  <data name="FailedToUpdateProgress" xml:space="preserve">
+    <value>فشل في تحديث التقدم</value>
+  </data>
+  <data name="ReasonIsRequired" xml:space="preserve">
+    <value>السبب مطلوب</value>
+  </data>
+  <data name="PointsMustBeGreaterThanZero" xml:space="preserve">
+    <value>يجب أن تكون النقاط أكبر من 0</value>
+  </data>
+  <data name="PointsCannotExceedPerTransaction" xml:space="preserve">
+    <value>لا يمكن أن تتجاوز النقاط 10,000 نقطة في العملية الواحدة.</value>
+  </data>
+  <data name="DescriptionMaxLength" xml:space="preserve">
+    <value>لا يمكن أن يتجاوز الوصف 500 حرف</value>
+  </data>
+  <data name="RelatedEntityIdMaxLength" xml:space="preserve">
+    <value>لا يمكن أن يتجاوز معرّف الكيان المرتبط 50 حرفًا.</value>
+  </data>
+  <data name="EventNotFound" xml:space="preserve">
+    <value>الفعالية غير موجودة</value>
+  </data>
+  <data name="AlreadyRegisteredForEvent" xml:space="preserve">
+    <value>أنت مسجل بالفعل في هذه الفعالية</value>
+  </data>
+  <data name="EventIsFull" xml:space="preserve">
+    <value>الفعالية مكتملة العدد</value>
+  </data>
+  <data name="SuccessfullyJoinedEvent" xml:space="preserve">
+    <value>تم الانضمام إلى الفعالية بنجاح</value>
+  </data>
+  <data name="AnErrorOccurred" xml:space="preserve">
+    <value>حدث خطأ، يرجى المحاولة مرة أخرى</value>
+  </data>
+  <data name="EventIdIsRequired" xml:space="preserve">
+    <value>معرف الحدث مطلوب</value>
+  </data>
+  <data name="CommentIdIsRequired" xml:space="preserve">
+    <value>معرف التعليق مطلوب</value>
+  </data>
+  <data name="CommentContentIsRequired" xml:space="preserve">
+    <value>محتوي التعليق مطلوب</value>
+  </data>
+  <data name="CommentMinLength" xml:space="preserve">
+    <value>يجب أن يتكون التعليق من 3 أحرف على الأقل</value>
+  </data>
+  <data name="CommentMaxLength" xml:space="preserve">
+    <value>لا يمكن أن يتجاوز التعليق 2000 حرف</value>
+  </data>
+  <data name="ParentCommentIdMaxLength" xml:space="preserve">
+    <value>لا يمكن أن يتجاوز معرّف التعليق الأساسي 50 حرفًا</value>
+  </data>
+  <data name="RejectionReasonIsRequired" xml:space="preserve">
+    <value>سبب الرفض مطلوب</value>
+  </data>
+  <data name="ReportIdIsRequired" xml:space="preserve">
+    <value>معرف التقرير مطلوب</value>
+  </data>
+  <data name="ContentTypeIsRequired" xml:space="preserve">
+    <value>نوع المحتوي مطلوب</value>
+  </data>
+  <data name="ContentIdIsRequired" xml:space="preserve">
+    <value>معرف المحتوي مطلوب</value>
+  </data>
+  <data name="ContentTitleIsRequired" xml:space="preserve">
+    <value>عنوان المحتوي مطلوب</value>
+  </data>
+  <data name="ReportReasonIsRequired" xml:space="preserve">
+    <value>يجب تحديد سبب الإبلاغ</value>
+  </data>
+  <data name="DescriptionIsRequired" xml:space="preserve">
+    <value>الوصف مطلوب</value>
+  </data>
+  <data name="InvalidAction" xml:space="preserve">
+    <value>الإجراء غير صالح. يجب أن يكون: تجاهل، أو تحذير، أو إزالة المحتوى، أو حظر المستخدم</value>
+  </data>
+  <data name="DescriptionMinLength" xml:space="preserve">
+    <value>يجب أن يتكون الوصف من 10 أحرف على الأقل</value>
+  </data>
+  <data name="DescriptionMaxLength1000" xml:space="preserve">
+    <value>لا يمكن أن يتجاوز الوصف 1000 حرف</value>
+  </data>
+  <data name="ActionIsRequired" xml:space="preserve">
+    <value>يجب تحديد الإجراء</value>
+  </data>
+  <data name="ContentTitleMaxLength" xml:space="preserve">
+    <value>لا يمكن أن يتجاوز عنوان المحتوى 200 حرف</value>
+  </data>
+  <data name="InvalidContentType" xml:space="preserve">
+    <value>نوع المحتوى غير صالح. يجب أن يكون: تعليق، أو دورة، أو مراجعة، أو رسالة</value>
+  </data>
+  <data name="InvalidReason" xml:space="preserve">
+    <value>سبب الإبلاغ غير صالح. يجب أن يكون: رسائل مزعجة، أو مضايقة، أو محتوى غير لائق، أو انتهاك حقوق النشر، أو معلومات مضللة، أو سبب آخر</value>
   </data>
 </root>

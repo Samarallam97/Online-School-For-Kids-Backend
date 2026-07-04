@@ -1,6 +1,8 @@
 ﻿using Domain.Entities.Content.Progress;
 using Domain.Interfaces.Repositories.Content;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using static UpdateLessonProgressHandler;
 
@@ -18,6 +20,7 @@ public class UpdateLessonProgressHandler : IRequestHandler<UpdateLessonProgressC
     private readonly ILessonRepository _lessonRepository;
     private readonly ICourseProgressRepository _courseProgressRepository;
     private readonly ILogger<UpdateLessonProgressHandler> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public UpdateLessonProgressHandler(
         ILessonProgressRepository lessonProgressRepo,
@@ -25,7 +28,8 @@ public class UpdateLessonProgressHandler : IRequestHandler<UpdateLessonProgressC
         ICourseRepository courseRepo,
         ILessonRepository lessonRepository,
         ICourseProgressRepository courseProgressRepository,
-        ILogger<UpdateLessonProgressHandler> logger)
+        ILogger<UpdateLessonProgressHandler> logger,
+        IStringLocalizer<SharedResource> localizer)
     {
         _lessonProgressRepo = lessonProgressRepo;
         _enrollmentRepo = enrollmentRepo;
@@ -33,6 +37,7 @@ public class UpdateLessonProgressHandler : IRequestHandler<UpdateLessonProgressC
         _lessonRepository = lessonRepository;
         _courseProgressRepository = courseProgressRepository;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task<UpdateLessonProgressResponse> Handle(
@@ -49,7 +54,7 @@ public class UpdateLessonProgressHandler : IRequestHandler<UpdateLessonProgressC
                 return new UpdateLessonProgressResponse
                 {
                     Success = false,
-                    Message = "Invalid course or lesson"
+                    Message = _localizer["InvalidCourseOrLesson"]
                 };
             }
             // Get or create lesson progress
@@ -163,7 +168,7 @@ public class UpdateLessonProgressHandler : IRequestHandler<UpdateLessonProgressC
                     return new UpdateLessonProgressResponse
                     {
                         Success = true,
-                        Message = "Progress updated",
+                        Message = _localizer["ProgressUpdated"],
                         CourseProgress = enrollment.Progress
                     };
                 }
@@ -171,7 +176,7 @@ public class UpdateLessonProgressHandler : IRequestHandler<UpdateLessonProgressC
                 return new UpdateLessonProgressResponse
                 {
                     Success = true,
-                    Message = "Progress updated"
+                    Message = _localizer["ProgressUpdated"]
                 };
             }
         }
@@ -182,13 +187,13 @@ public class UpdateLessonProgressHandler : IRequestHandler<UpdateLessonProgressC
             return new UpdateLessonProgressResponse
             {
                 Success = false,
-                Message = "Failed to update progress"
+                Message = _localizer["FailedToUpdateProgress"]
             };
         }
         return new UpdateLessonProgressResponse
         {
             Success = true,
-            Message = "Progress updated"
+            Message = _localizer["ProgressUpdated"]
         };
     }
     public class UpdateLessonProgressDto

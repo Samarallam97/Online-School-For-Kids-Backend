@@ -1,11 +1,7 @@
 ﻿using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Repositories.Users;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Application.Queries;
 
@@ -21,7 +17,7 @@ public class GetMySessionsQueryHandler : IRequestHandler<GetMySessionsQuery, Lis
         IUserRepository userRepo)
     {
         _appointmentRepo = appointmentRepo;
-        _userRepo        = userRepo;
+        _userRepo = userRepo;
     }
 
     public async Task<List<AppointmentDto>> Handle(
@@ -39,29 +35,29 @@ public class GetMySessionsQueryHandler : IRequestHandler<GetMySessionsQuery, Lis
             if (u is not null)
             {
                 studentNames[id] = u.FullName;
-                studentPics[id]  = u.ProfilePictureUrl;
+                studentPics[id] = u.ProfilePictureUrl;
             }
         }
 
         return appointments.Select(a => new AppointmentDto
         {
-            Id                          = a.Id,
-            SpecialistId                = a.SpecialistId,
-            SpecialistName              = "",
+            Id = a.Id,
+            SpecialistId = a.SpecialistId,
+            SpecialistName = "",
             SpecialistProfilePictureUrl = null,
-            StudentId                   = a.StudentId,
-            StudentName                 = studentNames.GetValueOrDefault(a.StudentId, ""),
-            StudentProfilePictureUrl    = studentPics.GetValueOrDefault(a.StudentId),
-            Title                       = a.Title,
-            Description                 = a.Description,
-            AppointmentDate             = a.AppointmentDate,
-            StartTime                   = a.StartTime,
-            EndTime                     = a.EndTime,
-            Status                      = a.Status.ToString(),
-            GoogleMeetLink              = a.GoogleMeetLink,
-            CanCancel                   = a.CanCancel(),
-            AmountPaid                  = a.AmountPaid,
-            CancellationReason          = a.CancellationReason,
+            StudentId = a.StudentId,
+            StudentName = studentNames.GetValueOrDefault(a.StudentId, ""),
+            StudentProfilePictureUrl = studentPics.GetValueOrDefault(a.StudentId),
+            Title = a.Title,
+            Description = a.Description,
+            AppointmentDate = a.AppointmentDate,
+            StartTime = a.StartTime,
+            EndTime = a.EndTime,
+            Status = a.Status.ToString(),
+            GoogleMeetLink = a.GoogleMeetLink,
+            CanCancel = a.CanCancel(),
+            AmountPaid = a.AmountPaid,
+            CancellationReason = a.CancellationReason,
         }).ToList();
     }
 }

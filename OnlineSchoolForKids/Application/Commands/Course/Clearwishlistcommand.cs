@@ -1,5 +1,7 @@
 ﻿using Domain.Interfaces.Repositories.Content;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
 namespace Application.Commands.Course;
 
@@ -19,9 +21,11 @@ public class ClearWishlistCommandHandler
     : IRequestHandler<ClearWishlistCommand, ClearWishlistResponse>
 {
     private readonly IWishListRepository _wishRepo;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public ClearWishlistCommandHandler(IWishListRepository wishRepo)
+    public ClearWishlistCommandHandler(IWishListRepository wishRepo, IStringLocalizer<SharedResource> localizer)
     {
+        _localizer = localizer;
         _wishRepo = wishRepo;
     }
 
@@ -39,7 +43,7 @@ public class ClearWishlistCommandHandler
             return new ClearWishlistResponse
             {
                 Success = true,
-                Message = "Wishlist is already empty",
+                Message = _localizer["WishlistIsAlreadyEmpty"],
                 DeletedCount = 0,
             };
 

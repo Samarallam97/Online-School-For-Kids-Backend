@@ -1,7 +1,9 @@
 ﻿using Domain.Entities.Content;
 using Domain.Interfaces.Repositories.Content;
 using FluentValidation;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 using MongoDB.Bson;
 
 namespace Application.Commands
@@ -24,14 +26,16 @@ namespace Application.Commands
 
         private readonly ICourseRepository _courseRepo;
         private readonly IWishListRepository _wishRepo;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
         public AddToFavouriteCommandHandler(
-            ICourseRepository courseRepo, IWishListRepository wishRepo)
+            ICourseRepository courseRepo, IWishListRepository wishRepo, IStringLocalizer<SharedResource> localizer)
         {
 
 
             _courseRepo = courseRepo;
             _wishRepo = wishRepo;
+            _localizer = localizer;
         }
 
         public async Task<AddToFavouriteResponse> Handle(AddToFavouriteCommand request, CancellationToken cancellationToken)
@@ -45,7 +49,7 @@ namespace Application.Commands
                 return new AddToFavouriteResponse
                 {
                     Success = false,
-                    Message = "Course not found"
+                    Message = _localizer["CourseIsNotFound"]
                 };
             }
 
@@ -54,7 +58,7 @@ namespace Application.Commands
                 return new AddToFavouriteResponse
                 {
                     Success = false,
-                    Message = "Course is not available"
+                    Message = _localizer["CourseIsNotAvailable"]
                 };
             }
 
@@ -67,7 +71,7 @@ namespace Application.Commands
                 return new AddToFavouriteResponse
                 {
                     Success = false,
-                    Message = "Course already in favourites",
+                    Message = _localizer["CourseAlreadyInFavourites"],
                     FavouriteId = existingFavourite.First().Id
                 };
             }
@@ -86,24 +90,24 @@ namespace Application.Commands
             return new AddToFavouriteResponse
             {
                 Success = true,
-                Message = "Course added to favourites successfully",
+                Message = _localizer["CourseAddedToFavouritesSuccessfully"],
                 FavouriteId = favourite.Id
             };
         }
         public class AddToFavouriteCommandValidator : AbstractValidator<AddToFavouriteCommand>
         {
-            public AddToFavouriteCommandValidator()
+            public AddToFavouriteCommandValidator(IStringLocalizer<SharedResource> localizer)
             {
                 RuleFor(x => x.CourseId)
                     .NotEmpty()
-                    .WithMessage("Course ID is required");
+                    .WithMessage(localizer["CourseIDIsRequired"]);
 
                 RuleFor(x => x.UserId)
                     .NotEmpty()
-                    .WithMessage("User ID is required");
+                    .WithMessage(localizer["UserIdIsRequired"]);
             }
         }
-   
+
     }
     public class DeleteFromFavouriteCommand : IRequest<DeleteFromFavouriteResponse>
     {
@@ -120,12 +124,13 @@ namespace Application.Commands
     {
 
         private readonly IWishListRepository _wishRepo;
-
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
         public DeleteFromFavouriteCommandHandler(
-             IWishListRepository wishRepo)
+             IWishListRepository wishRepo, IStringLocalizer<SharedResource> localizer)
         {
             _wishRepo = wishRepo;
+            _localizer = localizer;
         }
 
         public async Task<DeleteFromFavouriteResponse> Handle(DeleteFromFavouriteCommand request, CancellationToken cancellationToken)
@@ -141,7 +146,7 @@ namespace Application.Commands
                 return new DeleteFromFavouriteResponse
                 {
                     Success = false,
-                    Message = "Course not found in favourites"
+                    Message = _localizer["CourseNotFoundInFavourites"]
                 };
             }
 
@@ -150,22 +155,22 @@ namespace Application.Commands
             return new DeleteFromFavouriteResponse
             {
                 Success = true,
-                Message = "Course deleted from favourites successfully"
+                Message = _localizer["CourseDeletedFromFavouritesSuccessfully"]
             };
 
 
         }
         public class DeleteFromFavouriteCommandValidator : AbstractValidator<DeleteFromFavouriteCommand>
         {
-            public DeleteFromFavouriteCommandValidator()
+            public DeleteFromFavouriteCommandValidator(IStringLocalizer<SharedResource> localizer)
             {
                 RuleFor(x => x.CourseId)
                     .NotEmpty()
-                    .WithMessage("Course ID is required");
+                    .WithMessage(localizer["CourseIDIsRequired"]);
 
                 RuleFor(x => x.UserId)
                     .NotEmpty()
-                    .WithMessage("User ID is required");
+                    .WithMessage(localizer["UserIdIsRequired"]);
             }
         }
         public class AddToFavouriteRequest

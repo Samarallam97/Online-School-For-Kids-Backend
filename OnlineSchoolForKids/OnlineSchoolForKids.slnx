@@ -2,5 +2,6 @@
   <Project Path="Application/Application.csproj" />
   <Project Path="Domain/Domain.csproj" />
   <Project Path="Infrastructure/Infrastructure.csproj" />
+  <Project Path="Localization/Localization.csproj" />
   <Project Path="Src/API/API.csproj" />
 </Solution>

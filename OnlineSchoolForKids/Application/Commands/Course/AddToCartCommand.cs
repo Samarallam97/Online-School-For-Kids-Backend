@@ -1,7 +1,9 @@
 ﻿using Domain.Entities.Content.Orders;
 using Domain.Interfaces.Repositories.Content;
 using FluentValidation;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 
 namespace Application.Commands.Course
 {
@@ -23,12 +25,14 @@ namespace Application.Commands.Course
     {
         private readonly ICourseRepository _courseRepo;
         private readonly ICartItemRepository _cartItemRepo;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
         public AddToCartCommandHandler(
-            ICourseRepository courseRepo, ICartItemRepository cartItemRepository)
+            ICourseRepository courseRepo, ICartItemRepository cartItemRepository, IStringLocalizer<SharedResource> localizer)
         {
             _courseRepo = courseRepo;
             _cartItemRepo = cartItemRepository;
+            _localizer = localizer;
         }
 
         public async Task<AddToCartResponse> Handle(AddToCartCommand request, CancellationToken cancellationToken)
@@ -41,7 +45,7 @@ namespace Application.Commands.Course
                 return new AddToCartResponse
                 {
                     Success = false,
-                    Message = "Course not found or not available for purchase"
+                    Message = _localizer["CourseNotFoundOrNotAvailableForPurchase"]
                 };
             }
             // Check if user already enrolled in this course
@@ -65,8 +69,8 @@ namespace Application.Commands.Course
                 return new AddToCartResponse
                 {
                     Success = false,
-                    Message = "Course already in cart",
-                    
+                    Message = _localizer["CourseAlreadyInCart"],
+
                 };
             }
 
@@ -88,22 +92,23 @@ namespace Application.Commands.Course
             return new AddToCartResponse
             {
                 Success = true,
-                Message = "Course added to cart successfully",
+                Message = _localizer["CourseAddedToCartSuccessfully"],
                 CartItemId = cartItem.Id
             };
-        }    
-        
+        }
+
         public class AddToCartCommandValidator : AbstractValidator<AddToCartCommand>
         {
-            public AddToCartCommandValidator()
+            public AddToCartCommandValidator(IStringLocalizer<SharedResource> localizer)
             {
                 RuleFor(x => x.CourseId)
                     .NotEmpty()
-                    .WithMessage("Course ID is required");
+                    .WithMessage(localizer["CourseIDIsRequired"]);
+
 
                 RuleFor(x => x.UserId)
                     .NotEmpty()
-                    .WithMessage("User ID is required");
+                    .WithMessage(localizer["UserIdIsRequired"]);
             }
         }
     }

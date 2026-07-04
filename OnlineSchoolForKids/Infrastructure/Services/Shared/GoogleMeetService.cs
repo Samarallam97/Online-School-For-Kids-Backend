@@ -1,14 +1,6 @@
 ﻿using Domain.Interfaces.Services.Shared;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Calendar.v3;
-using Google.Apis.Calendar.v3.Data;
-using Google.Apis.Services;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Infrastructure.Services.Shared;
 
@@ -96,9 +88,9 @@ public class GoogleMeetService : IGoogleMeetService
     string organizerEmail,
     string attendeeEmail,
     CancellationToken ct = default)
-{
-    var meetCode = Guid.NewGuid().ToString("N")[..10];
-    return await Task.FromResult(
-        $"https://meet.google.com/{meetCode[..3]}-{meetCode[3..7]}-{meetCode[7..]}");
-}
+    {
+        var meetCode = Guid.NewGuid().ToString("N")[..10];
+        return await Task.FromResult(
+            $"https://meet.google.com/{meetCode[..3]}-{meetCode[3..7]}-{meetCode[7..]}");
+    }
 }

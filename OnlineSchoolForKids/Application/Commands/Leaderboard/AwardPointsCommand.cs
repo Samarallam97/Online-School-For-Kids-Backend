@@ -3,7 +3,9 @@ using Domain.Enums.Content;
 using Domain.Interfaces.Repositories.Content;
 using Domain.Interfaces.Repositories.Users;
 using FluentValidation;
+using Localization;
 using MediatR;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.Leaderboard
@@ -20,19 +22,22 @@ namespace Application.Commands.Leaderboard
         private readonly IUserRepository _userRepo;
         private readonly IMediator _mediator;
         private readonly ILogger<AwardPointsHandler> _logger;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
         public AwardPointsHandler(
             IUserPointsRepository userPointsRepo,
             IPointTransactionRepository transactionRepo,
             IUserRepository userRepo,
             IMediator mediator,
-            ILogger<AwardPointsHandler> logger)
+            ILogger<AwardPointsHandler> logger,
+             IStringLocalizer<SharedResource> localizer)
         {
             _userPointsRepo = userPointsRepo;
             _transactionRepo = transactionRepo;
             _userRepo = userRepo;
             _mediator = mediator;
             _logger = logger;
+            _localizer = localizer;
         }
 
         public async Task<bool> Handle(AwardPointsCommand request, CancellationToken ct)
@@ -59,10 +64,10 @@ namespace Application.Commands.Leaderboard
                         UserName = user.FullName,
                         TotalPoints = dto.Points,
                         WeeklyPoints = dto.Points,
-                        MonthlyPoints = dto.Points,                   
-                        UserAvatar = user.ProfilePictureUrl,             
-                        CoursesCompleted = dto.Reason == "CourseCompleted" ? 1 : 0, 
-                    
+                        MonthlyPoints = dto.Points,
+                        UserAvatar = user.ProfilePictureUrl,
+                        CoursesCompleted = dto.Reason == "CourseCompleted" ? 1 : 0,
+
                     };
                     await _userPointsRepo.CreateAsync(userPoints, ct);
                 }
@@ -114,17 +119,17 @@ namespace Application.Commands.Leaderboard
     }
     public class AwardPointsDtoValidator : AbstractValidator<AwardPointsDto>
     {
-        public AwardPointsDtoValidator()
+        public AwardPointsDtoValidator(IStringLocalizer<SharedResource> localizer)
         {
             RuleFor(x => x.UserId)
-                .NotEmpty().WithMessage("User ID is required");
+                .NotEmpty().WithMessage(localizer["UserIdIsRequired"]);
 
             RuleFor(x => x.Points)
-                .GreaterThan(0).WithMessage("Points must be greater than 0")
-                .LessThanOrEqualTo(10000).WithMessage("Points cannot exceed 10,000 per transaction");
+                .GreaterThan(0).WithMessage(localizer["PointsMustBeGreaterThanZero"])
+                .LessThanOrEqualTo(10000).WithMessage(localizer["PointsCannotExceedPerTransaction"]);
 
             RuleFor(x => x.Reason)
-                .NotEmpty().WithMessage("Reason is required")
+                .NotEmpty().WithMessage(localizer["ReasonIsRequired"])
                 .Must(reason => new[]
                 {
                     "CourseCompleted",
@@ -138,11 +143,11 @@ namespace Application.Commands.Leaderboard
                 .WithMessage("Invalid reason. Must be CourseCompleted, LessonCompleted, QuizPassed, StreakMaintained, BadgeEarned, DailyLogin, or AssignmentSubmitted");
 
             RuleFor(x => x.Description)
-                .MaximumLength(500).WithMessage("Description cannot exceed 500 characters")
+                .MaximumLength(500).WithMessage(localizer["DescriptionMaxLength"])
                 .When(x => !string.IsNullOrEmpty(x.Description));
 
             RuleFor(x => x.RelatedEntityId)
-                .MaximumLength(50).WithMessage("Related entity ID cannot exceed 50 characters")
+                .MaximumLength(50).WithMessage(localizer["RelatedEntityIdMaxLength"])
                 .When(x => !string.IsNullOrEmpty(x.RelatedEntityId));
         }
     }
