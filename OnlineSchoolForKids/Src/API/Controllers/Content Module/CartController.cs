@@ -1,7 +1,9 @@
 ﻿using Application.Commands.Course;
 using Application.Queries.Content;
+using Localization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 
 namespace API.Controllers
@@ -13,11 +15,13 @@ namespace API.Controllers
     {
         private readonly IMediator _mediator;
         private readonly ILogger<CartController> _logger;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public CartController(IMediator mediator, ILogger<CartController> logger)
+        public CartController(IMediator mediator, ILogger<CartController> logger, IStringLocalizer<SharedResource> localizer)
         {
             _mediator = mediator;
             _logger = logger;
+            _localizer = localizer;
         }
         [HttpPost]
         [ProducesResponseType(typeof(AddToCartResponse), StatusCodes.Status200OK)]
@@ -32,7 +36,7 @@ namespace API.Controllers
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (String.IsNullOrEmpty(userId))
                 {
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
                 }
 
                 var command = new AddToCartCommand
@@ -60,7 +64,7 @@ namespace API.Controllers
                 _logger.LogError(ex, "Error adding course to cart");
                 return StatusCode(500, new
                 {
-                    message = "An error occurred while adding to cart",
+                    message = _localizer["ErrorAddingToCart"],
                     success = false
                 });
             }
@@ -78,7 +82,7 @@ namespace API.Controllers
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (String.IsNullOrEmpty(userId))
                 {
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
                 }
                 var command = new RemoveFromCartCommand
                 {
@@ -104,7 +108,7 @@ namespace API.Controllers
                 _logger.LogError(ex, "Error removing course from cart");
                 return StatusCode(500, new
                 {
-                    message = "An error occurred while removing from cart",
+                    message = _localizer["ErrorRemovingFromCart"],
                     success = false
                 });
             }
@@ -120,7 +124,7 @@ namespace API.Controllers
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (String.IsNullOrEmpty(userId))
                 {
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
                 }
 
                 var command = new ClearCartCommand { UserId = userId };
@@ -133,7 +137,7 @@ namespace API.Controllers
                 _logger.LogError(ex, "Error clearing cart");
                 return StatusCode(500, new
                 {
-                    message = "An error occurred while clearing cart",
+                    message = _localizer["ErrorClearingCart"],
                     success = false
                 });
             }
@@ -149,7 +153,7 @@ namespace API.Controllers
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (String.IsNullOrEmpty(userId))
                 {
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
                 }
                 var query = new GetCartQuery { UserId = userId };
                 var result = await _mediator.Send(query);
@@ -164,7 +168,7 @@ namespace API.Controllers
                 _logger.LogError(ex, "Error getting cart");
                 return StatusCode(500, new
                 {
-                    message = "An error occurred while retrieving cart",
+                    message = _localizer["ErrorRetrievingCart"],
                     success = false
                 });
             }
@@ -182,7 +186,7 @@ namespace API.Controllers
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (String.IsNullOrEmpty(userId))
                 {
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
                 }
                 var cart = await _mediator.Send(new GetCartQuery { UserId = userId });
                 return Ok(new
@@ -200,7 +204,7 @@ namespace API.Controllers
                 _logger.LogError(ex, "Error getting cart count");
                 return StatusCode(500, new
                 {
-                    message = "An error occurred",
+                    message = _localizer["AnErrorOccurred"],
                     success = false
                 });
             }

@@ -966,4 +966,217 @@
   <data name="YearsOfExperienceUnrealistic" xml:space="preserve">
     <value>Years of experience seems unrealistic</value>
   </data>
+  <data name="UserNotAuthenticated" xml:space="preserve">
+    <value>User not authenticated</value>
+  </data>
+  <data name="EventCreatedSuccessfully" xml:space="preserve">
+    <value>Event created successfully</value>
+  </data>
+  <data name="EventUpdatedSuccessfully" xml:space="preserve">
+    <value>Event updated successfully</value>
+  </data>
+  <data name="EventDeletedSuccessfully" xml:space="preserve">
+    <value>Event deleted successfully</value>
+  </data>
+  <data name="FailedToCreateEvent" xml:space="preserve">
+    <value>Failed to create event</value>
+  </data>
+  <data name="ErrorCreatingEvent" xml:space="preserve">
+    <value>Error creating event</value>
+  </data>
+  <data name="ErrorAddingToCart" xml:space="preserve">
+    <value>An error occurred while adding to cart</value>
+  </data>
+  <data name="ErrorRemovingFromCart" xml:space="preserve">
+    <value>An error occurred while removing from cart</value>
+  </data>
+  <data name="ErrorClearingCart" xml:space="preserve">
+    <value>An error occurred while clearing cart</value>
+  </data>
+  <data name="ErrorRetrievingCart" xml:space="preserve">
+    <value>An error occurred while retrieving cart</value>
+  </data>
+  <data name="ErrorRetrievingCourse" xml:space="preserve">
+    <value>An error occurred while retrieving course</value>
+  </data>
+  <data name="CourseNotFoundOrNotAvailable" xml:space="preserve">
+    <value>Course not found or not available</value>
+  </data>
+  <data name="RecommendationFeatureComingSoon" xml:space="preserve">
+    <value>Recommendation feature coming soon</value>
+  </data>
+  <data name="ErrorRetrievingRecommendedCourses" xml:space="preserve">
+    <value>An error occurred while retrieving recommended courses</value>
+  </data>
+  <data name="TrendingFeatureComingSoon" xml:space="preserve">
+    <value>Trending feature coming soon</value>
+  </data>
+  <data name="ErrorRetrievingTrendingCourses" xml:space="preserve">
+    <value>An error occurred while retrieving trending courses</value>
+  </data>
+  <data name="ErrorClearingWishlist" xml:space="preserve">
+    <value>An error occurred while clearing wishlist</value>
+  </data>
+  <data name="CountRetrieved" xml:space="preserve">
+    <value>Count retrieved</value>
+  </data>
+  <data name="ErrorAddingToFavourites" xml:space="preserve">
+    <value>An error occurred while adding to favourites</value>
+  </data>
+  <data name="ErrorRemovingFromFavourites" xml:space="preserve">
+    <value>An error occurred while removing from favourites</value>
+  </data>
+  <data name="ErrorFetchingWishlist" xml:space="preserve">
+    <value>An error occurred while fetching your wishlist</value>
+  </data>
+  <data name="CourseCreatedSuccessfully" xml:space="preserve">
+    <value>Course created successfully</value>
+  </data>
+  <data name="FailedToCreateCourse" xml:space="preserve">
+    <value>Failed to create course</value>
+  </data>
+  <data name="CourseUpdatedSuccessfully" xml:space="preserve">
+    <value>Course updated successfully</value>
+  </data>
+  <data name="CourseDeletedSuccessfully" xml:space="preserve">
+    <value>Course deleted successfully</value>
+  </data>
+  <data name="CoursePublished" xml:space="preserve">
+    <value>Course published</value>
+  </data>
+  <data name="CourseUnpublished" xml:space="preserve">
+    <value>Course unpublished</value>
+  </data>
+  <data name="SectionUpdatedSuccessfully" xml:space="preserve">
+    <value>Section updated successfully</value>
+  </data>
+  <data name="ErrorUpdatingSection" xml:space="preserve">
+    <value>Error updating section</value>
+  </data>
+  <data name="SectionDeletedSuccessfully" xml:space="preserve">
+    <value>Section deleted successfully</value>
+  </data>
+  <data name="FailedToCreateLesson" xml:space="preserve">
+    <value>Failed to create lesson</value>
+  </data>
+  <data name="LessonCreatedSuccessfully" xml:space="preserve">
+    <value>Lesson created successfully</value>
+  </data>
+  <data name="LessonUpdatedSuccessfully" xml:space="preserve">
+    <value>Lesson updated successfully</value>
+  </data>
+  <data name="LessonDeletedSuccessfully" xml:space="preserve">
+    <value>Lesson deleted successfully</value>
+  </data>
+  <data name="FailedToAddMaterial" xml:space="preserve">
+    <value>Failed to add material</value>
+  </data>
+  <data name="MaterialAddedSuccessfully" xml:space="preserve">
+    <value>Material added successfully</value>
+  </data>
+  <data name="UserStatsNotFound" xml:space="preserve">
+    <value>User stats not found</value>
+  </data>
+  <data name="FailedToAwardPoints" xml:space="preserve">
+    <value>Failed to award points</value>
+  </data>
+  <data name="PointsAwardedSuccessfully" xml:space="preserve">
+    <value>Points awarded successfully</value>
+  </data>
+  <data name="FailedToUpdateStreak" xml:space="preserve">
+    <value>Failed to update streak</value>
+  </data>
+  <data name="StreakUpdated" xml:space="preserve">
+    <value>Streak updated</value>
+  </data>
+  <data name="FailedToRecalculateRanks" xml:space="preserve">
+    <value>Failed to recalculate ranks</value>
+  </data>
+  <data name="RanksRecalculatedSuccessfully" xml:space="preserve">
+    <value>Ranks recalculated successfully</value>
+  </data>
+  <data name="BadgeCreatedSuccessfully" xml:space="preserve">
+    <value>Badge created successfully</value>
+  </data>
+  <data name="CommentApproved" xml:space="preserve">
+    <value>Comment approved</value>
+  </data>
+  <data name="CommentNotFound" xml:space="preserve">
+    <value>Comment not found</value>
+  </data>
+  <data name="CommentRemoved" xml:space="preserve">
+    <value>Comment removed</value>
+  </data>
+  <data name="ReportNotFound" xml:space="preserve">
+    <value>Report not found</value>
+  </data>
+  <data name="ActionTakenSuccessfully" xml:space="preserve">
+    <value>Action taken successfully</value>
+  </data>
+  <data name="CommentCreatedSuccessfully" xml:space="preserve">
+    <value>Comment created successfully</value>
+  </data>
+  <data name="FailedToCreateComment" xml:space="preserve">
+    <value>Failed to create comment</value>
+  </data>
+  <data name="ErrorCreatingOrder" xml:space="preserve">
+    <value>An error occurred while creating order</value>
+  </data>
+  <data name="ContentReportedSuccessfully" xml:space="preserve">
+    <value>Content reported successfully</value>
+  </data>
+  <data name="AlreadyReportedOrInvalidContent" xml:space="preserve">
+    <value>Already reported  or invalid content</value>
+  </data>
+  <data name="ErrorCreatingQuiz" xml:space="preserve">
+    <value>An error occurred while creating the quiz</value>
+  </data>
+  <data name="FailedToSubmitQuiz" xml:space="preserve">
+    <value>Failed to submit the quiz</value>
+  </data>
+  <data name="QuizPassed" xml:space="preserve">
+    <value>Quiz passed</value>
+  </data>
+  <data name="QuizCompleted" xml:space="preserve">
+    <value>Quiz completed</value>
+  </data>
+  <data name="SuperAdminPrivilegesRequired" xml:space="preserve">
+    <value>This action requires Super Admin privileges</value>
+  </data>
+  <data name="InvitationSentSuccessfully" xml:space="preserve">
+    <value>Invitation sent successfully</value>
+  </data>
+  <data name="ParentAccountUnlinkedSuccessfully" xml:space="preserve">
+    <value>Parent account unlinked successfully</value>
+  </data>
+  <data name="ErrorFetchingPayouts" xml:space="preserve">
+    <value>An error occurred while fetching payouts</value>
+  </data>
+  <data name="ProfilePictureDeletedSuccessfully" xml:space="preserve">
+    <value>Profile picture deleted successfully</value>
+  </data>
+  <data name="ErrorUploadingProfilePicture" xml:space="preserve">
+    <value>An error occurred while uploading the profile picture</value>
+  </data>
+  <data name="ChunkUpdated" xml:space="preserve">
+    <value>Chunk updated</value>
+  </data>
+  <data name="VideoSizeUnder100MB" xml:space="preserve">
+    <value>Video must be under 100 MB</value>
+  </data>
+  <data name="ImageSizeUnder10MB" xml:space="preserve">
+    <value>Image must be under 10 MB</value>
+  </data>
+  <data name="FileSizeUnder25MB" xml:space="preserve">
+    <value>File must be under 25 MB</value>
+  </data>
+  <data name="NoQuizResultsFound" xml:space="preserve">
+    <value>No quiz results found</value>
+  </data>
+  <data name="FailedToCreateNote" xml:space="preserve">
+    <value>Failed to create note</value>
+  </data>
+  <data name="NoEnrollmentFound" xml:space="preserve">
+    <value>No enrollment found</value>
+  </data>
 </root>

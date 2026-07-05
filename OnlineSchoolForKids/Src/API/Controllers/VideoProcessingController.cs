@@ -1,9 +1,10 @@
 ﻿using Application.Commands;
 using Application.Queries;
+using Localization;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 
 namespace API.Controllers;
@@ -15,11 +16,13 @@ public class VideoProcessingController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly ILogger<VideoProcessingController> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public VideoProcessingController(IMediator mediator, ILogger<VideoProcessingController> logger)
+    public VideoProcessingController(IMediator mediator, ILogger<VideoProcessingController> logger, IStringLocalizer<SharedResource> localizer)
     {
         _mediator = mediator;
         _logger = logger;
+        _localizer = localizer;
     }
 
     /// <summary>
@@ -55,7 +58,7 @@ public class VideoProcessingController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing YouTube video");
-            return StatusCode(500, new { message = "An error occurred", success = false });
+            return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
         }
     }
 
@@ -77,7 +80,7 @@ public class VideoProcessingController : ControllerBase
             if (userId == null) return Unauthorized();
 
             if (file == null || file.Length == 0)
-                return BadRequest(new { message = "No file provided", success = false });
+                return BadRequest(new { message = _localizer["NoFileProvided"], success = false });
 
             var command = new StartVideoProcessingCommand
             {
@@ -98,7 +101,7 @@ public class VideoProcessingController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing uploaded video");
-            return StatusCode(500, new { message = "An error occurred", success = false });
+            return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
         }
     }
 
@@ -123,14 +126,14 @@ public class VideoProcessingController : ControllerBase
             var result = await _mediator.Send(query, ct);
 
             if (result == null)
-                return NotFound(new { message = "Job not found", success = false });
+                return NotFound(new { message = _localizer["JobNotFound"], success = false });
 
             return Ok(new { data = result, success = true });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting job {JobId}", jobId);
-            return StatusCode(500, new { message = "An error occurred", success = false });
+            return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
         }
     }
 
@@ -162,14 +165,14 @@ public class VideoProcessingController : ControllerBase
             var result = await _mediator.Send(command, ct);
 
             if (!result)
-                return NotFound(new { message = "Chunk not found", success = false });
+                return NotFound(new { message = _localizer["ChunkNotFound"], success = false });
 
-            return Ok(new { message = "Chunk updated", success = true });
+            return Ok(new { message = _localizer["ChunkUpdated"], success = true });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating chunk");
-            return StatusCode(500, new { message = "An error occurred", success = false });
+            return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
         }
     }
 
@@ -216,7 +219,7 @@ public class VideoProcessingController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error saving chunk as lesson");
-            return StatusCode(500, new { message = "An error occurred", success = false });
+            return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
         }
     }
 }

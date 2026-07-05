@@ -1,12 +1,12 @@
 ﻿using Application.Commands.Admin;
-using Application.Commands.Auth;
 using Application.Commands.Profile.Admin;
 using Application.Queries.Admin;
 using Application.Queries.Profile.Admin;
+using Localization;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 
 namespace API.Controllers;
@@ -16,9 +16,15 @@ namespace API.Controllers;
 public class AdminController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly IStringLocalizer<SharedResource> _localizer;
+
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
-    public AdminController(IMediator mediator) => _mediator = mediator;
+    public AdminController(IMediator mediator, IStringLocalizer<SharedResource> localizer)
+    {
+        _mediator = mediator;
+        _localizer = localizer;
+    }
 
     [HttpGet("security-settings")]
     public async Task<IActionResult> GetSecuritySettings(CancellationToken ct)
@@ -222,7 +228,7 @@ public class AdminController : ControllerBase
          User.HasClaim("isSuperAdmin", "true");
 
     private IActionResult SuperAdminOnly() =>
-        StatusCode(403, new { message = "This action requires Super Admin privileges." });
+        StatusCode(403, new { message = _localizer["SuperAdminPrivilegesRequired"] });
 
 
 }

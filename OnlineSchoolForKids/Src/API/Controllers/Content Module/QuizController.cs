@@ -1,8 +1,10 @@
 ﻿using Application.Commands.Course;
 using Application.Queries.Content;
+using Localization;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 
 namespace API.Controllers.Content_Module
@@ -14,14 +16,16 @@ namespace API.Controllers.Content_Module
     {
         private readonly IMediator _mediator;
         private readonly ILogger<QuizController> _logger;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public QuizController(IMediator mediator, ILogger<QuizController> logger)
+        public QuizController(IMediator mediator, ILogger<QuizController> logger, IStringLocalizer<SharedResource> localizer)
         {
             _mediator = mediator;
             _logger = logger;
+            _localizer = localizer;
         }
         [HttpPost("create")]
-        [AllowAnonymous] 
+        [AllowAnonymous]
         [ProducesResponseType(typeof(CreateQuizResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -69,7 +73,7 @@ namespace API.Controllers.Content_Module
                 _logger.LogError(ex, "Error creating quiz");
                 return StatusCode(500, new
                 {
-                    message = "An error occurred while creating quiz",
+                    message = _localizer["ErrorCreatingQuiz"],
                     success = false
                 });
             }
@@ -89,7 +93,7 @@ namespace API.Controllers.Content_Module
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (String.IsNullOrEmpty(userId))
                 {
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
                 }
 
                 var query = new GetCourseQuizzesQuery
@@ -105,7 +109,7 @@ namespace API.Controllers.Content_Module
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting course quizzes");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
@@ -121,7 +125,7 @@ namespace API.Controllers.Content_Module
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (String.IsNullOrEmpty(userId))
                 {
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
                 }
 
                 var query = new GetQuizByIdQuery
@@ -133,14 +137,14 @@ namespace API.Controllers.Content_Module
                 var result = await _mediator.Send(query, cancellationToken);
 
                 if (result == null)
-                    return NotFound(new { message = "Quiz not found", success = false });
+                    return NotFound(new { message = _localizer["QuizNotFound"], success = false });
 
                 return Ok(new { data = result, success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting quiz {Id}", id);
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
@@ -158,7 +162,7 @@ namespace API.Controllers.Content_Module
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (String.IsNullOrEmpty(userId))
                 {
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
                 }
 
                 var command = new StartQuizAttemptCommand
@@ -182,7 +186,7 @@ namespace API.Controllers.Content_Module
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error starting quiz attempt");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
@@ -200,7 +204,7 @@ namespace API.Controllers.Content_Module
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (String.IsNullOrEmpty(userId))
                 {
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
                 }
 
                 var command = new SubmitQuizCommand
@@ -212,23 +216,23 @@ namespace API.Controllers.Content_Module
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (result == null)
-                    return BadRequest(new { message = "Failed to submit quiz", success = false });
+                    return BadRequest(new { message = _localizer["FailedToSubmitQuiz"], success = false });
 
                 return Ok(new
                 {
                     data = result,
-                    message = result.Passed ? "Quiz passed! 🎉" : "Quiz completed",
+                    message = result.Passed ? _localizer["QuizPassed"] : _localizer["QuizCompleted"],
                     success = true
                 });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error submitting quiz");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
-        
+
     }
 }
 

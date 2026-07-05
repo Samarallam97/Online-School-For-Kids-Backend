@@ -7,9 +7,11 @@ using Application.Queries.Profile.Users;
 using Domain.Entities.Users;
 using Domain.Enums.Users;
 using Domain.Interfaces.Repositories.Users;
+using Localization;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 
 namespace API.Controllers;
@@ -21,11 +23,13 @@ public class UserController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly IUserRepository _userRepository;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public UserController(IMediator mediator, IUserRepository userRepository)
+    public UserController(IMediator mediator, IUserRepository userRepository, IStringLocalizer<SharedResource> localizer)
     {
         _mediator = mediator;
         _userRepository = userRepository;
+        _localizer = localizer;
     }
 
 
@@ -327,7 +331,7 @@ public class UserController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "An error occurred while uploading the profile picture" });
+            return StatusCode(500, new { message = _localizer["ErrorUploadingProfilePicture"] });
         }
     }
 
@@ -348,7 +352,7 @@ public class UserController : ControllerBase
             };
 
             await _mediator.Send(command);
-            return Ok(new { message = "Profile picture deleted successfully" });
+            return Ok(new { message = _localizer["ProfilePictureDeletedSuccessfully"] });
         }
         catch (KeyNotFoundException ex)
         {
@@ -626,7 +630,7 @@ public class UserController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "An error occurred while fetching payouts" });
+            return StatusCode(500, new { message = _localizer["ErrorFetchingPayouts"] });
         }
     }
 

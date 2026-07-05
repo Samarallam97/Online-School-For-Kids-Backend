@@ -1,7 +1,8 @@
 ﻿using Domain.Interfaces.Services.Shared;
+using Localization;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace API.Controllers;
 
@@ -11,14 +12,16 @@ namespace API.Controllers;
 public class UploadController : ControllerBase
 {
     private readonly IFileStorageService _fileStorage;
+    private readonly IStringLocalizer<SharedResource> _localizer;
     private static readonly string[] AllowedImageExts = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
     private static readonly string[] AllowedVideoExts = { ".mp4", ".mov", ".webm", ".avi" };
     private const long MaxImageSize = 10 * 1024 * 1024;  // 10 MB
     private const long MaxVideoSize = 100 * 1024 * 1024; // 100 MB
 
-    public UploadController(IFileStorageService fileStorage)
+    public UploadController(IFileStorageService fileStorage, IStringLocalizer<SharedResource> localizer)
     {
         _fileStorage = fileStorage;
+        _localizer = localizer;
     }
 
     /// <summary>POST /api/upload/feed-media — upload image or video for a feed post</summary>
@@ -28,7 +31,7 @@ public class UploadController : ControllerBase
         CancellationToken ct = default)
     {
         if (file == null || file.Length == 0)
-            return BadRequest(new { message = "No file provided." });
+            return BadRequest(new { message = _localizer["NoFileProvided"] });
 
         var ext = _fileStorage.GetFileExtension(file.FileName);
         bool isImage = AllowedImageExts.Contains(ext);
@@ -38,10 +41,10 @@ public class UploadController : ControllerBase
             return BadRequest(new { message = $"File type '{ext}' is not allowed." });
 
         if (isImage && file.Length > MaxImageSize)
-            return BadRequest(new { message = "Image must be under 10 MB." });
+            return BadRequest(new { message = _localizer["ImageSizeUnder10MB"] });
 
         if (isVideo && file.Length > MaxVideoSize)
-            return BadRequest(new { message = "Video must be under 100 MB." });
+            return BadRequest(new { message = _localizer["VideoSizeUnder100MB"] });
 
         await using var stream = file.OpenReadStream();
         var url = await _fileStorage.UploadFileAsync(stream, file.FileName, "feed");
@@ -61,11 +64,11 @@ public class UploadController : ControllerBase
         CancellationToken ct = default)
     {
         if (file == null || file.Length == 0)
-            return BadRequest(new { message = "No file provided." });
+            return BadRequest(new { message = _localizer["NoFileProvided"] });
 
         const long maxChatFileSize = 25 * 1024 * 1024; // 25 MB — adjust as you like
         if (file.Length > maxChatFileSize)
-            return BadRequest(new { message = "File must be under 25 MB." });
+            return BadRequest(new { message = _localizer["FileSizeUnder25MB"] });
 
         var isImage = _fileStorage.IsImageFile(file.FileName);
 

@@ -1,8 +1,10 @@
 ﻿using Application.Commands.Moderation;
 using Application.Queries.Content.Moderation;
+using Localization;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 
 namespace API.Controllers.Content_Module
@@ -14,11 +16,13 @@ namespace API.Controllers.Content_Module
     {
         private readonly IMediator _mediator;
         private readonly ILogger<ModerationController> _logger;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public ModerationController(IMediator mediator, ILogger<ModerationController> logger)
+        public ModerationController(IMediator mediator, ILogger<ModerationController> logger, IStringLocalizer<SharedResource> localizer)
         {
             _mediator = mediator;
             _logger = logger;
+            _localizer = localizer;
         }
         [HttpGet("pending-courses")]
         public async Task<IActionResult> GetPendingCourses(CancellationToken cancellationToken)
@@ -33,7 +37,7 @@ namespace API.Controllers.Content_Module
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting pending courses");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         [HttpGet("stats")]
@@ -49,7 +53,7 @@ namespace API.Controllers.Content_Module
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting moderation stats");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         [HttpGet("reported-content")]
@@ -65,7 +69,7 @@ namespace API.Controllers.Content_Module
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting reported content");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         [HttpGet("flagged-comments")]
@@ -81,7 +85,7 @@ namespace API.Controllers.Content_Module
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting flagged comments");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         [HttpPost("approve-course")]
@@ -93,7 +97,7 @@ namespace API.Controllers.Content_Module
             {
                 var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (adminId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var command = new ApproveCourseCommand
                 {
@@ -111,7 +115,7 @@ namespace API.Controllers.Content_Module
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error approving course");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         [HttpPost("reject-course")]
@@ -123,7 +127,7 @@ namespace API.Controllers.Content_Module
             {
                 var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (adminId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var command = new RejectCourseCommand
                 {
@@ -135,14 +139,14 @@ namespace API.Controllers.Content_Module
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (!result)
-                    return NotFound(new { message = "Course not found", success = false });
+                    return NotFound(new { message = _localizer["CourseNotFound"], success = false });
 
                 return Ok(new { message = "Course rejected", success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error rejecting course");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         [HttpPost("approve-comment")]
@@ -160,14 +164,14 @@ namespace API.Controllers.Content_Module
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (!result)
-                    return NotFound(new { message = "Comment not found", success = false });
+                    return NotFound(new { message = _localizer["CourseNotFound"], success = false });
 
-                return Ok(new { message = "Comment approved", success = true });
+                return Ok(new { message = _localizer["CommentApproved"], success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error approving comment");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         [HttpPost("remove-comment")]
@@ -185,14 +189,14 @@ namespace API.Controllers.Content_Module
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (!result)
-                    return NotFound(new { message = "Comment not found", success = false });
+                    return NotFound(new { message = _localizer["CommentNotFound"], success = false });
 
-                return Ok(new { message = "Comment removed", success = true });
+                return Ok(new { message = _localizer["CommentRemoved"], success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error removing comment");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         [HttpPost("take-action")]
@@ -204,7 +208,7 @@ namespace API.Controllers.Content_Module
             {
                 var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (adminId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var command = new TakeModerationActionCommand
                 {
@@ -216,16 +220,16 @@ namespace API.Controllers.Content_Module
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (!result)
-                    return NotFound(new { message = "Report not found", success = false });
+                    return NotFound(new { message = _localizer["ReportNotFound"], success = false });
 
-                return Ok(new { message = "Action taken successfully", success = true });
+                return Ok(new { message = _localizer["ActionTakenSuccessfully"], success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error taking action");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
-        } 
+        }
         [HttpPost("Comment")]
         [Authorize]
         public async Task<IActionResult> CreateComment(
@@ -234,32 +238,32 @@ namespace API.Controllers.Content_Module
         {
             try
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;               
-                if (userId == null )
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userId == null)
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var command = new CreateCommentCommand
                 {
-                    UserId = userId,                   
+                    UserId = userId,
                     Dto = dto
                 };
 
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (result == null)
-                    return BadRequest(new { message = "Failed to create comment", success = false });
+                    return BadRequest(new { message = _localizer["FailedToCreateComment"], success = false });
 
                 return Ok(new
                 {
                     data = result,
-                    message = "Comment created successfully",
+                    message = _localizer["CommentCreatedSuccessfully"],
                     success = true
                 });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating comment");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
     }

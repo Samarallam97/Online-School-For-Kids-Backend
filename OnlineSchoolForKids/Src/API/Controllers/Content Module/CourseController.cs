@@ -1,9 +1,10 @@
 ﻿using Application.Commands;
 using Application.Commands.Course;
 using Application.Queries.Content;
+using Localization;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 using static Application.Commands.DeleteFromFavouriteCommandHandler;
 
@@ -16,11 +17,13 @@ namespace API.Controllers
     {
         private readonly IMediator _mediator;
         private readonly ILogger<CourseController> _logger;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public CourseController(IMediator mediator, ILogger<CourseController> logger)
+        public CourseController(IMediator mediator, ILogger<CourseController> logger, IStringLocalizer<SharedResource> localizer)
         {
             _mediator = mediator;
             _logger = logger;
+            _localizer = localizer;
         }
         [HttpGet]
         public async Task<ActionResult<PagedResult<GetCoursesDto>>> GetCourses([FromQuery] GetCoursesQuery query)
@@ -36,11 +39,11 @@ namespace API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting course list");
-                return StatusCode(500, new { message = "An error occurred while retrieving courses.", success = false });
+                return StatusCode(500, new { message = _localizer["ErrorRetrievingCourse"], success = false });
             }
         }
-       
-        
+
+
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(CourseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -62,7 +65,7 @@ namespace API.Controllers
                 {
                     return NotFound(new
                     {
-                        message = "Course not found or not available",
+                        message = _localizer["CourseNotFoundOrNotAvailable"],
                         success = false
                     });
                 }
@@ -74,7 +77,7 @@ namespace API.Controllers
                 _logger.LogError(ex, "Error getting course {CourseId}", id);
                 return StatusCode(500, new
                 {
-                    message = "An error occurred while retrieving the course.",
+                    message = _localizer["ErrorRetrievingCourse"],
                     success = false
                 });
             }
@@ -99,7 +102,7 @@ namespace API.Controllers
                 return Ok(new
                 {
                     data = (IEnumerable<CourseDto>?)null,
-                    message = "Recommendation feature coming soon",
+                    message = _localizer["RecommendationFeatureComingSoon"],
                     success = true
                 });
             }
@@ -108,7 +111,7 @@ namespace API.Controllers
                 _logger.LogError(ex, "Error getting recommended courses");
                 return StatusCode(500, new
                 {
-                    message = "An error occurred while retrieving recommended courses",
+                    message = _localizer["ErrorRetrievingRecommendedCourses"],
                     success = false
                 });
             }
@@ -133,7 +136,7 @@ namespace API.Controllers
                 return Ok(new
                 {
                     data = (IEnumerable<CourseDto>?)null,
-                    message = "Trending feature coming soon",
+                    message = _localizer["TrendingFeatureComingSoon"],
                     success = true
                 });
             }
@@ -142,7 +145,7 @@ namespace API.Controllers
                 _logger.LogError(ex, "Error getting trending courses");
                 return StatusCode(500, new
                 {
-                    message = "An error occurred while retrieving trending courses",
+                    message = _localizer["ErrorRetrievingTrendingCourses"],
                     success = false
                 });
             }
@@ -158,7 +161,7 @@ namespace API.Controllers
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (String.IsNullOrEmpty(userId))
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var command = new ClearWishlistCommand { UserId = userId };
                 var result = await _mediator.Send(command);
@@ -169,7 +172,7 @@ namespace API.Controllers
                 _logger.LogError(ex, "Error clearing wishlist");
                 return StatusCode(500, new
                 {
-                    message = "An error occurred while clearing wishlist",
+                    message = _localizer["ErrorClearingWishlist"],
                     success = false,
                 });
             }
@@ -185,10 +188,10 @@ namespace API.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new { message = "User not authenticated", success = false });
+                return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
             var result = await _mediator.Send(new GetWishlistCountQuery { UserId = userId });
-            return Ok(new { data = result, message = "Count retrieved", success = true });
+            return Ok(new { data = result, message = _localizer["CountRetrieved"], success = true });
         }
 
 
@@ -205,7 +208,7 @@ namespace API.Controllers
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (String.IsNullOrEmpty(userId))
                 {
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
                 }
 
                 var command = new AddToFavouriteCommand
@@ -236,7 +239,7 @@ namespace API.Controllers
                 _logger.LogError(ex, "Error adding course to favourites");
                 return StatusCode(500, new
                 {
-                    message = "An error occurred while adding to favourites",
+                    message = _localizer["ErrorAddingToFavourites"],
                     success = false
                 });
             }
@@ -250,11 +253,12 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<DeleteFromFavouriteResponse>> RemoveFromFavourites(string courseId)
         {
-            try {
+            try
+            {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (String.IsNullOrEmpty(userId))
                 {
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
                 }
                 var command = new DeleteFromFavouriteCommand
                 {
@@ -280,7 +284,7 @@ namespace API.Controllers
                 _logger.LogError(ex, "Error removing course from favourites");
                 return StatusCode(500, new
                 {
-                    message = "An error occurred while removing from favourites",
+                    message = _localizer["ErrorRemovingFromFavourites"],
                     success = false
                 });
             }
@@ -299,12 +303,12 @@ namespace API.Controllers
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userId))
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var query = new GetUserWishlistQuery
                 {
-                    UserId   = userId,
-                    Page     = Math.Max(1, page),
+                    UserId = userId,
+                    Page = Math.Max(1, page),
                     PageSize = Math.Clamp(pageSize, 1, 50),
                 };
 
@@ -322,7 +326,7 @@ namespace API.Controllers
                 _logger.LogError(ex, "Error fetching user wishlist");
                 return StatusCode(500, new
                 {
-                    message = "An error occurred while fetching your wishlist",
+                    message = _localizer["ErrorFetchingWishlist"],
                     success = false,
                 });
             }

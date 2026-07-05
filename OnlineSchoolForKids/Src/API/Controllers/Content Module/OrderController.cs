@@ -2,9 +2,11 @@
 using Application.Commands.Orders;
 using Application.Queries.Content;
 using Application.Queries.GetUserOrders;
+using Localization;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 using static Application.Queries.GetUserOrders.GetUserOrdersQueryHandler;
 
@@ -18,11 +20,13 @@ namespace API.Controllers
     {
         private readonly IMediator _mediator;
         private readonly ILogger<OrderController> _logger;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public OrderController(IMediator mediator, ILogger<OrderController> logger)
+        public OrderController(IMediator mediator, ILogger<OrderController> logger, IStringLocalizer<SharedResource> localizer)
         {
             _mediator = mediator;
             _logger = logger;
+            _localizer = localizer;
         }
 
 
@@ -33,15 +37,15 @@ namespace API.Controllers
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userId))
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var command = new CreateOrderCommand
                 {
-                    UserId          = userId,
+                    UserId = userId,
                     PaymentMethodId = request.PaymentMethodId,
-                    CouponCode      = request.CouponCode,
-                    CourseIds       = request.CourseIds,
-                    Notes           = request.Notes
+                    CouponCode = request.CouponCode,
+                    CourseIds = request.CourseIds,
+                    Notes = request.Notes
                 };
 
                 var result = await _mediator.Send(command);
@@ -54,7 +58,7 @@ namespace API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating order");
-                return StatusCode(500, new { message = "An error occurred while creating order", success = false });
+                return StatusCode(500, new { message = _localizer["ErrorCreatingOrder"], success = false });
             }
         }
 
@@ -67,7 +71,7 @@ namespace API.Controllers
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userId))
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var query = new GetUserOrdersQuery { UserId = userId };
                 var result = await _mediator.Send(query);
@@ -77,7 +81,7 @@ namespace API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting orders");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
@@ -89,20 +93,20 @@ namespace API.Controllers
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userId))
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var query = new GetOrderQuery { OrderId = id, UserId = userId };
                 var result = await _mediator.Send(query);
 
                 if (result == null)
-                    return NotFound(new { message = "Order not found", success = false });
+                    return NotFound(new { message = _localizer["OrderNotFound"], success = false });
 
                 return Ok(new { data = result, success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting order {OrderId}", id);
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
@@ -114,7 +118,7 @@ namespace API.Controllers
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userId))
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var command = new CancelOrderCommand { OrderId = id, UserId = userId };
                 var result = await _mediator.Send(command);
@@ -127,7 +131,7 @@ namespace API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error cancelling order {OrderId}", id);
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
     }

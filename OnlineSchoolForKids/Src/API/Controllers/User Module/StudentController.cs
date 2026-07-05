@@ -2,10 +2,11 @@
 using Application.Queries.Content;
 using Application.Queries.Profile.Students;
 using Domain.Interfaces.Repositories.Users;
+using Localization;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 
 namespace API.Controllers
@@ -17,11 +18,13 @@ namespace API.Controllers
 
         private readonly IMediator _mediator;
         private readonly IUserRepository _userRepository;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public StudentController(IMediator mediator, IUserRepository userRepository)
+        public StudentController(IMediator mediator, IUserRepository userRepository, IStringLocalizer<SharedResource> localizer)
         {
             _mediator = mediator;
             _userRepository = userRepository;
+            _localizer = localizer;
         }
 
         [HttpGet("courses")]
@@ -108,7 +111,7 @@ namespace API.Controllers
                 var result = await _mediator.Send(query);
 
                 if (result == null)
-                    return NotFound(new { message = "No parent is currently linked to this account" });
+                    return NotFound(new { message = _localizer["NoParentLinkedToAccount"] });
 
                 return Ok(result);
             }
@@ -140,7 +143,7 @@ namespace API.Controllers
                 };
 
                 await _mediator.Send(command);
-                return Ok(new { message = "Parent account successfully unlinked" });
+                return Ok(new { message = _localizer["ParentAccountUnlinkedSuccessfully"] });
             }
             catch (KeyNotFoundException ex)
             {
@@ -160,7 +163,7 @@ namespace API.Controllers
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userId))
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var result = await _mediator.Send(
                     new GetUserEnrollmentsQuery { UserId = userId }, ct);
@@ -169,7 +172,7 @@ namespace API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
     }

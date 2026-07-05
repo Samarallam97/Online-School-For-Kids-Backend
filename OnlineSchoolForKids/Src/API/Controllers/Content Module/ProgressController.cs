@@ -1,9 +1,11 @@
 ﻿using Application.Commands.Course;
 using Application.Queries.Content;
 using Application.Queries.Content.Calendar;
+using Localization;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 using static MarkLessonCompleteHandler;
 using static ToggleBookmarkHandler;
@@ -14,16 +16,18 @@ namespace API.Controllers.Content_Module
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-        public class ProgressController : ControllerBase
-        {
-            private readonly IMediator _mediator;
-            private readonly ILogger<ProgressController> _logger;
+    public class ProgressController : ControllerBase
+    {
+        private readonly IMediator _mediator;
+        private readonly ILogger<ProgressController> _logger;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
-            public ProgressController(IMediator mediator, ILogger<ProgressController> logger)
-            {
-                _mediator = mediator;
-                _logger = logger;
-            }
+        public ProgressController(IMediator mediator, ILogger<ProgressController> logger, IStringLocalizer<SharedResource> localizer)
+        {
+            _mediator = mediator;
+            _logger = logger;
+            _localizer = localizer;
+        }
         /// <summary>
         /// Get student dashboard with all enrolled courses
         /// GET /api/progress/dashboard
@@ -35,7 +39,7 @@ namespace API.Controllers.Content_Module
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var query = new GetStudentDashboardQuery { UserId = userId };
                 var result = await _mediator.Send(query, cancellationToken);
@@ -45,7 +49,7 @@ namespace API.Controllers.Content_Module
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting dashboard");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
@@ -59,7 +63,7 @@ namespace API.Controllers.Content_Module
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var query = new GetCourseCurriculumQuery
                 {
@@ -70,14 +74,14 @@ namespace API.Controllers.Content_Module
                 var result = await _mediator.Send(query, cancellationToken);
 
                 if (result == null)
-                    return NotFound(new { message = "Course not found", success = false });
+                    return NotFound(new { message = _localizer["CourseNotFound"], success = false });
 
                 return Ok(new { data = result, success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting course curriculum");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
@@ -91,7 +95,7 @@ namespace API.Controllers.Content_Module
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var query = new GetUserQuizResultsQuery
                 {
@@ -102,14 +106,14 @@ namespace API.Controllers.Content_Module
                 var result = await _mediator.Send(query, cancellationToken);
 
                 if (result == null)
-                    return NotFound(new { message = "No quiz results found", success = false });
+                    return NotFound(new { message = _localizer["NoQuizResultsFound"], success = false });
 
                 return Ok(new { data = result, success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting quiz scores");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
@@ -123,7 +127,7 @@ namespace API.Controllers.Content_Module
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var command = new CreateNoteCommand
                 {
@@ -134,7 +138,7 @@ namespace API.Controllers.Content_Module
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (result == null)
-                    return BadRequest(new { message = "Failed to create note", success = false });
+                    return BadRequest(new { message = _localizer["FailedToCreateNote"], success = false });
 
                 return Ok(new
                 {
@@ -146,7 +150,7 @@ namespace API.Controllers.Content_Module
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating note");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
@@ -159,7 +163,7 @@ namespace API.Controllers.Content_Module
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var command = new ToggleBookmarkCommand
                 {
@@ -182,7 +186,7 @@ namespace API.Controllers.Content_Module
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error toggling bookmark");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
@@ -199,7 +203,7 @@ namespace API.Controllers.Content_Module
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var query = new GetContinueLearningQuery
                 {
@@ -210,14 +214,14 @@ namespace API.Controllers.Content_Module
                 var result = await _mediator.Send(query, cancellationToken);
 
                 if (result == null)
-                    return NotFound(new { message = "No enrollment found", success = false });
+                    return NotFound(new { message = _localizer["NoEnrollmentFound"], success = false });
 
                 return Ok(new { data = result, success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting continue learning data");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
@@ -230,7 +234,7 @@ namespace API.Controllers.Content_Module
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var command = new UpdateLessonProgressCommand
                 {
@@ -253,7 +257,7 @@ namespace API.Controllers.Content_Module
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating progress");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
@@ -266,7 +270,7 @@ namespace API.Controllers.Content_Module
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var command = new MarkLessonCompleteCommand
                 {
@@ -293,7 +297,7 @@ namespace API.Controllers.Content_Module
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error marking lesson complete");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         [HttpGet("{courseId}/{lessonId}")]
@@ -306,7 +310,7 @@ namespace API.Controllers.Content_Module
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var query = new GetLessonProgressQuery
                 {
@@ -338,7 +342,7 @@ namespace API.Controllers.Content_Module
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting lesson progress");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         [HttpGet("stats")]
@@ -348,7 +352,7 @@ namespace API.Controllers.Content_Module
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var query = new GetCalendarStatsQuery { UserId = userId };
                 var result = await _mediator.Send(query, cancellationToken);
@@ -358,12 +362,12 @@ namespace API.Controllers.Content_Module
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting calendar stats");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
     }
 }
 
 
- 
+
 

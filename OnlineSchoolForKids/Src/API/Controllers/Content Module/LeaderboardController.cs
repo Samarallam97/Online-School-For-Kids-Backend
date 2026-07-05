@@ -1,9 +1,11 @@
 ﻿using Application.Commands.Leaderboard;
 using Application.Queries;
 using Application.Queries.Leaderboard;
+using Localization;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 
 namespace API.Controllers.Content_Module
@@ -15,11 +17,13 @@ namespace API.Controllers.Content_Module
     {
         private readonly IMediator _mediator;
         private readonly ILogger<LeaderboardController> _logger;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public LeaderboardController(IMediator mediator, ILogger<LeaderboardController> logger)
+        public LeaderboardController(IMediator mediator, ILogger<LeaderboardController> logger, IStringLocalizer<SharedResource> localizer)
         {
             _mediator = mediator;
             _logger = logger;
+            _localizer = localizer;
         }
 
         // ── Existing endpoints (unchanged) ────────────────────────────────────
@@ -34,7 +38,7 @@ namespace API.Controllers.Content_Module
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var query = new GetLeaderboardQuery
                 {
@@ -49,7 +53,7 @@ namespace API.Controllers.Content_Module
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting leaderboard");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
@@ -60,20 +64,20 @@ namespace API.Controllers.Content_Module
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var query = new GetUserStatsQuery { UserId = userId };
                 var result = await _mediator.Send(query, cancellationToken);
 
                 if (result == null)
-                    return NotFound(new { message = "User stats not found", success = false });
+                    return NotFound(new { message = _localizer["UserStatsNotFound"], success = false });
 
                 return Ok(new { data = result, success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting user stats");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
@@ -88,14 +92,14 @@ namespace API.Controllers.Content_Module
                 var result = await _mediator.Send(query, cancellationToken);
 
                 if (result == null)
-                    return NotFound(new { message = "User stats not found", success = false });
+                    return NotFound(new { message = _localizer["UserStatsNotFound"], success = false });
 
                 return Ok(new { data = result, success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting user stats");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
@@ -111,14 +115,14 @@ namespace API.Controllers.Content_Module
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (!result)
-                    return BadRequest(new { message = "Failed to award points", success = false });
+                    return BadRequest(new { message = _localizer["FailedToAwardPoints"], success = false });
 
-                return Ok(new { message = "Points awarded successfully", success = true });
+                return Ok(new { message = _localizer["PointsAwardedSuccessfully"], success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error awarding points");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
@@ -129,20 +133,20 @@ namespace API.Controllers.Content_Module
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var command = new UpdateStreakCommand { UserId = userId };
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (!result)
-                    return BadRequest(new { message = "Failed to update streak", success = false });
+                    return BadRequest(new { message = _localizer["FailedToUpdateStreak"], success = false });
 
-                return Ok(new { message = "Streak updated", success = true });
+                return Ok(new { message = _localizer["StreakUpdated"], success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating streak");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
@@ -156,14 +160,14 @@ namespace API.Controllers.Content_Module
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (!result)
-                    return BadRequest(new { message = "Failed to recalculate ranks", success = false });
+                    return BadRequest(new { message = _localizer["FailedToRecalculateRanks"], success = false });
 
-                return Ok(new { message = "Ranks recalculated successfully", success = true });
+                return Ok(new { message = _localizer["RanksRecalculatedSuccessfully"], success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error recalculating ranks");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
@@ -175,12 +179,12 @@ namespace API.Controllers.Content_Module
             {
                 var command = new CreateBadgeCommand { Dto = dto };
                 var badgeId = await _mediator.Send(command);
-                return Ok(new { message = "Badge created successfully", id = badgeId });
+                return Ok(new { message = _localizer["BadgeCreatedSuccessfully"], id = badgeId });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating badge");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
@@ -194,7 +198,7 @@ namespace API.Controllers.Content_Module
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var query = new GetMyBadgesQuery { UserId = userId };
                 var result = await _mediator.Send(query, cancellationToken);
@@ -204,7 +208,7 @@ namespace API.Controllers.Content_Module
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting badges");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
@@ -220,7 +224,7 @@ namespace API.Controllers.Content_Module
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var query = new GetMyTransactionsQuery { UserId = userId, Limit = limit };
                 var result = await _mediator.Send(query, cancellationToken);
@@ -230,7 +234,7 @@ namespace API.Controllers.Content_Module
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting transactions");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
     }

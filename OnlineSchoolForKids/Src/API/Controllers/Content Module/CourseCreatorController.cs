@@ -1,9 +1,11 @@
 ﻿using Application.Commands;
 using Application.Commands.Course;
 using Application.Queries;
+using Localization;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 using static Application.Commands.Course.CreateSectionHandler;
 using static Application.Commands.UpdateCourseHandler;
@@ -19,13 +21,16 @@ namespace API.Controllers
     {
         private readonly IMediator _mediator;
         private readonly ILogger<CourseCreatorController> _logger;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
         public CourseCreatorController(
             IMediator mediator,
-            ILogger<CourseCreatorController> logger)
+            ILogger<CourseCreatorController> logger,
+            IStringLocalizer<SharedResource> localizer)
         {
             _mediator = mediator;
             _logger = logger;
+            _localizer = localizer;
         }
 
 
@@ -45,7 +50,7 @@ namespace API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting instructor's courses");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
@@ -62,19 +67,19 @@ namespace API.Controllers
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (result == null)
-                    return BadRequest(new { message = "Failed to create course", success = false });
+                    return BadRequest(new { message = _localizer["FailedToCreateCourse"], success = false });
 
                 return Ok(new
                 {
                     data = result,
-                    message = "Course created successfully",
+                    message = _localizer["CourseCreatedSuccessfully"],
                     success = true
                 });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating course");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         [HttpPut("courses/{courseId}")]
@@ -97,14 +102,14 @@ namespace API.Controllers
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (!result)
-                    return NotFound(new { message = "Course not found", success = false });
+                    return NotFound(new { message = _localizer["CourseNotFound"], success = false });
 
-                return Ok(new { message = "Course updated successfully", success = true });
+                return Ok(new { message = _localizer["CourseUpdatedSuccessfully"], success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating course");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         [HttpDelete("courses/{courseId}")]
@@ -116,18 +121,18 @@ namespace API.Controllers
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null) return Unauthorized();
-                var command = new DeleteCourseCommand { CourseId = courseId,InstructorId=userId };
+                var command = new DeleteCourseCommand { CourseId = courseId, InstructorId = userId };
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (!result)
-                    return NotFound(new { message = "Course not found", success = false });
+                    return NotFound(new { message = _localizer["CourseNotFound"], success = false });
 
-                return Ok(new { message = "Course deleted successfully", success = true });
+                return Ok(new { message = _localizer["CourseDeletedSuccessfully"], success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting course");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         [HttpPost("courses/{courseId}/publish")]
@@ -150,18 +155,18 @@ namespace API.Controllers
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (!result)
-                    return NotFound(new { message = "Course not found", success = false });
+                    return NotFound(new { message = _localizer["CourseNotFound"], success = false });
 
                 return Ok(new
                 {
-                    message = request.Publish ? "Course published" : "Course unpublished",
+                    message = request.Publish ? _localizer["CoursePublished"] : _localizer["CourseUnPublished"],
                     success = true
                 });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error publishing course");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         [HttpPost("sections")]
@@ -173,7 +178,7 @@ namespace API.Controllers
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null) return Unauthorized();
-                var command = new CreateSectionCommand { Dto = dto ,InstructorId=userId};
+                var command = new CreateSectionCommand { Dto = dto, InstructorId = userId };
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (!result)
@@ -184,7 +189,7 @@ namespace API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating section");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         [HttpPut("sections/{courseId}/{sectionId}")]
@@ -209,14 +214,14 @@ namespace API.Controllers
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (!result)
-                    return NotFound(new { message = "Section not found", success = false });
+                    return NotFound(new { message = _localizer["SectionNotFound"], success = false });
 
-                return Ok(new { message = "Section updated successfully", success = true });
+                return Ok(new { message = _localizer["SectionUpdatedSuccessfully"], success = true });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating section");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                _logger.LogError(ex, _localizer["ErrorUpdatingSection"]);
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         [HttpDelete("sections/{courseId}/{sectionId}")]
@@ -239,14 +244,14 @@ namespace API.Controllers
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (!result)
-                    return NotFound(new { message = "Section not found", success = false });
+                    return NotFound(new { message = _localizer["SectionNotFound"], success = false });
 
-                return Ok(new { message = "Section deleted successfully", success = true });
+                return Ok(new { message = _localizer["SectionDeletedSuccessfully"], success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting section");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         [HttpPost("lessons")]
@@ -258,18 +263,18 @@ namespace API.Controllers
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null) return Unauthorized();
-                var command = new CreateLessonCommand { Dto = dto ,InstructorId = userId};
+                var command = new CreateLessonCommand { Dto = dto, InstructorId = userId };
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (!result)
-                    return BadRequest(new { message = "Failed to create lesson", success = false });
+                    return BadRequest(new { message = _localizer["FailedToCreateLesson"], success = false });
 
-                return Ok(new { message = "Lesson created successfully", success = true });
+                return Ok(new { message = _localizer["LessonCreatedSuccessfully"], success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating lesson");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
@@ -297,14 +302,14 @@ namespace API.Controllers
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (!result)
-                    return NotFound(new { message = "Lesson not found", success = false });
+                    return NotFound(new { message = _localizer["LessonNotFound"], success = false });
 
-                return Ok(new { message = "Lesson updated successfully", success = true });
+                return Ok(new { message = _localizer["LessonUpdatedSuccessfully"], success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating lesson");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
@@ -332,12 +337,12 @@ namespace API.Controllers
                 if (!result)
                     return NotFound(new { message = "Lesson not found", success = false });
 
-                return Ok(new { message = "Lesson deleted successfully", success = true });
+                return Ok(new { message = _localizer["LessonDeletedSuccessfully"], success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting lesson");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         [HttpPost("materials")]
@@ -349,22 +354,22 @@ namespace API.Controllers
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null) return Unauthorized();
-                var command = new AddMaterialCommand { Dto = dto,InstructorId = userId };
+                var command = new AddMaterialCommand { Dto = dto, InstructorId = userId };
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (!result)
-                    return BadRequest(new { message = "Failed to add material", success = false });
+                    return BadRequest(new { message = _localizer["FailedToAddMaterial"], success = false });
 
-                return Ok(new { message = "Material added successfully", success = true });
+                return Ok(new { message = _localizer["MaterialAddedSuccessfully"], success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error adding material");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 
-        
+
 
         /// <summary>
         /// Full course detail (sections + lessons) for the instructor's course
@@ -397,7 +402,7 @@ namespace API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting course management detail");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
 

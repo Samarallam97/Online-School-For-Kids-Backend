@@ -1,12 +1,12 @@
-﻿using Application.Commands.Profile;
-using Application.Commands.Profile.Parents;
+﻿using Application.Commands.Profile.Parents;
 using Application.DTOs;
 using Application.Queries.Profile.Parents;
 using Domain.Entities.Users;
+using Localization;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 
 namespace API.Controllers;
@@ -17,10 +17,12 @@ namespace API.Controllers;
 public class ParentController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public ParentController(IMediator mediator)
+    public ParentController(IMediator mediator, IStringLocalizer<SharedResource> localizer)
     {
         _mediator = mediator;
+        _localizer = localizer;
     }
 
 
@@ -80,7 +82,7 @@ public class ParentController : ControllerBase
 
             await _mediator.Send(command);
 
-            return Ok(new { message = "Invitation sent successfully" });
+            return Ok(new { message = _localizer["InvitationSentSuccessfully"] });
         }
         catch (KeyNotFoundException ex)
         {
@@ -277,7 +279,7 @@ public class ParentController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateChildNotificationPreferences(string childId,[FromBody] NotificationPreferences preferences)
+    public async Task<IActionResult> UpdateChildNotificationPreferences(string childId, [FromBody] NotificationPreferences preferences)
     {
         try
         {

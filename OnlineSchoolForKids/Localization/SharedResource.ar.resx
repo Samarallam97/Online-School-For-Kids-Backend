@@ -966,4 +966,217 @@
   <data name="YearsOfExperienceUnrealistic" xml:space="preserve">
     <value>عدد سنوات الخبرة غير واقعي</value>
   </data>
+  <data name="UserNotAuthenticated" xml:space="preserve">
+    <value>يجب تسجيل الدخول أولًا</value>
+  </data>
+  <data name="EventCreatedSuccessfully" xml:space="preserve">
+    <value>تم إنشاء الحدث بنجاح</value>
+  </data>
+  <data name="EventUpdatedSuccessfully" xml:space="preserve">
+    <value>تم تحديث الحدث بنجاح</value>
+  </data>
+  <data name="EventDeletedSuccessfully" xml:space="preserve">
+    <value>تم حذف الحدث بنجاح</value>
+  </data>
+  <data name="FailedToCreateEvent" xml:space="preserve">
+    <value>فشل في إنشاء الحدث</value>
+  </data>
+  <data name="ErrorCreatingEvent" xml:space="preserve">
+    <value>حدث خطأ أثناء إنشاء الحدث</value>
+  </data>
+  <data name="ErrorAddingToCart" xml:space="preserve">
+    <value>حدث خطأ أثناء إضافة المنتج إلى سلة التسوق</value>
+  </data>
+  <data name="ErrorRemovingFromCart" xml:space="preserve">
+    <value>حدث خطأ أثناء إزالة المنتج من سلة التسوق</value>
+  </data>
+  <data name="ErrorClearingCart" xml:space="preserve">
+    <value>حدث خطأ أثناء إفراغ سلة التسوق</value>
+  </data>
+  <data name="ErrorRetrievingCart" xml:space="preserve">
+    <value>حدث خطأ أثناء استرجاع سلة التسوق</value>
+  </data>
+  <data name="ErrorRetrievingCourse" xml:space="preserve">
+    <value>حدث خطأ أثناء استرجاع الكورس</value>
+  </data>
+  <data name="CourseNotFoundOrNotAvailable" xml:space="preserve">
+    <value>الدورة غير موجودة أو غير متاحة</value>
+  </data>
+  <data name="RecommendationFeatureComingSoon" xml:space="preserve">
+    <value>ميزة التوصيات ستكون متاحة قريبًا</value>
+  </data>
+  <data name="ErrorRetrievingRecommendedCourses" xml:space="preserve">
+    <value>حدث خطأ أثناء استرجاع الدورات الموصى بها</value>
+  </data>
+  <data name="TrendingFeatureComingSoon" xml:space="preserve">
+    <value>ميزة الدورات الرائجة ستكون متاحة قريبًا</value>
+  </data>
+  <data name="ErrorRetrievingTrendingCourses" xml:space="preserve">
+    <value>حدث خطأ أثناء استرجاع الدورات الرائجة</value>
+  </data>
+  <data name="ErrorClearingWishlist" xml:space="preserve">
+    <value>حدث خطأ أثناء إفراغ قائمة الأمنيات</value>
+  </data>
+  <data name="CountRetrieved" xml:space="preserve">
+    <value>تم استرجاع العدد بنجاح</value>
+  </data>
+  <data name="ErrorAddingToFavourites" xml:space="preserve">
+    <value>حدث خطأ أثناء الإضافة إلى المفضلة</value>
+  </data>
+  <data name="ErrorRemovingFromFavourites" xml:space="preserve">
+    <value>حدث خطأ أثناء الإزالة من المفضلة</value>
+  </data>
+  <data name="ErrorFetchingWishlist" xml:space="preserve">
+    <value>فشل في إرسال الاختبار</value>
+  </data>
+  <data name="CourseCreatedSuccessfully" xml:space="preserve">
+    <value>تم إنشاء الدورة بنجاح</value>
+  </data>
+  <data name="FailedToCreateCourse" xml:space="preserve">
+    <value>فشل في إنشاء الدورة</value>
+  </data>
+  <data name="CourseUpdatedSuccessfully" xml:space="preserve">
+    <value>تم تحديث الدورة بنجاح</value>
+  </data>
+  <data name="CourseDeletedSuccessfully" xml:space="preserve">
+    <value>تم حذف الدوره بنجاح</value>
+  </data>
+  <data name="CoursePublished" xml:space="preserve">
+    <value>تم نشر الدورة</value>
+  </data>
+  <data name="CourseUnpublished" xml:space="preserve">
+    <value>تم إلغاء نشر الدورة</value>
+  </data>
+  <data name="SectionUpdatedSuccessfully" xml:space="preserve">
+    <value>تم تحديث القسم بنجاح</value>
+  </data>
+  <data name="ErrorUpdatingSection" xml:space="preserve">
+    <value>حدث خطأ اثناء تحديث القسم</value>
+  </data>
+  <data name="SectionDeletedSuccessfully" xml:space="preserve">
+    <value>تم حذف القسم بنجاح</value>
+  </data>
+  <data name="FailedToCreateLesson" xml:space="preserve">
+    <value>فشل في انشاء الدرس</value>
+  </data>
+  <data name="LessonCreatedSuccessfully" xml:space="preserve">
+    <value>تم انشاء الدرس بنجاح</value>
+  </data>
+  <data name="LessonUpdatedSuccessfully" xml:space="preserve">
+    <value>تم تحديث الدرس بنجاح</value>
+  </data>
+  <data name="LessonDeletedSuccessfully" xml:space="preserve">
+    <value>تم حذف الدرس بنجاح</value>
+  </data>
+  <data name="FailedToAddMaterial" xml:space="preserve">
+    <value>فشل في إضافة المادة</value>
+  </data>
+  <data name="MaterialAddedSuccessfully" xml:space="preserve">
+    <value>تم اضافة المادة بنجاح</value>
+  </data>
+  <data name="UserStatsNotFound" xml:space="preserve">
+    <value>لم يتم العثور على إحصائيات المستخدم</value>
+  </data>
+  <data name="FailedToAwardPoints" xml:space="preserve">
+    <value>فشل في منح النقاط</value>
+  </data>
+  <data name="PointsAwardedSuccessfully" xml:space="preserve">
+    <value>تم منح النقاط بنجاح</value>
+  </data>
+  <data name="FailedToUpdateStreak" xml:space="preserve">
+    <value>فشل في تحديث سلسلة الإنجازات</value>
+  </data>
+  <data name="StreakUpdated" xml:space="preserve">
+    <value>تم تحديث سلسلة الإنجازات</value>
+  </data>
+  <data name="FailedToRecalculateRanks" xml:space="preserve">
+    <value>فشل في إعادة احتساب التصنيفات</value>
+  </data>
+  <data name="RanksRecalculatedSuccessfully" xml:space="preserve">
+    <value>تمت إعادة احتساب التصنيفات بنجاح</value>
+  </data>
+  <data name="BadgeCreatedSuccessfully" xml:space="preserve">
+    <value>تم إنشاء الشارة بنجاح</value>
+  </data>
+  <data name="CommentApproved" xml:space="preserve">
+    <value>تمت الموافقة على التعليق</value>
+  </data>
+  <data name="CommentNotFound" xml:space="preserve">
+    <value>التعليق غير موجود</value>
+  </data>
+  <data name="CommentRemoved" xml:space="preserve">
+    <value>تم حذف التعليق</value>
+  </data>
+  <data name="ReportNotFound" xml:space="preserve">
+    <value>البلاغ غير موجود</value>
+  </data>
+  <data name="ActionTakenSuccessfully" xml:space="preserve">
+    <value>تم تنفيذ الإجراء بنجاح</value>
+  </data>
+  <data name="CommentCreatedSuccessfully" xml:space="preserve">
+    <value>تم انشاء التعليق بنجاح</value>
+  </data>
+  <data name="FailedToCreateComment" xml:space="preserve">
+    <value>فشل في انشاء التعليق</value>
+  </data>
+  <data name="ErrorCreatingOrder" xml:space="preserve">
+    <value>حدث خطأ أثناء إنشاء الطلب</value>
+  </data>
+  <data name="ContentReportedSuccessfully" xml:space="preserve">
+    <value>تم الإبلاغ عن المحتوى بنجاح</value>
+  </data>
+  <data name="AlreadyReportedOrInvalidContent" xml:space="preserve">
+    <value>تم الإبلاغ عن هذا المحتوى مسبقًا أو أن المحتوى غير صالح</value>
+  </data>
+  <data name="ErrorCreatingQuiz" xml:space="preserve">
+    <value>حدث خطأ أثناء إنشاء الاختبار</value>
+  </data>
+  <data name="FailedToSubmitQuiz" xml:space="preserve">
+    <value>Failed to submit the quiz</value>
+  </data>
+  <data name="QuizPassed" xml:space="preserve">
+    <value>لقد اجتزت الاختبار بنجاح</value>
+  </data>
+  <data name="QuizCompleted" xml:space="preserve">
+    <value>تم إكمال الاختبار</value>
+  </data>
+  <data name="SuperAdminPrivilegesRequired" xml:space="preserve">
+    <value>يتطلب هذا الإجراء صلاحيات المسؤول الأعلى (Super Admin)</value>
+  </data>
+  <data name="InvitationSentSuccessfully" xml:space="preserve">
+    <value>تم ارسال الدعوة بنجاح</value>
+  </data>
+  <data name="ParentAccountUnlinkedSuccessfully" xml:space="preserve">
+    <value>تم إلغاء ربط حساب ولي الأمر بنجاح</value>
+  </data>
+  <data name="ErrorFetchingPayouts" xml:space="preserve">
+    <value>حدث خطأ أثناء استرجاع عمليات السحب</value>
+  </data>
+  <data name="ProfilePictureDeletedSuccessfully" xml:space="preserve">
+    <value>تم حذف صورة الملف الشخصي بنجاح</value>
+  </data>
+  <data name="ErrorUploadingProfilePicture" xml:space="preserve">
+    <value>حدث خطأ أثناء رفع صورة الملف الشخصي</value>
+  </data>
+  <data name="ChunkUpdated" xml:space="preserve">
+    <value>تم تحديث الجزء</value>
+  </data>
+  <data name="VideoSizeUnder100MB" xml:space="preserve">
+    <value>يجب ألا يتجاوز حجم الفيديو 100 ميجابايت</value>
+  </data>
+  <data name="ImageSizeUnder10MB" xml:space="preserve">
+    <value>يجب ألا يتجاوز حجم الصورة 10 ميجابايت</value>
+  </data>
+  <data name="FileSizeUnder25MB" xml:space="preserve">
+    <value>يجب ألا يتجاوز حجم الملف 25 ميجابايت</value>
+  </data>
+  <data name="NoQuizResultsFound" xml:space="preserve">
+    <value>لم يتم العثور على نتائج للاختبار</value>
+  </data>
+  <data name="FailedToCreateNote" xml:space="preserve">
+    <value>فشل في إنشاء الملاحظة</value>
+  </data>
+  <data name="NoEnrollmentFound" xml:space="preserve">
+    <value>لم يتم العثور على تسجيل في الدورة</value>
+  </data>
 </root>

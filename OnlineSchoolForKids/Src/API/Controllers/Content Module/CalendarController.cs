@@ -1,8 +1,10 @@
 ﻿using Application.Commands.Calendar;
 using Application.Queries.Content.Calendar;
+using Localization;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 using static Application.Commands.Calendar.CreateEventHandler;
 
@@ -15,11 +17,13 @@ namespace API.Controllers.Content_Module
     {
         private readonly IMediator _mediator;
         private readonly ILogger<CalendarController> _logger;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public CalendarController(IMediator mediator, ILogger<CalendarController> logger)
+        public CalendarController(IMediator mediator, ILogger<CalendarController> logger, IStringLocalizer<SharedResource> localizer)
         {
             _mediator = mediator;
             _logger = logger;
+            _localizer = localizer;
         }
         [HttpPost("event")]
         [Authorize(Roles = "ContentCreator,Admin")]
@@ -32,7 +36,7 @@ namespace API.Controllers.Content_Module
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
                 if (userId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var command = new CreateEventCommand
                 {
@@ -43,19 +47,19 @@ namespace API.Controllers.Content_Module
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (result == null)
-                    return BadRequest(new { message = "Failed to create event", success = false });
+                    return BadRequest(new { message = _localizer["FailedToCreateEvent"], success = false });
 
                 return Ok(new
                 {
                     data = result,
-                    message = "Event created successfully",
+                    message = _localizer["EventCreatedSuccessfully"],
                     success = true
                 });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating event");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         [HttpPut("event/{eventId}")]
@@ -76,14 +80,14 @@ namespace API.Controllers.Content_Module
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (!result)
-                    return NotFound(new { message = "Event not found", success = false });
+                    return NotFound(new { message = _localizer["EventNotFound"], success = false });
 
-                return Ok(new { message = "Event updated successfully", success = true });
+                return Ok(new { message = _localizer["EventUpdatedSuccessfully"], success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating event");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         [HttpDelete("event/{eventId}")]
@@ -98,17 +102,17 @@ namespace API.Controllers.Content_Module
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (!result)
-                    return NotFound(new { message = "Event not found", success = false });
+                    return NotFound(new { message = _localizer["EventNotFound"], success = false });
 
-                return Ok(new { message = "Event deleted successfully", success = true });
+                return Ok(new { message = _localizer["EventDeletedSuccessfully"], success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting event");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
-        [HttpPost("join")]     
+        [HttpPost("join")]
         public async Task<IActionResult> JoinEvent(
                     [FromBody] JoinEventDto dto,
                     CancellationToken cancellationToken)
@@ -117,8 +121,8 @@ namespace API.Controllers.Content_Module
             {
 
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userId == null )
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                if (userId == null)
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var command = new JoinEventCommand
                 {
@@ -141,7 +145,7 @@ namespace API.Controllers.Content_Module
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error joining event");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         [HttpGet("event/{eventId}")]
@@ -153,7 +157,7 @@ namespace API.Controllers.Content_Module
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var query = new GetEventByIdQuery
                 {
@@ -164,14 +168,14 @@ namespace API.Controllers.Content_Module
                 var result = await _mediator.Send(query, cancellationToken);
 
                 if (result == null)
-                    return NotFound(new { message = "Event not found", success = false });
+                    return NotFound(new { message = _localizer["EventNotFound"], success = false });
 
                 return Ok(new { data = result, success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting event");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         [HttpGet("upcoming")]
@@ -183,7 +187,7 @@ namespace API.Controllers.Content_Module
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var query = new GetUpcomingEventsQuery
                 {
@@ -198,7 +202,7 @@ namespace API.Controllers.Content_Module
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting upcoming events");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         /// </summary>
@@ -212,7 +216,7 @@ namespace API.Controllers.Content_Module
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var query = new GetCalendarMonthQuery
                 {
@@ -228,7 +232,7 @@ namespace API.Controllers.Content_Module
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting calendar month");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
         [HttpGet("stats")]
@@ -239,7 +243,7 @@ namespace API.Controllers.Content_Module
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
-                    return Unauthorized(new { message = "User not authenticated", success = false });
+                    return Unauthorized(new { message = _localizer["UserNotAuthenticated"], success = false });
 
                 var query = new GetCalendarStatsQuery { UserId = userId };
                 var result = await _mediator.Send(query, cancellationToken);
@@ -249,7 +253,7 @@ namespace API.Controllers.Content_Module
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting calendar stats");
-                return StatusCode(500, new { message = "An error occurred", success = false });
+                return StatusCode(500, new { message = _localizer["AnErrorOccurred"], success = false });
             }
         }
     }
