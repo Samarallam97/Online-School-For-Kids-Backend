@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Domain.Entities.Chat;
+using Domain.Entities.Chatbot;
 using Domain.Entities.Content;
 using Domain.Entities.Content.Calendar;
 using Domain.Entities.Content.Leaderboard;
@@ -71,6 +72,8 @@ public class MongoDbContext
     public IMongoCollection<ChatMessage> ChatMessages => _database.GetCollection<ChatMessage>("chatMessages");
     public IMongoCollection<LiveSession> LiveSessions => _database.GetCollection<LiveSession>("live_sessions");
     public IMongoCollection<Notification> Notifications => _database.GetCollection<Notification>("notifications");
+    public IMongoCollection<PendingQuestion> PendingQuestions => _database.GetCollection<PendingQuestion>("pending_questions");
+
 
 
     public IMongoCollection<T> GetCollection<T>(string name)

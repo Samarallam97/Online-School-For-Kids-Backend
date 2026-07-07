@@ -100,6 +100,8 @@ public static class DependencyInjection
         services.AddScoped<IFollowRepository, FollowRepository>();
         services.AddScoped<ILiveSessionRepository, LiveSessionRepository>();
         services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
+        services.AddScoped<IPendingQuestionRepository, PendingQuestionRepository>();
+
         // Chat
         services.AddScoped<ChatRepository>();
         #endregion
@@ -120,6 +122,14 @@ public static class DependencyInjection
         services.AddScoped<IFeedService, FeedService>();
         services.AddScoped<ILiveNotifier, LiveNotifier>();
         services.AddPaymentProcessors();
+        services.AddHttpClient<IChatbotService, ChatbotService>(client =>
+        {
+            client.BaseAddress = new Uri(
+                configuration["ChatbotSettings:BaseUrl"]
+                ?? "https://ai-production-d71a.up.railway.app");
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
+
         #endregion
 
 
