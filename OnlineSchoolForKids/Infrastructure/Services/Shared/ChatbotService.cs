@@ -10,7 +10,7 @@ namespace Infrastructure.Services.Shared
         private readonly HttpClient _httpClient;
         private readonly ILogger<ChatbotService> _logger;
 
-        private const string PredictEndpoint = "/predict";
+        private const string PredictEndpoint = "/chat";
         private const string AddFaqEndpoint = "/admin/faq";
 
         public ChatbotService(HttpClient httpClient, ILogger<ChatbotService> logger)
@@ -26,8 +26,12 @@ namespace Infrastructure.Services.Shared
         {
             try
             {
+                //var response = await _httpClient.PostAsJsonAsync(
+                //    PredictEndpoint, new PredictRequest(query, lang), ct);
                 var response = await _httpClient.PostAsJsonAsync(
-                    PredictEndpoint, new PredictRequest(query, lang), ct);
+                    PredictEndpoint,
+                    new ChatRequest(query, Guid.NewGuid().ToString()),
+                    ct);
 
                 response.EnsureSuccessStatusCode();
 
@@ -93,9 +97,12 @@ namespace Infrastructure.Services.Shared
 
     // ── Wire shapes ───────────────────────────────────────────────────────────────
 
-    internal record PredictRequest(
-        [property: JsonPropertyName("query")] string Query,
-        [property: JsonPropertyName("lang")] string? Lang);
+    //internal record PredictRequest(
+    //    [property: JsonPropertyName("query")] string Query,
+    //    [property: JsonPropertyName("lang")] string? Lang);
+    internal record ChatRequest(
+    [property: JsonPropertyName("question")] string Question,
+    [property: JsonPropertyName("session_id")] string SessionId);
 
     internal record PredictResponse(
         [property: JsonPropertyName("status")] bool Status,
