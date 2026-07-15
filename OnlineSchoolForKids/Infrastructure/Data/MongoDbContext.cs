@@ -100,5 +100,44 @@ public class MongoDbContext
                     .Ascending(a => a.Status)
                     .Ascending(a => a.HoldExpiresAtUtc))
         });
+        var enrollments = _database.GetCollection<Enrollment>("enrollments");
+
+        enrollments.Indexes.CreateOne(
+            new CreateIndexModel<Enrollment>(
+                Builders<Enrollment>.IndexKeys
+                    .Ascending(x => x.UserId)
+                    .Ascending(x => x.CourseId),
+                new CreateIndexOptions { Unique = true }));
+        var notifications = _database.GetCollection<Notification>("notifications");
+
+        notifications.Indexes.CreateOne(
+            new CreateIndexModel<Notification>(
+                Builders<Notification>.IndexKeys
+                    .Ascending(x => x.UserId)
+                    .Ascending(x => x.IsRead)));
+
+        var userPoints = _database.GetCollection<UserPoints>("userPoints");
+
+        userPoints.Indexes.CreateOne(
+            new CreateIndexModel<UserPoints>(
+                Builders<UserPoints>.IndexKeys
+                    .Descending(x => x.TotalPoints)));
+
+        var orders = _database.GetCollection<Order>("orders");
+
+        orders.Indexes.CreateOne(
+            new CreateIndexModel<Order>(
+                Builders<Order>.IndexKeys
+                    .Ascending(x => x.UserId)
+                    .Descending(x => x.CreatedAt)));
+
+        var wishlists = _database.GetCollection<Wishlist>("wishlist");
+
+        wishlists.Indexes.CreateOne(
+            new CreateIndexModel<Wishlist>(
+                Builders<Wishlist>.IndexKeys
+                    .Ascending(x => x.UserId)
+                    .Ascending(x => x.CourseId),
+                new CreateIndexOptions { Unique = true }));
     }
 }

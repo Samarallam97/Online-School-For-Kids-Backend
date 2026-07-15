@@ -1,10 +1,5 @@
 ﻿using Domain.Interfaces.Repositories.Content;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Queries.Content;
 
@@ -53,7 +48,7 @@ public sealed class GetCategoriesHandler
                 c.Name,
                 c.DisplayOrder,
                 c.Description ?? string.Empty,
-                c.ImageUrl    ?? string.Empty,
+                c.ImageUrl ?? string.Empty,
                 c.CoursesCount))
             .ToList();
 
