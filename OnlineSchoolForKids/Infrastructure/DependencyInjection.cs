@@ -4,6 +4,7 @@ using Domain.Interfaces.Repositories.Content;
 using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services;
 using Domain.Interfaces.Services.Shared;
+using Infrastructure.BackgroundJobs;
 using Infrastructure.Data;
 using Infrastructure.ExternalServices;
 using Infrastructure.Repositories;
@@ -95,13 +96,13 @@ public static class DependencyInjection
         services.AddScoped<IPostCommentRepository, PostCommentRepository>();
         services.AddScoped<IFollowRepository, FollowRepository>();
         services.AddScoped<IVideoProcessingJobRepository, VideoProcessingJobRepository>();
+        services.AddScoped<IReviewRepository, ReviewRepository>();
 
         // Chat
         services.AddScoped<ChatRepository>();
 
 
-        services.AddScoped<IQuizRepository, QuizRepository>();
-        services.AddScoped<IAttemptRepository, AttemptRepository>();
+        services.AddScoped<IQuizAttemptRepository, QuizAttemptRepository>();
         #endregion
 
         #region Services
@@ -118,6 +119,7 @@ public static class DependencyInjection
         services.AddScoped<IFeedService, FeedService>();
         services.AddPaymentProcessors();
 
+        services.AddHostedService<RankRecalculationBackgroundService>();
         // ── AI services ──────────────────────────────────────────────────
         services.AddHttpClient<ITextCorrectionClient, TextCorrectionClient>();
         #endregion

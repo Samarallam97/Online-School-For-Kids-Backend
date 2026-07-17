@@ -16,14 +16,14 @@ namespace Application.Queries.Content
     {
         private readonly ICourseProgressRepository _courseProgressRepo;
         private readonly ICourseRepository _courseRepo;
-        private readonly IAttemptRepository _quizAttemptRepo;
+        private readonly IQuizAttemptRepository _quizAttemptRepo;
         private readonly IUserRepository _userRepository;
         private readonly ILogger<GetStudentDashboardHandler> _logger;
 
         public GetStudentDashboardHandler(
             ICourseProgressRepository courseProgressRepo,
             ICourseRepository courseRepo,
-            IAttemptRepository quizAttemptRepo,
+            IQuizAttemptRepository quizAttemptRepo,
             IUserRepository userRepository,
             ILogger<GetStudentDashboardHandler> logger)
         {

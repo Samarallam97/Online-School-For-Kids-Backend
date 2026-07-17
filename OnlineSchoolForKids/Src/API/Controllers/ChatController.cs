@@ -25,7 +25,7 @@ public class ChatController : ControllerBase
     public ChatController(
         ChatRepository repo,
         IUserRepository users,
-        IHubContext<ChatHub> hub ,
+        IHubContext<ChatHub> hub,
         IConfiguration config)
     {
         _repo  = repo;
@@ -91,6 +91,26 @@ public class ChatController : ControllerBase
             UnreadCount       = 0,
             IsOnline          = ChatHub.IsOnline(req.OtherUserId),
         });
+    }
+
+    /// DELETE /api/chat/conversations/{id}  → delete a conversation (both sides)
+    [HttpDelete("conversations/{id}")]
+    public async Task<IActionResult> DeleteConversation(string id, CancellationToken ct)
+    {
+        var me = UserId();
+        var conv = await _repo.GetConversationByIdAsync(id, ct);
+        if (conv is null) return NotFound(new { message = "Conversation not found" });
+
+        if (conv.ParticipantAId != me && conv.ParticipantBId != me)
+            return Forbid();
+
+        var ok = await _repo.DeleteConversationAsync(id, ct);
+        if (!ok) return NotFound(new { message = "Conversation not found" });
+
+        var otherId = conv.ParticipantAId == me ? conv.ParticipantBId : conv.ParticipantAId;
+        await _hub.Clients.User(otherId).SendAsync("ConversationDeleted", new { conversationId = id });
+
+        return NoContent();
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -568,7 +588,7 @@ public class ChatController : ControllerBase
         group.InviteLinkEnabled = true;
         await _repo.UpdateGroupAsync(group, ct);
 
-        var baseUrl = _config["AppUrls:Frontend"] ?? "https://app.mamaan.com";
+        var baseUrl = _config["FrontUrl"] ?? "http://localhost:5173";
         return Ok(new InviteLinkDto(group.InviteCode, $"{baseUrl}/join/{group.InviteCode}", true));
     }
 
@@ -581,7 +601,7 @@ public class ChatController : ControllerBase
         var caller = group.Members.FirstOrDefault(m => m.UserId == UserId());
         if (!HasPermission(caller, group.WhoCanInvite)) return Forbid();
 
-        var baseUrl = _config["AppUrls:Frontend"] ?? "https://app.mamaan.com";
+        var baseUrl = _config["FrontUrl"] ?? "http://localhost:5173";
         return Ok(new InviteLinkDto(group.InviteCode, $"{baseUrl}/join/{group.InviteCode}", group.InviteLinkEnabled));
     }
 
@@ -650,7 +670,7 @@ public class ChatController : ControllerBase
         if (!HasPermission(caller, group.WhoCanAddMembers)) return Forbid();
 
         var user = await _users.GetByEmailAsync(req.Email.Trim(), ct);
-        var baseUrl = _config["AppUrls:Frontend"] ?? "https://app.mamaan.com";
+        var baseUrl = _config["FrontUrl"] ?? "http://localhost:5173";
 
         if (user is null)
         {

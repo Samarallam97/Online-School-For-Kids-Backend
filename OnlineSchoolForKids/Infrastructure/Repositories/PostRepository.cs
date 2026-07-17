@@ -136,4 +136,25 @@ public class PostRepository : IPostRepository
             p => p.Id == postId && p.AuthorId == authorId && !p.IsDeleted, upd, cancellationToken: ct);
         return r.ModifiedCount > 0;
     }
+
+    public async Task<Post?> UpdateAsync(
+     string postId, string requesterId,
+     string? content, string? visibility, List<string>? mediaUrls, string? mediaType,
+     CancellationToken ct = default)
+    {
+        var filter = Builders<Post>.Filter.Where(p =>
+            p.Id == postId && p.AuthorId == requesterId && !p.IsDeleted);
+
+        var updates = new List<UpdateDefinition<Post>>();
+        if (content != null) updates.Add(Builders<Post>.Update.Set(p => p.Content, content));
+        if (visibility != null) updates.Add(Builders<Post>.Update.Set(p => p.Visibility, visibility));
+        if (mediaUrls != null) updates.Add(Builders<Post>.Update.Set(p => p.MediaUrls, mediaUrls));
+        if (mediaType != null) updates.Add(Builders<Post>.Update.Set(p => p.MediaType, mediaType));
+        updates.Add(Builders<Post>.Update.Set(p => p.UpdatedAt, DateTime.UtcNow));
+
+        var update = Builders<Post>.Update.Combine(updates);
+        var options = new FindOneAndUpdateOptions<Post> { ReturnDocument = ReturnDocument.After };
+
+        return await _posts.FindOneAndUpdateAsync(filter, update, options, ct);
+    }
 }

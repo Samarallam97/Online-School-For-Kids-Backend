@@ -32,7 +32,7 @@ public class AppointmentRepository : GenericRepository<Appointment>, IAppointmen
             .SortByDescending(a => a.AppointmentDate)
             .ToListAsync(ct);
 
-    public async Task<IEnumerable<string>> GetBookedSlotsAsync(
+    public async Task<IEnumerable<Appointment>> GetBookedSlotsAsync(
         string specialistId, string date, CancellationToken ct = default)
     {
         // Return slots for both Pending (held) and Confirmed — both are "taken"
@@ -44,8 +44,7 @@ public class AppointmentRepository : GenericRepository<Appointment>, IAppointmen
                 new[] { AppointmentStatus.Pending, AppointmentStatus.Confirmed })
         );
 
-        var appointments = await _collection.Find(filter).ToListAsync(ct);
-        return appointments.Select(a => a.StartTime);
+        return await _collection.Find(filter).ToListAsync(ct);
     }
 
     public async Task<bool> HasConflictAsync(

@@ -32,6 +32,11 @@ public interface IPostRepository
     Task<bool> UpdateReactionCountsAsync(string postId, Dictionary<string, int> counts, int total, CancellationToken ct = default);
     Task<bool> UpdateCommentsCountAsync(string postId, int delta, CancellationToken ct = default);
     Task<bool> DeleteAsync(string postId, string authorId, CancellationToken ct = default);
+
+    Task<Post?> UpdateAsync(
+    string postId, string requesterId,
+    string? content, string? visibility, List<string>? mediaUrls, string? mediaType,
+    CancellationToken ct = default);
 }
 
 public interface IPostReactionRepository
@@ -46,6 +51,7 @@ public interface IPostReactionRepository
 public interface IPostCommentRepository
 {
     Task<PostComment> CreateAsync(PostComment comment, CancellationToken ct = default);
+    Task<PostComment?> GetByIdAsync(string commentId, CancellationToken ct = default);
     Task<List<PostComment>> GetByPostIdAsync(string postId, CancellationToken ct = default);
     Task<bool> DeleteAsync(string commentId, string authorId, CancellationToken ct = default);
 }

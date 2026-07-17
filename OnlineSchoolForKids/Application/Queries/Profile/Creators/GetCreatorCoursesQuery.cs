@@ -25,7 +25,7 @@ public class GetCreatorCoursesQueryHandler : IRequestHandler<GetCreatorCoursesQu
             Id = c.Id,
             Title = c.Title,
             Thumbnail = c.ThumbnailUrl,
-            StudentsCount = c.EnrolledStudentIds?.Count ?? 0,
+            StudentsCount = c.TotalStudents,
             Rating = c.Rating,
             Category = c.Category?.Name ?? string.Empty,
             IsPublishedOnProfile = c.IsVisible

@@ -39,4 +39,13 @@ public interface IUserRepository : IGenericRepository<User>
     int limit,
     CancellationToken ct = default);
 
+    Task<(IEnumerable<User> Items, long TotalCount)> GetContentCreatorsPagedAsync(
+    string? search,
+    string? expertiseTag,
+    string? sortBy,
+    string? sortOrder,
+    int skip,
+    int limit,
+    CancellationToken ct = default);
+
 }

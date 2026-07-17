@@ -147,7 +147,7 @@ public class GetPublicProfileQueryHandler : IRequestHandler<GetPublicProfileQuer
                 Id = c.Id,
                 Title = c.Title,
                 Thumbnail = c.ThumbnailUrl,
-                StudentsCount = c.EnrolledStudentIds?.Count ?? 0,
+                StudentsCount = c.TotalStudents,
                 Rating = c.Rating,
                 Category = c.Category?.Name ?? string.Empty
             }).ToList();

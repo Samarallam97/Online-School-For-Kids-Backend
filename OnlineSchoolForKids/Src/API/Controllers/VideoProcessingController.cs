@@ -373,7 +373,8 @@ public class VideoProcessingController : ControllerBase
                 Title = request.Title,
                 Transcript = request.Transcript,
                 Order = request.Order,
-                IsFree = request.IsFree
+                IsFree = request.IsFree,
+                Duration = request.Duration,   // ← add this line
             };
 
             var result = await _mediator.Send(command, ct);
@@ -436,4 +437,5 @@ public class SaveChunkAsLessonRequest
     public string Transcript { get; set; } = string.Empty;
     public int Order { get; set; }
     public bool IsFree { get; set; }
+    public int Duration { get; set; }   // ← add this line — seconds, from the frontend
 }

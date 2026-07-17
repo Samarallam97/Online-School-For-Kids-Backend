@@ -13,13 +13,16 @@ namespace Application.Queries.Content.Calendar
     public class GetCalendarStatsHandler : IRequestHandler<GetCalendarStatsQuery, CalendarStatsDto>
     {
         private readonly IEventRepository _eventRepo;
+        private readonly IEnrollmentRepository _enrollmentRepo;
         private readonly ILogger<GetCalendarStatsHandler> _logger;
 
         public GetCalendarStatsHandler(
             IEventRepository eventRepo,
+            IEnrollmentRepository enrollmentRepo,
             ILogger<GetCalendarStatsHandler> logger)
         {
             _eventRepo = eventRepo;
+            _enrollmentRepo = enrollmentRepo;
             _logger = logger;
         }
 
@@ -31,13 +34,22 @@ namespace Application.Queries.Content.Calendar
                 var startOfWeek = GetStartOfWeek(now);
                 var endOfWeek = startOfWeek.AddDays(7);
 
-                var weekEvents = await _eventRepo.GetAllAsync(
-                    e => e.StartDateTime >= startOfWeek && e.StartDateTime < endOfWeek,
-                    ct);
+                var enrolledCourseIds = (await _enrollmentRepo.GetAllAsync(
+                    e => e.UserId == request.UserId, ct))
+                    .Select(e => e.CourseId)
+                    .ToHashSet();
 
-                var upcomingEvents = await _eventRepo.GetAllAsync(
+                var weekEvents = (await _eventRepo.GetAllAsync(
+                    e => e.StartDateTime >= startOfWeek && e.StartDateTime < endOfWeek,
+                    ct))
+                    .Where(e => CalendarEventScope.IsRelevantToUser(e, request.UserId, enrolledCourseIds))
+                    .ToList();
+
+                var upcomingEvents = (await _eventRepo.GetAllAsync(
                     e => e.StartDateTime >= now,
-                    ct);
+                    ct))
+                    .Where(e => CalendarEventScope.IsRelevantToUser(e, request.UserId, enrolledCourseIds))
+                    .ToList();
 
                 return new CalendarStatsDto
                 {
@@ -66,5 +78,3 @@ namespace Application.Queries.Content.Calendar
         public int UpcomingEvents { get; set; }
     }
 }
-
-

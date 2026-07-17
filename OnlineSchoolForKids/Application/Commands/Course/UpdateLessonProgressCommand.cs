@@ -15,7 +15,6 @@ public class UpdateLessonProgressHandler : IRequestHandler<UpdateLessonProgressC
     private readonly ILessonProgressRepository _lessonProgressRepo;
     private readonly IEnrollmentRepository _enrollmentRepo;
     private readonly ICourseRepository _courseRepo;
-    private readonly ILessonRepository _lessonRepository;
     private readonly ICourseProgressRepository _courseProgressRepository;
     private readonly ILogger<UpdateLessonProgressHandler> _logger;
 
@@ -23,14 +22,12 @@ public class UpdateLessonProgressHandler : IRequestHandler<UpdateLessonProgressC
         ILessonProgressRepository lessonProgressRepo,
         IEnrollmentRepository enrollmentRepo,
         ICourseRepository courseRepo,
-        ILessonRepository lessonRepository,
         ICourseProgressRepository courseProgressRepository,
         ILogger<UpdateLessonProgressHandler> logger)
     {
         _lessonProgressRepo = lessonProgressRepo;
         _enrollmentRepo = enrollmentRepo;
         _courseRepo = courseRepo;
-        _lessonRepository = lessonRepository;
         _courseProgressRepository = courseProgressRepository;
         _logger = logger;
     }
@@ -42,9 +39,16 @@ public class UpdateLessonProgressHandler : IRequestHandler<UpdateLessonProgressC
         try
         {
             var dto = request.Dto;
-            var lessonExists = await _lessonRepository.ExistsAsync(l => l.Id == dto.LessonId && l.CourseId == dto.CourseId, ct);
 
-            if (!lessonExists)
+            // Load course once — used both for the existence check and the
+            // progress-percentage calc below. Lessons live embedded in
+            // course.Sections, not in a standalone lessons collection.
+            var course = await _courseRepo.GetByIdAsync(dto.CourseId, ct);
+            var lessonExists = course?.Sections?
+                .SelectMany(s => s.Lessons ?? new List<Lesson>())
+                .Any(l => l.Id == dto.LessonId) ?? false;
+
+            if (course == null || !lessonExists)
             {
                 return new UpdateLessonProgressResponse
                 {
@@ -52,6 +56,7 @@ public class UpdateLessonProgressHandler : IRequestHandler<UpdateLessonProgressC
                     Message = "Invalid course or lesson"
                 };
             }
+
             // Get or create lesson progress
             var lessonProgress = await _lessonProgressRepo.GetOneAsync(
                 lp => lp.UserId == request.UserId &&
@@ -61,7 +66,6 @@ public class UpdateLessonProgressHandler : IRequestHandler<UpdateLessonProgressC
 
             if (lessonProgress != null)
             {
-                // Update existing
                 lessonProgress.VideoPosition = dto.VideoPosition;
                 lessonProgress.TimeSpent += dto.TimeSpent;
                 lessonProgress.IsCompleted = dto.IsCompleted;
@@ -77,7 +81,6 @@ public class UpdateLessonProgressHandler : IRequestHandler<UpdateLessonProgressC
             }
             else
             {
-                // Create new
                 lessonProgress = new LessonProgress
                 {
                     UserId = request.UserId,
@@ -99,83 +102,78 @@ public class UpdateLessonProgressHandler : IRequestHandler<UpdateLessonProgressC
                 e => e.UserId == request.UserId && e.CourseId == dto.CourseId,
                 ct);
 
-            if (enrollment != null)
+            if (enrollment == null)
             {
-                enrollment.LastAccessedLessonId = dto.LessonId;
-                enrollment.LastAccessedAt = DateTime.UtcNow;
-
-                // Calculate overall progress
-                var course = await _courseRepo.GetByIdAsync(dto.CourseId, ct);
-                if (course != null)
-                {
-                    var allLessons = course.Sections.SelectMany(s => s.Lessons).ToList();
-                    var totalLessons = allLessons.Count;
-
-                    var allProgress = await _lessonProgressRepo.GetAllAsync(
-                        lp => lp.UserId == request.UserId && lp.CourseId == dto.CourseId,
-                        ct);
-
-                    var completedLessons = allProgress.Count(lp => lp.IsCompleted);
-                    var progressPercentage = totalLessons > 0 ? (double)completedLessons / totalLessons * 100 : 0;
-                    enrollment.Progress = progressPercentage;
-
-                    // Check if course completed
-                    if (enrollment.Progress >= 100 && !enrollment.IsCompleted)
-                    {
-                        enrollment.IsCompleted = true;
-                        enrollment.CompletedAt = DateTime.UtcNow;
-                    }
-
-                    await _enrollmentRepo.UpdateAsync(enrollment.Id, enrollment, ct);
-
-                    var courseProgress = await _courseProgressRepository.GetOneAsync(
-                        cp => cp.UserId == request.UserId && cp.CourseId == dto.CourseId,
-                        ct);
-
-                    if (courseProgress == null)
-                    {
-                        courseProgress = new CourseProgress
-                        {
-                            UserId = request.UserId,
-                            CourseId = dto.CourseId,
-                            EnrollmentId = enrollment.Id,
-                            CompletedLessons = completedLessons,
-                            TotalLessons = totalLessons,
-                            ProgressPercentage = progressPercentage,
-                            TimeSpent = allProgress.Sum(lp => lp.TimeSpent),
-                            LastAccessedAt = DateTime.UtcNow,
-                            CompletedAt = enrollment.IsCompleted ? enrollment.CompletedAt : null,
-                        };
-                        await _courseProgressRepository.CreateAsync(courseProgress, ct);
-                    }
-                    else
-                    {
-                        courseProgress.CompletedLessons = completedLessons;
-                        courseProgress.TotalLessons = totalLessons;
-                        courseProgress.ProgressPercentage = progressPercentage;
-                        courseProgress.TimeSpent = allProgress.Sum(lp => lp.TimeSpent);
-                        courseProgress.LastAccessedAt = DateTime.UtcNow;
-                        courseProgress.CompletedAt = enrollment.IsCompleted ? enrollment.CompletedAt : null;
-
-                        await _courseProgressRepository.UpdateAsync(courseProgress.Id, courseProgress, ct);
-                    }
-
-                    return new UpdateLessonProgressResponse
-                    {
-                        Success = true,
-                        Message = "Progress updated",
-                        CourseProgress = enrollment.Progress
-                    };
-                }
-
                 return new UpdateLessonProgressResponse
                 {
                     Success = true,
                     Message = "Progress updated"
                 };
             }
-        }
 
+            enrollment.LastAccessedLessonId = dto.LessonId;
+            enrollment.LastAccessedAt = DateTime.UtcNow;
+
+            var allLessons = (course.Sections ?? new List<Domain.Entities.Content.Progress.Section>())
+                .SelectMany(s => s.Lessons ?? new List<Lesson>())
+                .ToList();
+            var totalLessons = allLessons.Count;
+
+            var allProgress = await _lessonProgressRepo.GetAllAsync(
+                lp => lp.UserId == request.UserId && lp.CourseId == dto.CourseId,
+                ct);
+
+            var completedLessons = allProgress.Count(lp => lp.IsCompleted);
+            var progressPercentage = totalLessons > 0 ? (double)completedLessons / totalLessons * 100 : 0;
+            enrollment.Progress = progressPercentage;
+
+            if (enrollment.Progress >= 100 && !enrollment.IsCompleted)
+            {
+                enrollment.IsCompleted = true;
+                enrollment.CompletedAt = DateTime.UtcNow;
+            }
+
+            await _enrollmentRepo.UpdateAsync(enrollment.Id, enrollment, ct);
+
+            var courseProgress = await _courseProgressRepository.GetOneAsync(
+                cp => cp.UserId == request.UserId && cp.CourseId == dto.CourseId,
+                ct);
+
+            if (courseProgress == null)
+            {
+                courseProgress = new CourseProgress
+                {
+                    UserId = request.UserId,
+                    CourseId = dto.CourseId,
+                    EnrollmentId = enrollment.Id,
+                    CompletedLessons = completedLessons,
+                    TotalLessons = totalLessons,
+                    ProgressPercentage = progressPercentage,
+                    TimeSpent = allProgress.Sum(lp => lp.TimeSpent),
+                    LastAccessedAt = DateTime.UtcNow,
+                    CompletedAt = enrollment.IsCompleted ? enrollment.CompletedAt : null,
+                };
+                await _courseProgressRepository.CreateAsync(courseProgress, ct);
+            }
+            else
+            {
+                courseProgress.CompletedLessons = completedLessons;
+                courseProgress.TotalLessons = totalLessons;
+                courseProgress.ProgressPercentage = progressPercentage;
+                courseProgress.TimeSpent = allProgress.Sum(lp => lp.TimeSpent);
+                courseProgress.LastAccessedAt = DateTime.UtcNow;
+                courseProgress.CompletedAt = enrollment.IsCompleted ? enrollment.CompletedAt : null;
+
+                await _courseProgressRepository.UpdateAsync(courseProgress.Id, courseProgress, ct);
+            }
+
+            return new UpdateLessonProgressResponse
+            {
+                Success = true,
+                Message = "Progress updated",
+                CourseProgress = enrollment.Progress
+            };
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating lesson progress");
@@ -185,18 +183,14 @@ public class UpdateLessonProgressHandler : IRequestHandler<UpdateLessonProgressC
                 Message = "Failed to update progress"
             };
         }
-        return new UpdateLessonProgressResponse
-        {
-            Success = true,
-            Message = "Progress updated"
-        };
     }
+
     public class UpdateLessonProgressDto
     {
         public string CourseId { get; set; } = string.Empty;
         public string LessonId { get; set; } = string.Empty;
-        public int VideoPosition { get; set; } // Current position in seconds
-        public int TimeSpent { get; set; } // Time spent in this session (seconds)
+        public int VideoPosition { get; set; }
+        public int TimeSpent { get; set; }
         public bool IsCompleted { get; set; } = false;
     }
 
@@ -204,6 +198,6 @@ public class UpdateLessonProgressHandler : IRequestHandler<UpdateLessonProgressC
     {
         public bool Success { get; set; }
         public string Message { get; set; } = string.Empty;
-        public double CourseProgress { get; set; } // Overall course progress %
+        public double CourseProgress { get; set; }
     }
 }

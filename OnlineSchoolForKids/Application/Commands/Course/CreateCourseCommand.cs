@@ -117,7 +117,8 @@ namespace Application.Commands
                 course.Title = dto.Title;
                 course.Description = dto.Description;
                 course.CategoryId = dto.CategoryId;
-                course.AgeGroup = dto.AgeGroup;
+                if (!string.IsNullOrWhiteSpace(dto.AgeGroup))
+                    course.AgeGroup = Enum.Parse<AgeGroup>(dto.AgeGroup, true);
                 course.Price = dto.Price;
                 course.DiscountPrice = dto.DiscountPrice;
                 course.ThumbnailUrl = dto.ThumbnailUrl ?? course.ThumbnailUrl;
@@ -298,7 +299,7 @@ public class UpdateCourseDto
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string CategoryId { get; set; } = string.Empty;
-    public AgeGroup AgeGroup { get; set; }
+    public string AgeGroup { get; set; } = string.Empty;
     public decimal Price { get; set; }
     public decimal? DiscountPrice { get; set; }
     public string? ThumbnailUrl { get; set; }

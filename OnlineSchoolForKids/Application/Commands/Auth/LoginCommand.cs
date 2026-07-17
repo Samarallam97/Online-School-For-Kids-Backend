@@ -1,6 +1,8 @@
-﻿using Application.DTOs;
+﻿using Application.Commands.Leaderboard;
+using Application.DTOs;
 using Domain.Entities.Users;
 using Domain.Enums.Users;
+using Domain.Interfaces.Repositories.Content;
 using Domain.Interfaces.Repositories.Users;
 using Domain.Interfaces.Services;
 using Domain.Interfaces.Services.Shared;
@@ -27,34 +29,36 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResp
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtTokenService _jwtTokenService;
+    private readonly IUserPointsRepository _userPointsRepo;
+    private readonly IMediator _mediator;
 
     public LoginCommandHandler(
         IUserRepository userRepository,
         IPasswordHasher passwordHasher,
-        IJwtTokenService jwtTokenService)
+        IJwtTokenService jwtTokenService,
+        IUserPointsRepository userPointsRepo,
+        IMediator mediator)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
         _jwtTokenService = jwtTokenService;
+        _userPointsRepo = userPointsRepo;
+        _mediator = mediator;
     }
 
     public async Task<Result<AuthResponse>> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
-        // Find user by email
         var user = await _userRepository.GetByEmailAsync(request.Email.ToLower(), cancellationToken);
-
         if (user == null || user.PasswordHash == null)
         {
             return Result<AuthResponse>.Failure("Invalid email or password.");
         }
 
-        // Verify password
         if (!_passwordHasher.VerifyPassword(request.Password, user.PasswordHash))
         {
             return Result<AuthResponse>.Failure("Invalid email or password.");
         }
 
-        // Check if account is active
         if (user.Status != UserStatus.Active)
         {
             return Result<AuthResponse>.Failure("Account is deactivated or not approved. Please contact support.");
@@ -66,10 +70,9 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResp
         }
 
         UserDto userDto = new();
-
         if (user.IsFirstLogin)
         {
-            userDto = MapToUserDto(user, true); 
+            userDto = MapToUserDto(user, true);
             user.IsFirstLogin = false;
         }
         else
@@ -79,9 +82,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResp
 
         if (user.Role == UserRole.Admin && user.TwoFactorEnabled == true)
         {
-            // Generate a short-lived temp token to identify the pending session
             var tempToken = _jwtTokenService.GenerateTempToken(user.Id);
-
             return Result<AuthResponse>.Success(new AuthResponse
             {
                 Requires2FA = true,
@@ -93,11 +94,31 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResp
         user.LastLoginAt = DateTime.UtcNow;
         await _userRepository.UpdateAsync(user.Id, user, cancellationToken);
 
+        // ── Daily login points + streak (once per calendar day) ────────
+        var userPoints = await _userPointsRepo.GetOneAsync(up => up.UserId == user.Id, cancellationToken);
+        var alreadyCreditedToday = userPoints != null
+            && userPoints.LastActivityDate.Date == DateTime.UtcNow.Date;
+
+        if (!alreadyCreditedToday)
+        {
+            await _mediator.Send(new AwardPointsCommand
+            {
+                Dto = new AwardPointsDto
+                {
+                    UserId = user.Id,
+                    Points = 5,
+                    Reason = "DailyLogin",
+                    Description = "Daily login bonus"
+                }
+            }, cancellationToken);
+
+            await _mediator.Send(new UpdateStreakCommand { UserId = user.Id }, cancellationToken);
+        }
+
         // Generate tokens
         var accessToken = _jwtTokenService.GenerateAccessToken(user);
         var refreshToken = _jwtTokenService.GenerateRefreshToken();
 
-        // Set refresh token expiry based on RememberMe
         var tokenExpiry = request.RememberMe ? DateTime.UtcNow.AddDays(30) : DateTime.UtcNow.AddDays(7);
 
         await _jwtTokenService.CreateRefreshTokenAsync(
@@ -106,7 +127,6 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResp
             request.IpAddress,
             request.DeviceInfo
         );
-
 
         return Result<AuthResponse>.Success(new AuthResponse
         {
@@ -117,13 +137,12 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResp
         });
     }
 
-    private static UserDto MapToUserDto(User user , bool IsFirstLogin = false) => new()
+    private static UserDto MapToUserDto(User user, bool IsFirstLogin = false) => new()
     {
         Id = user.Id,
         FullName = user.FullName,
         Role = user.Role.ToString(),
         ProfilePictureUrl = user.ProfilePictureUrl,
         IsFirstLogin = user.IsFirstLogin
-
     };
 }

@@ -301,7 +301,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [RequestSizeLimit(5 * 1024 * 1024)] // 5MB limit
-    public async Task<IActionResult> UploadProfilePicture([FromForm] IFormFile profilePicture)
+    public async Task<IActionResult> UploadProfilePicture(/*[FromForm] */IFormFile profilePicture)
     {
         try
         {

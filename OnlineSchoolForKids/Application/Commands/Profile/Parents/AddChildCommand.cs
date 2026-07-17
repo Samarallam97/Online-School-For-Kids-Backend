@@ -142,4 +142,5 @@ public class ChildDto
     public string? Avatar { get; set; }
     public string? ProfilePictureUrl { get; set; }
     public int Courses { get; set; }
+    public string Status { get; set; } = "active"; // active | suspended | email_not_verified
 }

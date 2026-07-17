@@ -46,7 +46,12 @@ public class GetLinkedChildrenQueryHandler : IRequestHandler<GetLinkedChildrenQu
                         Name = child.FullName,
                         Age = CalculateAge(child.DateOfBirth),
                         ProfilePictureUrl = child.ProfilePictureUrl,
-                        Courses = child.EnrolledCourseIds?.Count ?? 0
+                        Courses = child.EnrolledCourseIds?.Count ?? 0,
+                        Status = child.Status == Domain.Enums.Users.UserStatus.Suspended
+                            ? "suspended"
+                            : !child.EmailVerified
+                                ? "email_not_verified"
+                                : "active"
                     });
                 }
             }

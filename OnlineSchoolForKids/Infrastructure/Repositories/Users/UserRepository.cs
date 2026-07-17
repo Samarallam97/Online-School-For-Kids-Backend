@@ -194,4 +194,56 @@ public class UserRepository : GenericRepository<User>, IUserRepository
 
         return (items, totalCount);
     }
+
+    public async Task<(IEnumerable<User> Items, long TotalCount)> GetContentCreatorsPagedAsync(
+    string? search,
+    string? expertiseTag,
+    string? sortBy,
+    string? sortOrder,
+    int skip,
+    int limit,
+    CancellationToken ct = default)
+    {
+        var filters = new List<FilterDefinition<User>>
+    {
+        Builders<User>.Filter.Eq(u => u.IsDeleted, false),
+        Builders<User>.Filter.Eq(u => u.Role,      UserRole.ContentCreator),
+        Builders<User>.Filter.Eq(u => u.Status,    UserStatus.Active),
+    };
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            filters.Add(Builders<User>.Filter.Or(
+                Builders<User>.Filter.Regex(u => u.FullName,
+                    new MongoDB.Bson.BsonRegularExpression(term, "i")),
+                Builders<User>.Filter.Regex(u => u.Bio,
+                    new MongoDB.Bson.BsonRegularExpression(term, "i"))
+            ));
+        }
+
+        if (!string.IsNullOrWhiteSpace(expertiseTag))
+            filters.Add(Builders<User>.Filter.AnyEq(u => u.ExpertiseTags, expertiseTag));
+
+        var combined = Builders<User>.Filter.And(filters);
+        var totalCount = await _collection.CountDocumentsAsync(combined, cancellationToken: ct);
+
+        var sortDef = (sortBy?.ToLower(), sortOrder?.ToLower()) switch
+        {
+            ("students", _) => Builders<User>.Sort.Descending(u => u.TotalStudents),
+            ("courses", _) => Builders<User>.Sort.Descending(u => u.CoursesCount),
+            ("newest", _) => Builders<User>.Sort.Descending(u => u.CreatedAt),
+            ("rating", _) => Builders<User>.Sort.Descending(u => u.AverageRating),
+            _ => Builders<User>.Sort.Descending(u => u.AverageRating),
+        };
+
+        var items = await _collection
+            .Find(combined)
+            .Sort(sortDef)
+            .Skip(skip)
+            .Limit(limit)
+            .ToListAsync(ct);
+
+        return (items, totalCount);
+    }
 }

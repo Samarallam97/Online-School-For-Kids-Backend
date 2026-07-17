@@ -48,7 +48,7 @@ public class StartVideoProcessingHandler
     private readonly ILogger<StartVideoProcessingHandler> _logger;
 
     private string PipelineBaseUrl =>
-        _config["VideoPipeline:BaseUrl"] ?? "https://web-production-12d4d.up.railway.app";
+        _config["VideoPipeline:BaseUrl"] ?? "https://web-production-92e01.up.railway.app";
 
     public StartVideoProcessingHandler(
         IVideoProcessingJobRepository jobRepo,
@@ -104,6 +104,14 @@ public class StartVideoProcessingHandler
                 using var storageStream = new MemoryStream(videoBytes);
                 job.VideoUrl = await _fileStorage.UploadFileAsync(
                     storageStream, request.FileName ?? "video.mp4", "course-videos");
+            }
+            else if (request.SourceType == "youtube")
+            {
+                // Lessons read their playable source from VideoUrl (SaveChunkAsLessonCommand
+                // copies job.VideoUrl onto the Lesson) — SourceUrl alone is only used for
+                // bookkeeping/display, so it must be mirrored here or the saved lesson ends
+                // up with no video at all.
+                job.VideoUrl = request.YoutubeUrl ?? "";
             }
 
             // 4. Call the right AI pipeline endpoint based on Mode + SourceType

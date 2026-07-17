@@ -2,6 +2,7 @@
 
 namespace API.Controllers;
 
+using Application.Queries;
 using Application.Queries.Profile.Creators;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -30,5 +31,13 @@ public class ContentCreatorController : ControllerBase
     {
         await _mediator.Send(new ToggleCourseVisibilityCommand(UserId, courseId, dto.IsPublishedOnProfile), ct);
         return NoContent();
+    }
+
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetContentCreators([FromQuery] GetContentCreatorsQuery query, CancellationToken ct)
+    {
+        var result = await _mediator.Send(query, ct);
+        return Ok(result);
     }
 }

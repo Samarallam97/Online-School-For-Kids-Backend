@@ -27,6 +27,11 @@ public class PostCommentRepository : IPostCommentRepository
         return comment;
     }
 
+    public async Task<PostComment?> GetByIdAsync(string commentId, CancellationToken ct = default)
+    {
+        return await _comments.Find(c => c.Id == commentId && !c.IsDeleted).FirstOrDefaultAsync(ct);
+    }
+
     public async Task<List<PostComment>> GetByPostIdAsync(string postId, CancellationToken ct = default)
     {
         return await _comments

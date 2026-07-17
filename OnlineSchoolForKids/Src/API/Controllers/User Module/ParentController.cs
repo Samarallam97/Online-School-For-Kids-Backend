@@ -23,6 +23,18 @@ public class ParentController : ControllerBase
         _mediator = mediator;
     }
 
+    [HttpGet("dashboard-stats")]
+    [ProducesResponseType(typeof(ParentDashboardStatsDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetDashboardStats()
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null) return Unauthorized();
+
+        var result = await _mediator.Send(new GetParentDashboardStatsQuery(userId));
+        return Ok(result);
+    }
+
 
     [HttpGet("search-child")]
     [ProducesResponseType(typeof(SearchChildDto), StatusCodes.Status200OK)]
@@ -277,7 +289,7 @@ public class ParentController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateChildNotificationPreferences(string childId,[FromBody] NotificationPreferences preferences)
+    public async Task<IActionResult> UpdateChildNotificationPreferences(string childId, [FromBody] NotificationPreferences preferences)
     {
         try
         {
@@ -308,5 +320,3 @@ public class ParentController : ControllerBase
         }
     }
 }
-
-
