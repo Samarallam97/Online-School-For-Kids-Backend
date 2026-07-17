@@ -21,7 +21,7 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1",
         Description = "Educational platform API with JWT authentication"
     });
-
+    c.CustomSchemaIds(type => type.FullName);
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
@@ -140,5 +140,7 @@ var cleanupTimer = new Timer(_ =>
 
 await SuperAdminSeeder.SeedAsync(app);
 await SpecialistSeeder.SeedAsync(app);
+await ContentCreatorSeeder.SeedAsync(app);
+await CourseSeeder.SeedAsync(app);
 
 app.Run();

@@ -11,7 +11,9 @@
         Course = 1,
         Comment = 2,
         Review = 3,
-        Message = 4
+        Message = 4,
+        Post = 5,
+        PostComment = 6
     }
 
     public enum ReportReason

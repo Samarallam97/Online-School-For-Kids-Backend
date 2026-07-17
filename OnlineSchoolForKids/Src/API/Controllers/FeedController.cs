@@ -109,4 +109,21 @@ public class FeedController : ControllerBase
         [FromQuery] int page = 1, [FromQuery] int pageSize = 10,
         CancellationToken ct = default)
         => Ok(await _feed.GetUserPostsAsync(userId, Me, page, pageSize, ct));
+
+
+    // PUT /api/feed/{postId}
+    [HttpPut("{postId}")]
+    [Authorize]
+    public async Task<IActionResult> UpdatePost(
+        string postId, [FromBody] UpdatePostRequest req, CancellationToken ct = default)
+    {
+        try
+        {
+            var updated = await _feed.UpdatePostAsync(postId, Me!, req, ct);
+            return updated == null
+                ? NotFound(new { message = "Post not found or not yours." })
+                : Ok(updated);
+        }
+        catch (ArgumentException ex) { return BadRequest(new { message = ex.Message }); }
+    }
 }

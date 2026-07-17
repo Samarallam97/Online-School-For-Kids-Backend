@@ -36,10 +36,12 @@ public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordComman
         var user = await _userRepository.GetByEmailAsync(request.Email.ToLower(), cancellationToken);
 
         // For security, always return success even if user doesn't exist
-        if (user == null || user.AuthProvider != AuthProvider.Local)
-        {
-            return Result<string>.Success("If the email exists, a reset link has been sent.");
-        }
+        //if (user == null || user.AuthProvider != AuthProvider.Local)
+         if (user == null )
+
+            {
+                return Result<string>.Success("If the email exists, a reset link has been sent.");
+             }
 
         // Generate reset token
         var resetToken = Guid.NewGuid().ToString();

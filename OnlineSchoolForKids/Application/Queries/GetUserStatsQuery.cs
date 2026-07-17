@@ -147,7 +147,7 @@ namespace Application.Queries
                         Rank = index + 1,
                         UserId = user.UserId,
                         UserName = userName,
-                        UserAvatar = user.UserAvatar,
+                        UserAvatar = userAvatar,
                         Points = request.Period switch
                         {
                             "ThisWeek" => user.WeeklyPoints,

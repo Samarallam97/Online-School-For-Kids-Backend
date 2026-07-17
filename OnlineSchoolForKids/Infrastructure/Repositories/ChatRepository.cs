@@ -53,6 +53,18 @@ public class ChatRepository
         return conv;
     }
 
+    public async Task<bool> DeleteConversationAsync(string conversationId, CancellationToken ct = default)
+    {
+        var update = Builders<Conversation>.Update
+            .Set(c => c.IsDeleted, true)
+            .Set(c => c.UpdatedAt, DateTime.UtcNow);
+        var result = await _conversations.UpdateOneAsync(c => c.Id == conversationId, update, cancellationToken: ct);
+        return result.ModifiedCount > 0;
+    }
+
+    public async Task<Conversation?> GetConversationByIdAsync(string conversationId, CancellationToken ct = default) =>
+        await _conversations.Find(c => c.Id == conversationId).FirstOrDefaultAsync(ct);
+
     public async Task<List<Conversation>> GetUserConversationsAsync(
         string userId, CancellationToken ct = default)
     {

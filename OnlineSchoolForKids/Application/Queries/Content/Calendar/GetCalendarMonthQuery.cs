@@ -18,13 +18,16 @@ namespace Application.Queries.Content.Calendar
     public class GetCalendarMonthHandler : IRequestHandler<GetCalendarMonthQuery, CalendarMonthDto>
     {
         private readonly IEventRepository _eventRepo;
+        private readonly IEnrollmentRepository _enrollmentRepo;
         private readonly ILogger<GetCalendarMonthHandler> _logger;
 
         public GetCalendarMonthHandler(
             IEventRepository eventRepo,
+            IEnrollmentRepository enrollmentRepo,
             ILogger<GetCalendarMonthHandler> logger)
         {
             _eventRepo = eventRepo;
+            _enrollmentRepo = enrollmentRepo;
             _logger = logger;
         }
 
@@ -35,10 +38,17 @@ namespace Application.Queries.Content.Calendar
                 var startOfMonth = new DateTime(request.Year, request.Month, 1);
                 var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
 
-                // Get all events for this month
-                var events = await _eventRepo.GetAllAsync(
+                var enrolledCourseIds = (await _enrollmentRepo.GetAllAsync(
+                    e => e.UserId == request.UserId, ct))
+                    .Select(e => e.CourseId)
+                    .ToHashSet();
+
+                // Get all events for this month that are relevant to this user
+                var events = (await _eventRepo.GetAllAsync(
                     e => e.StartDateTime >= startOfMonth && e.StartDateTime <= endOfMonth,
-                    ct);
+                    ct))
+                    .Where(e => CalendarEventScope.IsRelevantToUser(e, request.UserId, enrolledCourseIds))
+                    .ToList();
 
                 // Group events by day
                 var eventsByDay = events.GroupBy(e => e.StartDateTime.Day)
@@ -76,9 +86,11 @@ namespace Application.Queries.Content.Calendar
                 var startOfWeek = GetStartOfWeek(today);
                 var endOfWeek = startOfWeek.AddDays(7);
 
-                var weekEvents = await _eventRepo.GetAllAsync(
+                var weekEvents = (await _eventRepo.GetAllAsync(
                     e => e.StartDateTime >= startOfWeek && e.StartDateTime < endOfWeek,
-                    ct);
+                    ct))
+                    .Where(e => CalendarEventScope.IsRelevantToUser(e, request.UserId, enrolledCourseIds))
+                    .ToList();
 
                 var eventsThisWeek = weekEvents.Count();
                 var deadlinesThisWeek = weekEvents.Count(e => e.Type == EventType.Assignment || e.Type == EventType.Deadline);

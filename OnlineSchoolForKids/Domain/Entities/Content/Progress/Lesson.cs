@@ -7,6 +7,7 @@ namespace Domain.Entities.Content.Progress
     /// <summary>
     /// Lesson - Represents a single lesson inside a course section
     /// </summary>
+    [BsonIgnoreExtraElements]
     public class Lesson : BaseEntity
     {
         [BsonRepresentation(BsonType.ObjectId)]
@@ -17,6 +18,14 @@ namespace Domain.Entities.Content.Progress
         public string? Description { get; set; }
         public string VideoUrl { get; set; } = string.Empty;
         public int Duration { get; set; } = 0; // Seconds
+
+        /// <summary>
+        /// For lessons created by chunking a longer source video: the start/end
+        /// offset (in seconds) within the shared VideoUrl that this lesson covers.
+        /// Both 0 when the lesson owns its whole video (e.g. single-lesson mode).
+        /// </summary>
+        public int StartTimeSeconds { get; set; } = 0;
+        public int EndTimeSeconds { get; set; } = 0;
         public int Order { get; set; } = 0;
         public bool IsPreview { get; set; } = false;
         public bool IsPublished { get; set; } = true;

@@ -14,13 +14,16 @@ namespace Application.Queries.Content.Calendar
     public class GetUpcomingEventsHandler : IRequestHandler<GetUpcomingEventsQuery, IEnumerable<UpcomingEventDto>>
     {
         private readonly IEventRepository _eventRepo;
+        private readonly IEnrollmentRepository _enrollmentRepo;
         private readonly ILogger<GetUpcomingEventsHandler> _logger;
 
         public GetUpcomingEventsHandler(
             IEventRepository eventRepo,
+            IEnrollmentRepository enrollmentRepo,
             ILogger<GetUpcomingEventsHandler> logger)
         {
             _eventRepo = eventRepo;
+            _enrollmentRepo = enrollmentRepo;
             _logger = logger;
         }
 
@@ -34,7 +37,13 @@ namespace Application.Queries.Content.Calendar
                     e => e.StartDateTime >= now,
                     ct);
 
+                var enrolledCourseIds = (await _enrollmentRepo.GetAllAsync(
+                    e => e.UserId == request.UserId, ct))
+                    .Select(e => e.CourseId)
+                    .ToHashSet();
+
                 return events
+                    .Where(e => CalendarEventScope.IsRelevantToUser(e, request.UserId, enrolledCourseIds))
                     .OrderBy(e => e.StartDateTime)
                     .Take(request.Limit)
                     .Select(e => new UpcomingEventDto
@@ -86,5 +95,3 @@ namespace Application.Queries.Content.Calendar
         public bool CanView { get; set; } // If it's an assignment
     }
 }
-        
-

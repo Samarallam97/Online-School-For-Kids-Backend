@@ -17,15 +17,21 @@ namespace Application.Commands.Moderation
     {
         private readonly IReportedContentRepository _reportRepo;
         private readonly ICommentRepository _commentRepo;
+        private readonly Domain.Interfaces.Repositories.IPostRepository _postRepo;
+        private readonly Domain.Interfaces.Repositories.IPostCommentRepository _postCommentRepo;
         private readonly ILogger<TakeModerationActionHandler> _logger;
 
         public TakeModerationActionHandler(
             IReportedContentRepository reportRepo,
             ICommentRepository commentRepo,
+            Domain.Interfaces.Repositories.IPostRepository postRepo,
+            Domain.Interfaces.Repositories.IPostCommentRepository postCommentRepo,
             ILogger<TakeModerationActionHandler> logger)
         {
             _reportRepo = reportRepo;
             _commentRepo = commentRepo;
+            _postRepo = postRepo;
+            _postCommentRepo = postCommentRepo;
             _logger = logger;
         }
 
@@ -43,10 +49,30 @@ namespace Application.Commands.Moderation
                 report.ReviewedAt = DateTime.UtcNow;
                 report.ReviewedBy = request.AdminId;
 
-                // If action is Delete, remove the content
-                if (action == ModerationAction.ContentRemoved && report.ContentType == ContentType.Comment)
+                // If action is Delete, remove the underlying content. The repos below
+                // filter on author-id ownership, so we delete "as" the original author
+                // rather than the admin — the admin's authority to do this at all is
+                // already gated by [Authorize(Roles = "Admin")] on the controller.
+                if (action == ModerationAction.ContentRemoved)
                 {
-                    await _commentRepo.DeleteAsync(report.ContentId, ct);
+                    switch (report.ContentType)
+                    {
+                        case ContentType.Comment:
+                            await _commentRepo.DeleteAsync(report.ContentId, ct);
+                            break;
+
+                        case ContentType.Post:
+                            var post = await _postRepo.GetByIdAsync(report.ContentId, ct);
+                            if (post != null)
+                                await _postRepo.DeleteAsync(report.ContentId, post.AuthorId, ct);
+                            break;
+
+                        case ContentType.PostComment:
+                            var comment = await _postCommentRepo.GetByIdAsync(report.ContentId, ct);
+                            if (comment != null)
+                                await _postCommentRepo.DeleteAsync(report.ContentId, comment.AuthorId, ct);
+                            break;
+                    }
                 }
 
                 await _reportRepo.UpdateAsync(report.Id, report, ct);

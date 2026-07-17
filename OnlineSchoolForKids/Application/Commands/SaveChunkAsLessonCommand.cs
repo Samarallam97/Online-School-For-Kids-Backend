@@ -1,4 +1,5 @@
-﻿using Domain.Entities.Content.Progress;
+﻿using Domain.Entities.Content;
+using Domain.Entities.Content.Progress;
 using Domain.Entities.Content.Quizes;
 using Domain.Interfaces.Repositories.Content;
 using MediatR;
@@ -18,6 +19,18 @@ public class SaveChunkAsLessonCommand : IRequest<SaveChunkAsLessonResponse>
     public string Transcript { get; set; } = string.Empty;
     public int Order { get; set; }
     public bool IsFree { get; set; }
+
+    /// <summary>Creator-adjusted clip boundaries within the source video, "HH:mm:ss" (or "mm:ss").</summary>
+    public string? StartTime { get; set; }
+    public string? EndTime { get; set; }
+
+    /// <summary>
+    /// Lesson length in seconds, supplied by the creator UI: for chunked mode
+    /// this is (endTime - startTime) computed from the chunk's own boundaries;
+    /// for single-lesson mode it's the video element's/YouTube player's total
+    /// duration. Falls back to chunk timestamps server-side if omitted or 0.
+    /// </summary>
+    public int Duration { get; set; }
 }
 
 public class SaveChunkAsLessonResponse
@@ -77,9 +90,11 @@ public class SaveChunkAsLessonHandler
                 SectionId = job.SectionId,
                 Title = request.Title,
                 Description = request.Transcript,
-                Duration = 0,
+                Duration = ResolveDuration(request.Duration, chunk),
                 Order = request.Order,
                 VideoUrl = job.VideoUrl ?? string.Empty,
+                StartTimeSeconds = ParseTimeToSeconds(request.StartTime ?? chunk.StartTime),
+                EndTimeSeconds = ParseTimeToSeconds(request.EndTime ?? chunk.EndTime),
                 IsFree = request.IsFree,
                 IsPublished = true,
                 Materials = new List<Material>(),
@@ -135,4 +150,29 @@ public class SaveChunkAsLessonHandler
 
     private static SaveChunkAsLessonResponse Fail(string msg) =>
         new() { Success = false, Message = msg };
+
+
+
+    private static int ResolveDuration(int requestDuration, VideoChunk chunk)
+    {
+        if (requestDuration > 0) return requestDuration;
+
+        var start = ParseTimeToSeconds(chunk.StartTime);
+        var end = ParseTimeToSeconds(chunk.EndTime);
+        return end > start ? end - start : 0;
+    }
+
+    private static int ParseTimeToSeconds(string? time)
+    {
+        if (string.IsNullOrWhiteSpace(time)) return 0;
+        var parts = time.Split(':');
+        return parts.Length switch
+        {
+            3 => int.Parse(parts[0]) * 3600 + int.Parse(parts[1]) * 60 + int.Parse(parts[2]),
+            2 => int.Parse(parts[0]) * 60 + int.Parse(parts[1]),
+            1 => int.TryParse(parts[0], out var s) ? s : 0,
+            _ => 0
+        };
+    }
+
 }

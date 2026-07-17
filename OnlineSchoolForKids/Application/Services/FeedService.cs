@@ -29,6 +29,8 @@ public interface IFeedService
 
     // Profile posts
     Task<List<PostDto>> GetUserPostsAsync(string authorId, string? viewerId, int page, int pageSize, CancellationToken ct = default);
+
+    Task<PostDto?> UpdatePostAsync(string postId, string requesterId, UpdatePostRequest request, CancellationToken ct = default);
 }
 
 
@@ -84,19 +86,17 @@ public class FeedService : IFeedService
                 .ToList();
         }
 
-        // Following bucket excludes nobody — show own posts in following section too
-        // Public bucket excludes only following + fof authors (NOT the current user's own posts,
-        // because we want the author to see their own public posts in the public section
-        // when they have no followers yet).
-        var excludedFromPublic = followingIds.Concat(fofIds)
-            .Where(s => !string.IsNullOrEmpty(s))
-            .Distinct().ToList();
-
-        // Own posts: show in "following" section so they always appear at top
+        // Own posts always land in the "following" bucket, so keep them out of "public"
+        // to avoid the same post appearing in both sections.
         var ownPostsIds = string.IsNullOrEmpty(currentUserId)
             ? new List<string>()
             : new List<string> { currentUserId };
 
+        var excludedFromPublic = followingIds.Concat(fofIds).Concat(ownPostsIds)
+            .Where(s => !string.IsNullOrEmpty(s))
+            .Distinct().ToList();
+
+        // Following bucket excludes nobody — show own posts in following section too
         var followingWithSelf = followingIds.Concat(ownPostsIds).Distinct().ToList();
 
         var followingPostsTask = _posts.GetByAuthorIdsAsync(followingWithSelf, 0, pageSize, ct);
@@ -370,6 +370,28 @@ public class FeedService : IFeedService
         }).ToList();
     }
 
+    public async Task<PostDto?> UpdatePostAsync(
+    string postId, string requesterId, UpdatePostRequest request, CancellationToken ct = default)
+    {
+        if (request.Content != null && string.IsNullOrWhiteSpace(request.Content))
+            throw new ArgumentException("Post content cannot be empty.");
+
+        string? visibility = request.Visibility == null
+            ? null
+            : (request.Visibility == "private" ? "private" : "public");
+
+        var updated = await _posts.UpdateAsync(
+            postId, requesterId,
+            request.Content?.Trim(), visibility, request.MediaUrls, request.MediaType, ct);
+
+        if (updated == null) return null; // not found, or requester doesn't own it
+
+        var profiles = await _users.GetManyByIdsAsync(new List<string> { updated.AuthorId }, ct);
+        var author = profiles.FirstOrDefault();
+
+        return MapPostDto(updated, author, null, false, false, null, "profile");
+    }
+
     // ── Mappers ───────────────────────────────────────────────────────────────
 
     private static PostDto MapPostDto(
@@ -390,6 +412,7 @@ public class FeedService : IFeedService
             UserReaction   = userReaction,
             CreatedAt      = p.CreatedAt,
             FeedSection    = section,
+            UpdatedAt = p.UpdatedAt,
             Author = author == null ? null : new PostAuthorDto
             {
                 Id                    = author.Id,

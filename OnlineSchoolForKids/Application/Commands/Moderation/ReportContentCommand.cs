@@ -16,13 +16,16 @@ namespace Application.Commands.Moderation
     public class ReportContentHandler : IRequestHandler<ReportContentCommand, bool>
     {
         private readonly IReportedContentRepository _reportRepo;
+        private readonly Domain.Interfaces.Repositories.Users.IUserRepository _userRepo;
         private readonly ILogger<ReportContentHandler> _logger;
 
         public ReportContentHandler(
             IReportedContentRepository reportRepo,
+            Domain.Interfaces.Repositories.Users.IUserRepository userRepo,
             ILogger<ReportContentHandler> logger)
         {
             _reportRepo = reportRepo;
+            _userRepo = userRepo;
             _logger = logger;
         }
 
@@ -30,18 +33,40 @@ namespace Application.Commands.Moderation
         {
             try
             {
-                // Check if already reported by this user
-                var existing = await _reportRepo.GetOneAsync(
+                // Has *this* user already reported this exact content? Don't let them
+                // spam multiple reports for the same thing.
+                var alreadyReportedByMe = await _reportRepo.GetOneAsync(
                     r => r.ContentId == request.Dto.ContentId &&
                          r.ReportedBy == request.UserId,
                     ct);
 
-                if (existing != null)
+                if (alreadyReportedByMe != null)
                     return false; // Already reported
+
+                // Has someone *else* already reported this same content? If so, bump
+                // that existing record's count instead of creating a near-duplicate
+                // entry the admin would have to review twice.
+                var existingFromOthers = await _reportRepo.GetOneAsync(
+                    r => r.ContentId == request.Dto.ContentId &&
+                         (r.Status == ReportStatus.Pending || r.Status == ReportStatus.UnderReview),
+                    ct);
+
+                if (existingFromOthers != null)
+                {
+                    existingFromOthers.ReportCount += 1;
+                    await _reportRepo.UpdateAsync(existingFromOthers.Id, existingFromOthers, ct);
+                    _logger.LogInformation(
+                        "Content re-reported: {ContentId} by User {UserId} (count now {Count})",
+                        request.Dto.ContentId, request.UserId, existingFromOthers.ReportCount);
+                    return true;
+                }
+
+                var reporter = await _userRepo.GetByIdAsync(request.UserId, ct);
 
                 var report = new ReportedContent
                 {
                     ReportedBy = request.UserId,
+                    ReportedByName = reporter?.FullName ?? "Unknown",
                     ContentType = Enum.Parse<ContentType>(request.Dto.ContentType),
                     ContentId = request.Dto.ContentId,
                     ContentTitle = request.Dto.ContentTitle,
@@ -68,8 +93,8 @@ namespace Application.Commands.Moderation
         {
             RuleFor(x => x.ContentType)
                 .NotEmpty().WithMessage("Content type is required")
-                .Must(type => new[] { "Comment", "Course", "Review", "Message" }.Contains(type))
-                .WithMessage("Invalid content type. Must be Comment, Course, Review, or Message");
+                .Must(type => new[] { "Comment", "Course", "Review", "Message", "Post", "PostComment" }.Contains(type))
+                .WithMessage("Invalid content type. Must be Comment, Course, Review, Message, Post, or PostComment");
 
             RuleFor(x => x.ContentId)
                 .NotEmpty().WithMessage("Content ID is required");
@@ -110,5 +135,5 @@ namespace Application.Commands.Moderation
         public string Description { get; set; } = string.Empty;
     }
 
-   
+
 }

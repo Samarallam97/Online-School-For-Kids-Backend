@@ -82,7 +82,7 @@ public class CreateAndLinkChildCommandHandler : IRequestHandler<CreateAndLinkChi
             Country = request.Country,
             ParentId = request.ParentUserId,
             Status = UserStatus.Active,
-            EmailVerified = false, 
+            EmailVerified = false,
             EmailVerificationTokenExpiry = DateTime.UtcNow.AddHours(24),
             EmailVerificationToken = verificationToken,
             IsFirstLogin = true,
@@ -124,7 +124,8 @@ public class CreateAndLinkChildCommandHandler : IRequestHandler<CreateAndLinkChi
             Name = child.FullName,
             Age = age,
             ProfilePictureUrl = child.ProfilePictureUrl,
-            Courses = child.EnrolledCourseIds?.Count ?? 0
+            Courses = child.EnrolledCourseIds?.Count ?? 0,
+            Status = "email_not_verified"
         };
     }
 

@@ -46,6 +46,7 @@ public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand,
         user.PasswordResetToken = null;
         user.PasswordResetTokenExpiry = null;
         user.UpdatedAt = DateTime.UtcNow;
+        user.EmailVerified = true;
 
         await _userRepository.UpdateAsync(user.Id, user, cancellationToken);
 

@@ -33,6 +33,7 @@ public class PostDto
     public DateTime CreatedAt { get; set; }
     public PostAuthorDto? Author { get; set; }
     public string FeedSection { get; set; } = "public"; // "following" | "fof" | "public"
+    public DateTime? UpdatedAt { get; set; }
 }
 
 public class PostCommentDto
@@ -92,4 +93,12 @@ public class FeedResult
     public int Page { get; set; }
     public int PageSize { get; set; }
     public bool HasMore { get; set; }
+}
+
+public class UpdatePostRequest
+{
+    public string? Content { get; set; }
+    public string? Visibility { get; set; }      // "public" | "private"
+    public List<string>? MediaUrls { get; set; }
+    public string? MediaType { get; set; }
 }

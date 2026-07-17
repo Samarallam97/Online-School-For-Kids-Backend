@@ -71,12 +71,12 @@ public class GetUserEnrollmentsQueryHandler
 
                 return new EnrolledCourseDto
                 {
-                    EnrollmentId      = e.Id,
+                    Id                = e.Id,
                     CourseId          = course.Id,
                     Title             = course.Title,
-                    Instructor        = course.Instructor?.FullName ?? string.Empty,
-                    Thumbnail         = course.ThumbnailUrl,
-                    Progress          = (int)Math.Round(e.Progress),
+                    InstructorName    = course.Instructor?.FullName ?? string.Empty,
+                    ThumbnailUrl      = course.ThumbnailUrl,
+                    ProgressPercent   = (int)Math.Round(e.Progress),
                     LastAccessedAt    = e.LastAccessedAt,
                     TotalLessons      = totalLessons,
                     CompletedLessons  = completed,
@@ -85,6 +85,8 @@ public class GetUserEnrollmentsQueryHandler
                     EnrolledAt        = e.EnrollmentDate,
                     IsCompleted       = e.IsCompleted,
                     CompletedAt       = e.CompletedAt,
+                    Rating            = course.Rating,
+                    TotalStudents     = course.TotalStudents,
                 };
             })
             .OrderByDescending(e => e.LastAccessedAt ?? e.EnrolledAt)
@@ -108,12 +110,12 @@ public class GetUserEnrollmentsQueryHandler
 
 public class EnrolledCourseDto
 {
-    public string EnrollmentId { get; set; } = string.Empty;
+    public string Id { get; set; } = string.Empty;
     public string CourseId { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
-    public string Instructor { get; set; } = string.Empty;
-    public string? Thumbnail { get; set; }
-    public int Progress { get; set; }   // 0-100
+    public string InstructorName { get; set; } = string.Empty;
+    public string? ThumbnailUrl { get; set; }
+    public int ProgressPercent { get; set; }   // 0-100
     public DateTime? LastAccessedAt { get; set; }
     public int TotalLessons { get; set; }
     public int CompletedLessons { get; set; }
@@ -122,4 +124,6 @@ public class EnrolledCourseDto
     public DateTime EnrolledAt { get; set; }
     public bool IsCompleted { get; set; }
     public DateTime? CompletedAt { get; set; }
+    public decimal Rating { get; set; }
+    public int TotalStudents { get; set; }
 }

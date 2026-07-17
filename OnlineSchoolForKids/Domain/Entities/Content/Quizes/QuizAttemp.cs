@@ -1,30 +1,36 @@
 ﻿using Domain.Entities.Users;
 using Domain.Enums.Content;
-namespace Domain.Entities.Content.Quizes
+namespace Domain.Entities.Content.Quizes;
+
+/// <summary>
+/// Records one student attempt at a lesson quiz (one difficulty level).
+/// Students may retake any quiz — each attempt creates a new record.
+/// </summary>
+public class QuizAttempt : BaseEntity
 {
-    public class QuizAttempt : BaseEntity
-    {
-        public string QuizId { get; set; } = string.Empty;
-        public string UserId { get; set; } = string.Empty;
-        public string CourseId { get; set; } = string.Empty;
-        public int AttemptNumber { get; set; } = 1;
-        public QuizAttemptStatus Status { get; set; } = QuizAttemptStatus.InProgress;
-        public DateTime StartedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? CompletedAt { get; set; }
-        public DateTime? ExpiresAt { get; set; }
-        public List<QuizAnswer> Answers { get; set; } = new();
-        public decimal? Score { get; set; } // Percentage
-        public int? TotalPoints { get; set; }
-        public int? EarnedPoints { get; set; }
-        public bool? Passed { get; set; }
-        public int? TimeSpent { get; set; } // Seconds
-        public Quiz? Quiz { get; set; }
-        public User? User { get; set; }
-    }
+    public string UserId { get; set; } = string.Empty;
+    public string CourseId { get; set; } = string.Empty;
+    public string LessonId { get; set; } = string.Empty;
 
+    /// <summary>"easy" | "medium" | "hard"</summary>
+    public string Difficulty { get; set; } = string.Empty;
 
+    /// <summary>0–100 percentage score</summary>
+    public decimal? Score { get; set; }
 
-    
+    public int CorrectAnswers { get; set; }
+    public int TotalQuestions { get; set; }
+
+    public bool Passed { get; set; }
+    public DateTime CompletedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>Per-question breakdown stored for the review screen.</summary>
+    public List<QuizAttemptAnswer> Answers { get; set; } = new();
 }
 
-
+public class QuizAttemptAnswer
+{
+    public int QuestionIndex { get; set; }
+    public int SelectedAnswer { get; set; }
+    public bool IsCorrect { get; set; }
+}

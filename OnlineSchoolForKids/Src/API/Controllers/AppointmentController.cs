@@ -96,6 +96,18 @@ public class AppointmentController : ControllerBase
         return NoContent();
     }
 
+    // ── PUT /api/Appointment/{id}/confirm ─────────────────────────────────────
+    // Specialist only — accepts a pending request (manual confirm, no payment
+    // step here; the student-initiated flow goes through confirm-pay instead).
+    [HttpPut("{id}/confirm")]
+    [Authorize(Roles = "Specialist")]
+    public async Task<IActionResult> Confirm(string id, CancellationToken ct)
+    {
+        await _mediator.Send(new UpdateAppointmentStatusCommand(
+            UserId, id, AppointmentStatus.Confirmed), ct);
+        return NoContent();
+    }
+
     // ── PUT /api/Appointment/{id}/complete ────────────────────────────────────
     // Specialist only — marks the session as done.
     [HttpPut("{id}/complete")]

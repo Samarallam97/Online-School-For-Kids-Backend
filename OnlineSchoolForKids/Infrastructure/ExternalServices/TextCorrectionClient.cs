@@ -16,7 +16,7 @@ public class TextCorrectionClient : ITextCorrectionClient
         _http = http;
         _logger = logger;
         _http.BaseAddress = new Uri(config["TextCorrectionApi:BaseUrl"]
-            ?? "https://text-correction-api.example.com");
+            ?? "https://correction-production.up.railway.app");
         _http.Timeout = TimeSpan.FromMinutes(2);
     }
 

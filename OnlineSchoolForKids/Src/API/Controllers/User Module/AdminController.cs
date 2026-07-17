@@ -20,6 +20,13 @@ public class AdminController : ControllerBase
 
     public AdminController(IMediator mediator) => _mediator = mediator;
 
+    [HttpGet("dashboard-stats")]
+    public async Task<IActionResult> GetDashboardStats(CancellationToken ct)
+    {
+        var result = await _mediator.Send(new GetAdminDashboardStatsQuery(), ct);
+        return Ok(result);
+    }
+
     [HttpGet("security-settings")]
     public async Task<IActionResult> GetSecuritySettings(CancellationToken ct)
     {

@@ -1,5 +1,6 @@
 ﻿using Application.Commands;
 using Application.Commands.Course;
+using Application.Queries;
 using Application.Queries.Content;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -23,7 +24,7 @@ namespace API.Controllers
             _logger = logger;
         }
         [HttpGet]
-        public async Task<ActionResult<PagedResult<GetCoursesDto>>> GetCourses([FromQuery] GetCoursesQuery query)
+        public async Task<ActionResult<Application.Queries.Content.PagedResult<GetCoursesDto>>> GetCourses([FromQuery] GetCoursesQuery query)
         {
             try
             {
@@ -327,6 +328,53 @@ namespace API.Controllers
                 });
             }
         }
+
+
+        // ── GET /api/course/filters ────────────────────────────────────────────────
+        [HttpGet("filters")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetFilters(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var query = new GetCourseFiltersQuery();
+                var result = await _mediator.Send(query, cancellationToken);
+                return Ok(new { data = result, success = true });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting course filters");
+                return StatusCode(500, new { message = "An error occurred", success = false });
+            }
+        }
+
+        // ── GET /api/course/{courseId}/recommendations ─────────────────────────────
+        [HttpGet("{courseId}/recommendations")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetRecommendations(
+            string courseId,
+            [FromQuery] int topN = 5,
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var query = new GetCourseRecommendationsQuery
+                {
+                    CourseId = courseId,
+                    UserId = userId,
+                    TopN = topN
+                };
+                var result = await _mediator.Send(query, cancellationToken);
+                return Ok(new { data = result, success = true });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting recommendations for {CourseId}", courseId);
+                return StatusCode(500, new { message = "An error occurred", success = false });
+            }
+        }
+
 
     }
 }
