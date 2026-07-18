@@ -10,7 +10,6 @@ using Infrastructure.ExternalServices;
 using Infrastructure.Repositories;
 using Infrastructure.Repositories.Content;
 using Infrastructure.Repositories.Users;
-using Infrastructure.Services;
 using Infrastructure.Services.Shared;
 using Infrastructure.Services.Shared.Payment;
 using Infrastructure.Settings;
@@ -22,7 +21,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Conventions;
-using StackExchange.Redis;
 using System.Text;
 
 namespace Infrastructure;
@@ -97,6 +95,9 @@ public static class DependencyInjection
         services.AddScoped<IFollowRepository, FollowRepository>();
         services.AddScoped<IVideoProcessingJobRepository, VideoProcessingJobRepository>();
         services.AddScoped<IReviewRepository, ReviewRepository>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
+        services.AddScoped<ILiveSessionRepository, LiveSessionRepository>();
+        services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
 
         // Chat
         services.AddScoped<ChatRepository>();
@@ -116,6 +117,8 @@ public static class DependencyInjection
         services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
         services.AddScoped<IFileStorageService, FileStorageService>();
         services.AddScoped<ICouponValidationService, CouponValidationService>();
+        services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<ILiveNotifier, LiveNotifier>();
         services.AddScoped<IFeedService, FeedService>();
         services.AddPaymentProcessors();
 
@@ -130,8 +133,8 @@ public static class DependencyInjection
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme    = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultSignInScheme       = CookieAuthenticationDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
         })
         .AddJwtBearer(options =>
         {
@@ -139,13 +142,13 @@ public static class DependencyInjection
             options.SaveToken = true;
             options.TokenValidationParameters = new TokenValidationParameters
             {
-                ValidateIssuer           = true,
-                ValidateAudience         = true,
-                ValidateLifetime         = true,
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer              = jwtSettings?.Issuer,
-                ValidAudience            = jwtSettings?.Audience,
-                IssuerSigningKey         = new SymmetricSecurityKey(
+                ValidIssuer = jwtSettings?.Issuer,
+                ValidAudience = jwtSettings?.Audience,
+                IssuerSigningKey = new SymmetricSecurityKey(
                     Encoding.UTF8.GetBytes(jwtSettings?.Secret ?? string.Empty)),
                 ClockSkew = TimeSpan.Zero
             };
@@ -171,9 +174,9 @@ public static class DependencyInjection
         .AddCookie()
         .AddGoogle(options =>
         {
-            options.ClientId     = configuration["Google:ClientId"]!;
+            options.ClientId = configuration["Google:ClientId"]!;
             options.ClientSecret = configuration["Google:ClientSecret"]!;
-            options.SaveTokens   = true;
+            options.SaveTokens = true;
             options.ClaimActions.MapJsonKey("picture", "picture");
             options.ClaimActions.MapJsonKey("email_verified", "email_verified");
         });

@@ -54,11 +54,13 @@ public class MongoDbContext
     public IMongoCollection<UserPoints> UserPoints => _database.GetCollection<UserPoints>("userPoints");
     public IMongoCollection<Badge> Badges => _database.GetCollection<Badge>("badges");
     public IMongoCollection<PointTransaction> PointTransactions => _database.GetCollection<PointTransaction>("pointTransactions");
+    public IMongoCollection<Notification> Notifications => _database.GetCollection<Notification>("notifications");
 
+    public IMongoCollection<LiveSession> LiveSessions => _database.GetCollection<LiveSession>("liveSessions");
 
     public IMongoCollection<Post> Posts => _database.GetCollection<Post>("posts");
-   public IMongoCollection<PostReaction> PostReactions => _database.GetCollection<PostReaction>("postReactions");
-   public IMongoCollection<PostComment> PostComments => _database.GetCollection<PostComment>("postComments");
+    public IMongoCollection<PostReaction> PostReactions => _database.GetCollection<PostReaction>("postReactions");
+    public IMongoCollection<PostComment> PostComments => _database.GetCollection<PostComment>("postComments");
 
     public IMongoCollection<VideoProcessingJob> VideoProcessingJobs =>
      _database.GetCollection<VideoProcessingJob>("videoProcessingJobs");
@@ -66,6 +68,7 @@ public class MongoDbContext
     public IMongoCollection<Conversation> Conversations => _database.GetCollection<Conversation>("conversations");
     public IMongoCollection<Group> Groups => _database.GetCollection<Group>("groups");
     public IMongoCollection<ChatMessage> ChatMessages => _database.GetCollection<ChatMessage>("chatMessages");
+
 
 
     public IMongoCollection<T> GetCollection<T>(string name)

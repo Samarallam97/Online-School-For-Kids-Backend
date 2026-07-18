@@ -7,38 +7,51 @@ namespace Domain.Entities.Content.Progress
     /// <summary>
     /// Lesson - Represents a single lesson inside a course section
     /// </summary>
-    [BsonIgnoreExtraElements]
     public class Lesson : BaseEntity
     {
         [BsonRepresentation(BsonType.ObjectId)]
         public string CourseId { get; set; } = string.Empty;
+
         [BsonRepresentation(BsonType.ObjectId)]
         public string SectionId { get; set; } = string.Empty;
+
         public string Title { get; set; } = string.Empty;
         public string? Description { get; set; }
         public string VideoUrl { get; set; } = string.Empty;
         public int Duration { get; set; } = 0; // Seconds
-
-        /// <summary>
-        /// For lessons created by chunking a longer source video: the start/end
-        /// offset (in seconds) within the shared VideoUrl that this lesson covers.
-        /// Both 0 when the lesson owns its whole video (e.g. single-lesson mode).
-        /// </summary>
-        public int StartTimeSeconds { get; set; } = 0;
-        public int EndTimeSeconds { get; set; } = 0;
         public int Order { get; set; } = 0;
         public bool IsPreview { get; set; } = false;
         public bool IsPublished { get; set; } = true;
         public bool IsFree { get; set; } = false;
-        public ICollection<Material> Materials { get; set; } = new List<Material>();
 
-        public List<LessonQuiz> Quizzes { get; set; } = new();
+        // -- Live session fields --------------------------------------------------
+        /// <summary>True = this lesson is a live session, not a recorded video.</summary>
+        public bool IsLive { get; set; } = false;
+
+        /// <summary>
+        /// Points to the LiveSession document that holds all live-session state
+        /// (status, channel name, whiteboard URL, viewer count, etc).
+        /// Null until the instructor schedules the live session for this lesson.
+        /// We do NOT duplicate live-session fields here -- LiveSession is the
+        /// single source of truth, looked up via this id.
+        /// </summary>
+        public string? LiveSessionId { get; set; }
+
+        // -- Existing fields --------------------------------------------------
+        public ICollection<Material> Materials { get; set; } = new List<Material>();
 
         // Navigation
         public Course? Course { get; set; }
         public Section? Section { get; set; }
+        public string? QuizId { get; set; }
+        public int StartTimeSeconds { get; set; }
 
-        /// <summary>True once at least one difficulty level has questions.</summary>
-        public bool HasQuiz => Quizzes.Count > 0;
+        public int EndTimeSeconds { get; set; }
+
+        public bool HasQuiz { get; set; }
+
+        public List<LessonQuiz> Quizzes { get; set; } = new();
     }
 }
+
+
